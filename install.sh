@@ -75,14 +75,15 @@ link() {
   linked=$((linked + 1)); CREATED+=("$dest")
 }
 
-# mirror where a displaced item came from, so the rollback is obvious
+# Mirror the displaced item's own path under $HOME, minus the leading dot, so the
+# backup root is walkable and the rollback is a plain reverse `mv`:
+#   ~/.claude/skills/foo  ->  <backup>/claude/skills/foo
+#   ~/.cursor/rules/x.mdc ->  <backup>/cursor/rules/x.mdc
+#   ~/.claude/CLAUDE.md   ->  <backup>/claude/CLAUDE.md
+# Flattening to just "claude" would collide a skill and a rule of the same name.
 backup_subdir() {
-  case "$1" in
-    "$HOME"/.claude/*) echo "claude" ;;
-    "$HOME"/.cursor/*) echo "cursor" ;;
-    "$HOME"/.agents/*) echo "agents" ;;
-    *)                 echo "other"  ;;
-  esac
+  local rel="${1#"$HOME"/.}"
+  if [[ "$rel" == "$1" ]]; then echo "other"; else dirname "$rel"; fi
 }
 
 say "repo:   $REPO"
