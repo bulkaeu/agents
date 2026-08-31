@@ -84,15 +84,21 @@ The tally line first, because it is the part most often read alone:
 
 `12/18 done · 1 in progress · 2 blocked · 1 skipped`
 
-Then the table — **at most 10 rows**. Past that, render an active window:
+Then the table — **at most 10 rows**, in the plan's own three columns.
 
-- the last two `✅` rows,
-- every `🟡` and `⛔` row,
-- every `⏭️` row (they carry reasons that outlive them),
-- the next three `⬜` rows,
+**Which rows.** If the plan has started, render an active window: the last two `✅`, every `🟡` and
+`⛔`, every `⏭️` (their reasons outlive them), and the next three `⬜`. If it has **not** started,
+a scattered window is useless — render the **first 10 rows in order** instead, since the reader is
+looking at a step list, not a status. Either way, put `… N later rows omitted` (or `… N earlier
+rows omitted` for a window) on its own line adjacent to the cut.
 
-with `… N earlier rows omitted` above the window. The cap is what makes this a summary; a 30-row
-table pushes the page past one screen and defeats the skill.
+**Always put the icon in cell 1**, `7 ⛔`, exactly as `plan-progress-section.md` specifies — including
+for an *inferred* table. Inferred describes where the status came from, not how it is formatted, and
+an icon-less table is one `/plan-summary` cannot re-read next time.
+
+**Notes carries notes, never status.** `waiting` in a Notes cell is the icon said twice and the
+actual notes never. If a derived row has no note, leave the cell empty. If the source todo carried
+text worth keeping — a blocker, a constraint — that is what goes there.
 
 ### Where we are
 
@@ -100,8 +106,10 @@ The current step, spelled out — id, what it does, and what it is waiting on. T
 blocker and every `⏭️` with its reason, quoted from the Notes column. **This is the section the skill
 exists for**; when the plan has started, lead the reader here.
 
-If the plan has not started (all `⬜`), replace this section with one line: *"Not started — N steps
-waiting, first is `<id>`."*
+If nothing has run yet, replace this section with one line: *"Not started — N waiting, first is
+`<id>`."* **Count only `⬜` in that N.** A plan with 16 `⬜` and 2 `⛔` is not "18 steps waiting" —
+say *"Not started — 16 waiting, 2 blocked by design, first is `<id>`"*, then list the blockers as
+usual. A count that disagrees with the tally line two paragraphs above discredits both.
 
 ### Verification & exit criteria
 
@@ -122,6 +130,9 @@ Say so plainly in the first line of the Progress section, then:
 3. Offer once: *"Add a conforming `## Progress` table? I can derive N steps from the body."* On a
    yes, write it per `plan-progress-section.md` — with `Edit`/`Write`, never Bash, and matching the
    body's real step boundaries rather than inventing tidier ones.
+
+**Put the offer last** — after the footer, as the closing line. Mid-page it interrupts the summary
+the user actually asked for, and it reads as part of the plan's content rather than as your question.
 
 Do not nag. One offer per invocation.
 
