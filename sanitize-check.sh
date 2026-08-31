@@ -2,9 +2,11 @@
 #
 # Refuse to publish private identifiers. This repo is public.
 #
-# Scans TRACKED files only — never the working tree, so a deliberately-ignored local
-# file (a filled migration profile, a personal tracker config) does not trip the gate
-# on every run.
+# Scans tracked files AND new files not yet staged (git ls-files -co --exclude-standard).
+# Tracked-only would be a blind spot exactly where leaks arrive: a brand-new file is
+# invisible to `git ls-files` until it is staged, so the scan would pass right up to the
+# moment the leak became committable. Ignored files are excluded, so a deliberately-local
+# file does not trip the gate on every run.
 #
 # Terms come from two places:
 #   built-in  generic shapes safe to name in a public file — absolute home paths,
@@ -24,6 +26,9 @@ cd "$REPO" || exit 2
 # \b matters: without it, [A-Z]{2,5}-[0-9]+ matches "ENSE-2" inside "LICENSE-2.0".
 GENERIC='/Users/|\b[A-Z]{2,5}-[0-9]+|gitlab\.com/'
 TERMS_FILE="$REPO/.sanitize-terms"
+# Tracked, unlike .sanitize-terms: these are documented placeholders and boilerplate that
+# legitimately look like the thing being caught. Fixed strings, one per line.
+ALLOW_FILE="$REPO/.sanitize-allow"
 
 pattern="$GENERIC"
 local_count=0
@@ -42,7 +47,12 @@ if [[ "${1:-}" == "--list" ]]; then
 fi
 
 # -I skips binary files; the || true keeps a no-match grep from tripping errexit
-hits="$(git ls-files -z | xargs -0 grep -IniE "$pattern" 2>/dev/null || true)"
+# -co --exclude-standard: tracked + untracked-but-not-ignored. See the blind-spot note above.
+# This script is excluded: it necessarily contains every pattern it searches for.
+hits="$(git ls-files -co --exclude-standard -z \
+  | grep -zv '^sanitize-check\.sh$' \
+  | xargs -0 grep -IniE "$pattern" 2>/dev/null \
+  | { [[ -f "$ALLOW_FILE" ]] && grep -vFf "$ALLOW_FILE" || cat; } || true)"
 
 if [[ -n "$hits" ]]; then
   echo "SANITIZE FAILED — private or absolute-path identifiers in tracked files:"
@@ -52,4 +62,4 @@ if [[ -n "$hits" ]]; then
   exit 1
 fi
 
-echo "sanitize clean — $(git ls-files | wc -l | tr -d ' ') tracked files, $local_count local term(s) applied"
+echo "sanitize clean — $(git ls-files -co --exclude-standard | wc -l | tr -d ' ') files scanned, $local_count local term(s) applied"
