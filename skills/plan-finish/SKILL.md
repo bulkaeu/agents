@@ -53,7 +53,7 @@ Then list every repo the work touched — the plan's own paths, the cwd, and any
 | 1 | Scope | Which plan, which repos, which worktrees? |
 | 2 | Checks | Does the project's own full suite pass, every script, by name? |
 | 3 | Commits | Is anything uncommitted, unpushed, or stashed? |
-| 4 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Is every Progress row resolved — **and does every commit have a row?** |
+| 4 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Is every Progress row resolved — **and does every commit have a row?** Does the plan's `**Ticket:**` still match the plan's state? |
 | 5 | Cleanup | Merged branches, stale worktrees, `*.orig`/`*.rej`, scratch files the plan created? |
 
 Area 2 is the one people skip. Enumerate the project's scripts rather than assuming the usual four

@@ -11,8 +11,11 @@ the user is working on).
 
 ## The rule
 
-- **Every plan starts with `## Progress`**, immediately after the H1 and before `## Context`. A plan
-  without one is unfinished, even if the body is complete.
+- **Every plan starts with `## Progress`**, after the H1 and before `## Context`. Exactly one thing
+  may sit between them: the one-line `**Ticket:**` field that `plan-ticket-tracking.md` owns.
+  Nothing else — a plan whose Progress table is below a paragraph of preamble is a plan whose
+  status is not the first thing a reader sees. A plan without a Progress table is unfinished,
+  even if the body is complete.
 - **Write it when the plan is written** — not when execution starts. A plan that has never run is a
   table of `⬜` rows, and that is the useful state: it is the step list the user approves.
 - **Legend line above the table**, verbatim:
@@ -101,6 +104,7 @@ This rule owns **the Progress table**. Siblings own the rest, and none of them d
 - `ui-rendered-files-use-write-tool.md` — which tool writes the file.
 - `no-plan-copies.md` — one topic, one plan file.
 - `plan-mode-edit-plans.md` — that editing a plan needs no permission.
+- `plan-ticket-tracking.md` — whether the plan is tracked, and the `**Ticket:**` line above the table.
 
 The `/plan-summary` skill reads this table, and the `Stop` hook in `~/.claude/settings.json` counts
 `⬜`/`🟡` rows to nag about unfinished work. Both depend on the first cell being `<id> <icon>` — a

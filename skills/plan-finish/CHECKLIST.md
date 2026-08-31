@@ -107,6 +107,21 @@ Two different questions, and the second is the one that finds things:
 earlier in the session — it may predate edits made since, and you will report a defect that was
 already fixed, or miss one that was introduced.
 
+### The ticket is a doc too
+
+If the plan carries a `**Ticket:**` line with an identifier, read that issue and compare:
+
+| Plan says | Ticket says | Finding |
+| --- | --- | --- |
+| every row `✅` | still open / In Progress | Drift — the work is done and the tracker does not know |
+| rows still `⬜`/`🟡` | closed | Drift the other way — closed early, or the plan is stale |
+| `**Ticket:** none` | — | Nothing to check |
+| no `**Ticket:**` line | — | Predates the rule. Note it; do not retro-file |
+
+**Report only.** Moving, closing, or reassigning an issue is a destructive edit and stays gated on an
+explicit yes — `plan-ticket-tracking.md` owns that boundary. Propose the transition and the command;
+do not perform it as part of the audit.
+
 ## Area 5 — Cleanup
 
 ```bash

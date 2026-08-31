@@ -69,6 +69,16 @@ the plan is complete — say so in one line rather than printing a "where we are
 
 Print to chat. Never write it to a file unless asked.
 
+### Ticket
+
+The plan's `**Ticket:**` line, verbatim, as the first thing after the heading — a reader asking "where
+are we" needs the tracker id in the same breath as the answer.
+
+**Report all three of its forms, including the empty one.** `**Ticket:** none — not tracked` is
+information; silently omitting the section when the plan is untracked is not, because the reader
+cannot then tell "untracked" from "the summary forgot to look". If the plan has no `**Ticket:**` line
+at all, say *"no ticket field — predates `plan-ticket-tracking.md` or was never asked"*.
+
 ### What
 
 Two or three sentences from `## Context`: the problem, and the intended outcome. Not the approach.

@@ -4,6 +4,10 @@
 # its place is skills/migrate/examples/express-v1-to-nest-v2.md.
 skills/migrate/examples/tap-api-v1-to-v2.md
 
+# Private scan terms for sanitize-check.sh — the names this repo must never publish.
+# Gitignored on purpose: putting them in a tracked file would publish them.
+.sanitize-terms
+
 # Backup roots written by install.sh, if ever run from inside the checkout
 .agents-config-backup-*/
 

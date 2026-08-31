@@ -73,6 +73,7 @@ short and each one owns exactly one thing.
 | Rule | Owns |
 | --- | --- |
 | `plan-progress-section.md` | Every plan opens with a `## Progress` table, and how it is kept current |
+| `plan-ticket-tracking.md` | Whether a plan is tracked in an issue tracker, and how the answer is recorded |
 | `plan-atomic-todos.md` | How finely a plan step is cut |
 | `no-plan-copies.md` | One topic, one plan file |
 | `plan-mode-edit-plans.md` | Plan files are edited without asking permission |
@@ -85,20 +86,34 @@ short and each one owns exactly one thing.
   `plan-finish/CHECKLIST.md`, `migrate/RULES.md`. One level of references, no deeper.
 - **Bundle a skill's helper scripts inside that skill** and resolve their paths at runtime. A
   hardcoded install path breaks the moment someone clones this somewhere else.
-- **Rules stay short.** Under ~50 lines. State the failure mode, not just the rule, and say which
-  sibling rule owns the neighbouring concern so the two never drift into contradiction.
+- **Rules stay short — most under ~50 lines.** A rule governing a recurring artifact (the Progress
+  table, ticket tracking) earns more, but every line past that should be a failure mode, not a
+  restatement. State the failure mode, not just the rule, and say which sibling rule owns the
+  neighbouring concern so the two never drift into contradiction.
 - **Keep the frontmatter.** `alwaysApply: true` on rules is what makes Cursor load them; Claude
   ignores it harmlessly.
 - **Edit the repo copy, never a symlink.**
 
 ## Sanitization
 
-**This repo is public.** Nothing here may name a private workspace's repo layout, hostnames, bucket
-names, ticket prefixes, or absolute paths. Before pushing:
+**This repo is public.** Nothing here may name a private workspace, project, hostname, ticket
+identifier, or absolute path. One command checks it:
 
 ```bash
-git ls-files -z | xargs -0 grep -niE 'TAP-[0-9]+|/Users/|gitlab\.com/'
+bash sanitize-check.sh
 ```
+
+It scans **tracked files only**, so a deliberately-gitignored local file does not trip it on every
+run. Terms come from two places:
+
+| Terms | Where | Published |
+| --- | --- | --- |
+| Generic shapes — home paths, tracker-style ids, a git host | built into the script | yes, and harmless |
+| The actual names this checkout must not leak | `.sanitize-terms`, gitignored | no |
+
+`.sanitize-terms` is one extended-regex per line and is absent on a fresh clone — the generic check
+still applies, and nobody else's machine needs the file. Keeping those terms out of a tracked file is
+the point: a scan pattern that names the thing it protects publishes it.
 
 `~/.claude/settings.json` is deliberately **not** in this repo — it carries org-internal hosts and
 inventory paths. `skills/migrate/examples/tap-api-v1-to-v2.md` is a filled profile for a private
