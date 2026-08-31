@@ -1,0 +1,10 @@
+# Local-only, never published: a filled migration profile naming a private workspace's
+# repo layout and ticket prefix. It stays on disk so /migrate can still use it, but the
+# repo is public — see README "Sanitization". The generic worked example that ships in
+# its place is skills/migrate/examples/express-v1-to-nest-v2.md.
+skills/migrate/examples/tap-api-v1-to-v2.md
+
+# Backup roots written by install.sh, if ever run from inside the checkout
+.agents-config-backup-*/
+
+.DS_Store
