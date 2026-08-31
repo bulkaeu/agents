@@ -30,6 +30,11 @@ cat package.json | python3 -c 'import json,sys;print("\n".join(json.load(sys.std
 | Go | `Makefile`, CI config | `gofmt -l .`, `go vet ./...`, `go test ./...`, `go build ./...` |
 | Python | `pyproject.toml`, `tox.ini` | `ruff format --check`, `ruff check`, `mypy`, `pytest` |
 | Make-driven | `Makefile` targets | `make check` or the individual targets it calls |
+| Shell / docs | no manifest at all | `bash -n` each tracked script, `shellcheck`, any installer's `--dry-run`; formatter only if one is configured |
+
+**No manifest is not no checks.** A repo of shell and markdown still has a runnable suite — syntax
+checks, a linter, an idempotent script's dry run. Run what exists and name it. Report "no project
+suite" as a finding about the *repo*, never as a reason the Checks row is green by default.
 
 **`format:check` is its own step.** Where ESLint loads `eslint-plugin-prettier`, formatting shows up
 as a lint error *for the files ESLint parses* — which makes it easy to believe `lint` covers
@@ -79,8 +84,28 @@ Drift is a doc that names something the diff **renamed or removed**, or a docume
 flags changed. A doc that simply does not mention new internals is not drift — do not manufacture
 work.
 
-Also check the plan itself: any row still `⬜` or `🟡` after the work is done is either an unfinished
-step or a stale table. Both need resolving before the plan can close.
+### The plan's own table is a doc too
+
+Two different questions, and the second is the one that finds things:
+
+1. **Is every row resolved?** A row still `⬜`/`🟡` after the work is done is an unfinished step or a
+   stale table.
+2. **Does every commit have a row?** Walk the commits the work produced and check each is accounted
+   for:
+
+   ```bash
+   git log --reverse --format='%h %s' <plan-start>..HEAD | while read -r c rest; do
+     grep -q "$c" "<plan-file>" && echo "ok   $c" || echo "MISS $c  $rest"
+   done
+   ```
+
+   A commit with no row is work that happened and was never recorded — invisible to the first
+   question, because the rows that *do* exist are all ticked. Watch for the near-miss too: a row
+   describing the work but naming no hash, which happens when the row is written before the commit.
+
+**Re-read the plan from disk before auditing it.** Do not audit a copy carried in context from
+earlier in the session — it may predate edits made since, and you will report a defect that was
+already fixed, or miss one that was introduced.
 
 ## Area 5 — Cleanup
 
