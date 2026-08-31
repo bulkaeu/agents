@@ -51,6 +51,17 @@ sitting in the first cell after the step id.
 | ⛔ | blocked |
 | ⏭️ | skipped |
 
+### Legacy tables
+
+Plans written before `plan-progress-section.md` put the icon in its own `Status` column:
+`| # | Phase | Status | Date | Notes |`. **Read those too** — several existing plans use it, and
+refusing to parse them makes the skill useless on exactly the plans most worth summarizing.
+
+Rule: if any table row contains one of the five icons in *any* cell, treat that table as the
+Progress table. Take the step name from the first non-numeric text cell and the notes from the last.
+Do not offer to convert the format — the summary is read-only, and a working table in an old shape
+is not a defect.
+
 Tally each state. **Current step** = the `🟡` row; if none, the first `⬜`. If every row is `✅`/`⏭️`,
 the plan is complete — say so in one line rather than printing a "where we are" section.
 
