@@ -27,6 +27,10 @@ the user is working on).
   | Step | A short kebab-case id, then an em-dash and one line saying what the step does |
   | Notes | Empty while waiting. On completion: what actually happened — counts, versions, paths. On `⛔`/`⏭️`: the reason |
 
+- **Rows stay in execution order.** A step added mid-run goes where it actually ran, not next to the
+  row that inspired it. Appending `E5` beside `E2` because they are both verification produces a
+  table that reads `E1 E2 E5 E3 E4` — every reader then has to reconstruct the real sequence, and
+  `/plan-summary`'s "last rows" window shows the wrong ones. Renumber rather than misplace.
 - **Steps are atomic.** One verb, one done-state. `plan-atomic-todos.md` owns what atomic means;
   this rule owns the table it goes in.
 - **Notes are mandatory for `⛔` and `⏭️`.** A blocked row without a blocker, or a skip without a

@@ -86,11 +86,21 @@ The tally line first, because it is the part most often read alone:
 
 Then the table — **at most 10 rows**, in the plan's own three columns.
 
-**Which rows.** If the plan has started, render an active window: the last two `✅`, every `🟡` and
-`⛔`, every `⏭️` (their reasons outlive them), and the next three `⬜`. If it has **not** started,
-a scattered window is useless — render the **first 10 rows in order** instead, since the reader is
-looking at a step list, not a status. Either way, put `… N later rows omitted` (or `… N earlier
-rows omitted` for a window) on its own line adjacent to the cut.
+**Which rows**, by what state the plan is in:
+
+| Plan state | Render |
+| --- | --- |
+| In progress | An active window: the last two `✅`, every `🟡` and `⛔`, every `⏭️` (their reasons outlive them), the next three `⬜` |
+| Not started | The **first 10 rows in order** — a scattered window is useless when nothing has run; the reader wants the step list |
+| Complete | The **last 10 rows in order** — the most recent work is what a reader returning to a finished plan needs |
+
+**Put the omission marker on the side the cut is on**: `… N earlier rows omitted` *above* the table
+when the rows shown are the later ones, `… N later rows omitted` *below* when they are the earlier
+ones. A marker on the wrong side says the opposite of what happened.
+
+**Never reorder rows.** Render them in the plan's own order even when the ids run out of sequence.
+The table is the source of truth, and silently sorting it hides a real defect — a misplaced row is
+something the reader should see and fix in the plan, per `plan-progress-section.md`.
 
 **Always put the icon in cell 1**, `7 ⛔`, exactly as `plan-progress-section.md` specifies — including
 for an *inferred* table. Inferred describes where the status came from, not how it is formatted, and
