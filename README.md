@@ -8,10 +8,13 @@ copy step and nothing to keep in sync.
 ## Layout
 
 ```
-skills/     one directory per skill, each with a SKILL.md
-rules/      always-apply rules, one .md each
-claude/     CLAUDE.md — global instructions for Claude Code
-install.sh  links all of the above into ~/.claude, ~/.cursor and ~/.agents
+skills/            one directory per skill, each with a SKILL.md
+rules/             always-apply rules, one .md each
+claude/            CLAUDE.md — global instructions for Claude Code
+install.sh         links all of the above into ~/.claude, ~/.cursor and ~/.agents
+sanitize-check.sh  refuses to publish private identifiers — see Sanitization
+.sanitize-allow    tracked: strings that legitimately look private (placeholders, boilerplate)
+.sanitize-terms    gitignored: the names this checkout must not publish
 ```
 
 ## Install
@@ -103,17 +106,28 @@ identifier, or absolute path. One command checks it:
 bash sanitize-check.sh
 ```
 
-It scans **tracked files only**, so a deliberately-gitignored local file does not trip it on every
-run. Terms come from two places:
+It scans tracked files **and new files not yet staged** (`git ls-files -co --exclude-standard`).
+Tracked-only would be a blind spot exactly where leaks arrive — a brand-new file is invisible to
+`git ls-files` until it is staged, so the scan would pass right up to the moment the content became
+committable. Ignored files are excluded, so a deliberately-local file does not trip it every run.
 
-| Terms | Where | Published |
+Three inputs:
+
+| Input | Where | Published |
 | --- | --- | --- |
 | Generic shapes — home paths, tracker-style ids, a git host | built into the script | yes, and harmless |
 | The actual names this checkout must not leak | `.sanitize-terms`, gitignored | no |
+| Strings that legitimately *look* private | `.sanitize-allow`, tracked | yes |
 
 `.sanitize-terms` is one extended-regex per line and is absent on a fresh clone — the generic check
 still applies, and nobody else's machine needs the file. Keeping those terms out of a tracked file is
 the point: a scan pattern that names the thing it protects publishes it.
+
+`.sanitize-allow` is the opposite — fixed strings, one per line, for content that trips the generic
+pattern but is not a leak: a documented placeholder like `ABC-123`, or Apache's `LICENSE-2.0`. It is
+tracked, because it describes this repo's own content rather than anything private. Add to it only
+when you have confirmed the match is genuinely harmless; it is the one file that can silence the
+gate. The script also skips itself, since it necessarily contains every pattern it searches for.
 
 `~/.claude/settings.json` is deliberately **not** in this repo — it carries org-internal hosts and
 inventory paths. `skills/migrate/examples/tap-api-v1-to-v2.md` is a filled profile for a private
