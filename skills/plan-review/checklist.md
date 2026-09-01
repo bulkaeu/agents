@@ -31,7 +31,13 @@ Use during Step 1 of [SKILL.md](SKILL.md). In Cursor, use alongside `/code-revie
 
 ## Internal consistency
 
-- [ ] Frontmatter todos match the body (same phases, no orphan todos)
+- [ ] Steps match the body — frontmatter todos in Cursor, `## Progress` rows in Claude Code (same
+      phases, no orphan steps)
+- [ ] House plan rules hold: a `## Progress` table exists, sits right after the H1 (only a
+      `**Ticket:**` line may precede it), and its rows are atomic and current
+      (`plan-progress-section.md`, `plan-atomic-todos.md`)
+- [ ] The `**Ticket:**` line records the tracking answer — filed id, `pending — <why>`, or
+      `none — not tracked`; absent only in plans predating `plan-ticket-tracking.md`
 - [ ] Naming conventions are consistent (jobs, resources, paths, env vars)
 - [ ] Cross-references resolve (linked files, section anchors, phase numbers)
 - [ ] No duplicated steps that contradict each other
