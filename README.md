@@ -62,7 +62,7 @@ they run when asked for and not on a guess.
 | Skill | What it does |
 | --- | --- |
 | `plan-summary` | One-page summary of a plan: what, how, and — from its Progress table — exactly where it stands. Read-only. |
-| `plan-finish` | Checks a plan is genuinely done: full check suite, nothing uncommitted or unpushed, docs current, workspace cleaned up. Audits first, acts only on approval. |
+| `plan-finish` | Finishes a plan: audits the check suite, commit state, docs, cleanup and plan state — then fixes what it found and reports what it did. Stops only for destructive, gated, or ambiguous work. |
 | `plan-review` | Reviews and refines a plan until only Very Low findings remain. |
 | `verify-changes` | Stages conversation-related changes, runs code review per repo, summarizes. |
 | `migrate` | Ports HTTP endpoints or cron jobs between two codebases, driven by a per-project profile. |
