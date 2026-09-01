@@ -55,7 +55,11 @@ Anything reversible, in scope, and implied by the word *finish*:
   deploy step must not thereby authorize it.
 - Scratch files, decoys, and probes **this skill or this plan created**.
 - Doc drift it can verify mechanically — a stale count, a missing table row, a renamed path.
-- `git add` and `git commit` of the work in scope.
+- `git add` and `git commit` of the work in scope — **by explicit path, never `git add -A` or
+  `git add .`**. A blanket add stages whatever else appeared in the working tree since the audit:
+  another agent's half-written file, a stray download. It has happened — a sweep published a
+  concurrent session's file, unreviewed and unscanned, in a commit whose message never mentioned it.
+  Between staging and committing, `git status --short` must show only the paths you named.
 - `git push` of those commits to the current branch's existing upstream.
 
 ### What it stops for

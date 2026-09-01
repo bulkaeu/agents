@@ -16,7 +16,7 @@ Iteratively review and refine an implementation plan until only **Very Low** fin
 
 ## Review loop
 
-1. **Review the plan** — via the session's `/code-review` command targeted at the plan file when one exists (see Step 1), else the inlined Review mindset. Print findings before fixing.
+1. **Review the plan** — via the session's `/code-review` command targeted at the plan file when one exists, else the inlined Review mindset (both under Step 1). Print findings before fixing.
 2. **Fix all relevant findings** — edit the plan (Step 2)
 3. If this round found anything above **Very Low** severity → go to step 1
 4. If only **Very Low** findings (or none) → **closing pass**: fix those too (Step 4), then document (Step 5)
@@ -37,7 +37,7 @@ Also read [checklist.md](checklist.md) for a structured pass. When the plan cite
 
 Map findings to the **Severity scale** below. Do not invoke Bugbot, security review, or project MR/local code-review skills — those target repo diffs.
 
-### Step 1 — Cursor
+### With `/code-review` (Cursor or Claude Code — use it whenever the session offers it)
 
 Run **`/code-review`** with the **plan file** as the review target (not the repo diff).
 
@@ -48,13 +48,9 @@ Apply the `/code-review` command instructions verbatim, except:
 - **Output** — use this skill's severity labels and **Round output** format (include **Very Low**)
 - **Edits** — do not change the plan in this step; step 2 handles fixes
 
-If `/code-review` is unavailable, fall back to **Step 1 — Claude Code**.
+### Without `/code-review` — the inlined Review mindset
 
-### Step 1 — Claude Code
-
-If this session offers a `/code-review` skill or command, run it with the **plan file** as the target,
-exactly as the Cursor branch does — same exceptions, same output shape. Only when none is available,
-apply this **Review mindset**:
+Apply these five lenses yourself:
 
 1. **Correctness** — wrong assumptions, impossible sequencing, missing prerequisites
 2. **Behavioral regressions** — steps that break existing flows or skip cutover/rollback
@@ -136,6 +132,10 @@ Append or update a `### Plan review cycle` section in the plan:
 - **Low+ found** — brief list of every finding above Very Low, severity-labelled, or `None`. Low
   findings continue the loop, so a round that found only Lows must not read `None` — that is the
   stop signature
+- **Re-reviewing a plan whose existing log has the old `Medium+ found` header:** rename the header
+  to `Low+ found` in the same edit that appends the new rows — old rows keep their meaning (they
+  never hid Lows behind `None` knowingly), and mixing the two semantics under one header recreates
+  the ambiguity the rename removed
 - **Action** — what was fixed that round, or `Stopped — very low only` / `Stop review cycle`
 - **Very low (fixed at close)** — what the closing pass fixed; **(accepted)** — only deliberate
   tradeoffs, each with the reason it was kept
