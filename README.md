@@ -67,6 +67,7 @@ they run when asked for and not on a guess.
 | `verify-changes` | Stages conversation-related changes, runs code review per repo, summarizes. |
 | `migrate` | Ports HTTP endpoints or cron jobs between two codebases, driven by a per-project profile. |
 | `update-js-libs` | Updates npm/yarn/pnpm dependencies, classifies the bumps, runs the project's checks. |
+| `12factor` | Audits a project against the Twelve-Factor App methodology: grades all 12 factors with file-level evidence and fixes, report in chat. |
 
 ## Rules
 
