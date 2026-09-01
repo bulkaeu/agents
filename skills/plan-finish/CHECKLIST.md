@@ -103,6 +103,12 @@ Two different questions, and the second is the one that finds things:
    question, because the rows that *do* exist are all ticked. Watch for the near-miss too: a row
    describing the work but naming no hash, which happens when the row is written before the commit.
 
+   **A MISS is a question, not a verdict.** In a repo where several agents or plans commit, the
+   range holds commits that are not this plan's work — read the MISSed commit first (`git show
+   --stat`). Another plan's commit is excluded, not backfilled: adding a row for it would
+   misattribute their work to this plan. Only a commit that *is* this plan's work and has no row
+   is the defect.
+
 **Re-read the plan from disk before auditing it.** Do not audit a copy carried in context from
 earlier in the session — it may predate edits made since, and you will report a defect that was
 already fixed, or miss one that was introduced.
