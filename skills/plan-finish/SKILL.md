@@ -4,8 +4,9 @@ description: >-
   Finishes a plan: audits whether it is genuinely done — full check suite green,
   nothing uncommitted or unpushed, docs matching the code, workspace clean, plan
   state accurate — then fixes what it found and reports what it did. Stops only
-  for work that is destructive, gated, or genuinely ambiguous. Use when the user
-  invokes /plan-finish or asks to finish, wrap up, or close out a plan or change.
+  for work that is destructive, gated, ambiguous, or not its own to delete. Use
+  when the user invokes /plan-finish or asks to finish, wrap up, or close out a
+  plan or change.
 disable-model-invocation: true
 argument-hint: "[optional plan path]"
 ---
@@ -31,6 +32,11 @@ Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it befor
   something is not on it, do it — do not invent a reason to ask.
 - **One approval covers a batch.** When you do need a yes, ask once for the whole set: "these four
   things" → one yes → all four. Never turn six worktrees into six prompts.
+- **A harness prompt is not a stop-list item, and not an obstacle to route around.** A `PreToolUse`
+  hook may still prompt on `git add`/`commit` even though this skill treats them as fix-by-default —
+  that prompt is the environment's gate and it is legitimate. Answer it and continue; **never** rephrase
+  a command, chain it, or wrap it to evade a matcher. "Fix by default" governs what you decide to do,
+  never how you get a command past a hook.
 - **A check you did not run is not a check that passed.** If tooling is missing or a script does not
   exist, say so by name. Never let an unrun check read as green.
 - **Report what the commands actually said.** Real counts, real failures. "Tests pass" is not a result.
@@ -40,7 +46,13 @@ Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it befor
 Anything reversible, in scope, and implied by the word *finish*:
 
 - The plan's own `## Progress` table — add missing rows, resolve `⬜`/`🟡`, write the Notes cells.
-- Remaining plan steps that are ordinary work — the plan said to do them and the user said finish.
+- Remaining plan steps that are **reversible and local** — edits, refactors, doc changes, tests, and
+  the commits carrying them. The plan called for them and the user said finish.
+
+  **"Reversible and local" is the test, not "the plan said so".** A plan step that deploys, migrates,
+  publishes, sends, deletes data, or touches anything outside this checkout is *not* ordinary work —
+  it stops, whether or not the plan happened to mark it `BLOCKED`. A plan author who forgot to flag a
+  deploy step must not thereby authorize it.
 - Scratch files, decoys, and probes **this skill or this plan created**.
 - Doc drift it can verify mechanically — a stale count, a missing table row, a renamed path.
 - `git add` and `git commit` of the work in scope.
@@ -98,11 +110,20 @@ Work through the non-green areas in this order, verifying after each:
 2. **Remaining plan steps.** Ordinary work the plan called for — do it. Skip only what the stop-list
    covers.
 3. **Docs.** Fix the drift you can verify. Re-run `format:check` afterwards if it globs markdown.
-4. **Commit**, then **push** to the existing upstream.
-5. **Cleanup.** Delete what this plan created. Leave anything else alone.
-6. **Close the plan.** Resolve every remaining row to `✅`, or `⏭️` with a reason — never leave a row
-   that disagrees with what happened. Write the Notes cells in the same edit. `Edit`/`Write`, never
-   Bash, per `ui-rendered-files-use-write-tool.md`.
+4. **Commit**, then **push**. The commit message describes *the change*, not the plan step — `git log`
+   is read by people who never saw the plan, so "F7 commit-push-f" tells them nothing. Push only to a
+   branch that **already has an upstream**; if it has none, that is a new destination, so stop and
+   offer the exact `git push -u` line rather than choosing a remote.
+5. **Cleanup.** Delete what this plan created; leave anything else alone. Worktrees come out before
+   the branches they hold, or git refuses the branch and leaves a dangling registration.
+6. **Close the plan.** Every row must end resolved — `✅`, or `⏭️` with a reason — and none may
+   disagree with what happened.
+
+   **Update each row as its step finishes, not all of them here.** `plan-progress-section.md` forbids
+   backfilling a batch of rows at a boundary: the table exists to record what was true *when*, and one
+   edit at the end destroys exactly that. This step is the **checkpoint** that confirms nothing was
+   missed, not the moment to write six rows. Notes go in with the icon, `Edit`/`Write` and never Bash,
+   per `ui-rendered-files-use-write-tool.md`.
 
 If something on the stop-list blocks a step, do everything else first, then raise it. A blocked item
 never justifies leaving the fixable ones undone.
@@ -144,7 +165,8 @@ belongs fixed.
 
 **`/plan-finish` after a feature lands** — suite green, 3 uncommitted files, one leftover scratch file
 the plan created. Commits, pushes, deletes the scratch file, ticks the plan, reports in three lines.
-No question asked, because nothing was on the stop-list.
+Nothing on the stop-list, so nothing is put back to the user for a decision — though a `PreToolUse`
+hook may still prompt for the commit itself. That prompt is the environment's, not a stop-list item.
 
 **`/plan-finish` with a stale plan table** — two commits have no Progress row and the README omits a
 file added last commit. All three are mechanical and verifiable: fix them, commit, push, report. This
@@ -156,5 +178,8 @@ audit only*, finishes what it finds.
 **Red suite** — 2 failing specs with an obvious cause: fix, re-run, report the new result, then
 continue. If the cause is not obvious, stop with the failing names and what you tried.
 
-**Merged branches present** — reports them and stops, because it did not create them. One batch
-question with the exact `git branch -d` line, not one prompt per branch.
+**Merged branches present** — finishes everything else first (commit, push, plan rows, its own scratch
+files), *then* raises the branches, because it did not create them. One batch question with the exact
+`git branch -d` line, not one prompt per branch. A stop-list item never holds up the fixable work —
+and note `--merged` lists branches merged into the *current* branch, which is not proof they are
+merged upstream, so present them as candidates rather than as safe deletions.
