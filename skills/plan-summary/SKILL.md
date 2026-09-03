@@ -62,7 +62,9 @@ text cell and the notes from the last. Do not offer to convert the format — th
 read-only, and a working table in an old shape is not a defect.
 
 Tally each state. **Current step** = the `🟡` row; if none, the first `⬜`. If every row is `✅`/`⏭️`,
-the plan is complete — say so in one line rather than printing a "where we are" section.
+the plan is complete — one line says so **in place of the Where-we-are section, with no
+`## Where we are` header at all**. A header wrapping the "complete" line is the section the spec
+said not to print.
 
 ## 3. Render the summary
 
@@ -98,10 +100,15 @@ The tally line first:
 
 `12/18 done · 1 in progress · 2 blocked · 1 skipped`
 
-Then the window: **the last 5 steps implemented and the next 5 to implement** — the trailing `✅`
-rows in table order (most recently done last), then every upcoming `⬜` row up to 5, in order. Mark
-any cut with `… N earlier rows omitted` above and `… N later rows omitted` below. A plan with 10 or
-fewer such rows simply shows them all.
+Then the rows. **First count the window-relevant rows** — trailing `✅` plus upcoming `⬜`. **Ten or
+fewer: show them all, no cut.** Only beyond ten does the window apply: the last 5 implemented (`✅`,
+in table order, most recently done last) and the next 5 to implement (`⬜`, in order). A fresh reader
+verified against this text once cut a 9-row table to 5 because "last 5" led the paragraph — the
+count comes first for exactly that reason.
+
+Mark any cut on the side it happens: `… N earlier rows omitted` **above the table, never after it**
+(the cut precedes the first shown row), `… N later rows omitted` below. Naming the omitted step ids
+inside the marker is welcome — position is the part that must not drift.
 
 **Never reorder rows.** Render them in the plan's own order even when ids run out of sequence — the
 table is the source of truth, and silently sorting it hides a real defect the reader should see and
