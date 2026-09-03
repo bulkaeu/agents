@@ -28,8 +28,9 @@ worktrees and temp files — is the **`/plan-finish`** skill. Its per-ecosystem 
 
 ## Plans
 
-Every plan opens with a `## Progress` table of atomic steps; `rules/plan-progress-section.md` owns
-the format and `/plan-summary` renders a one-pager from it.
+Every plan opens with a plain-language `## Summary` and a `## Progress` table of atomic steps;
+`rules/plan-progress-section.md` owns both formats. `/plan-summary` renders the Summary in full plus
+a technical twin and the last/next 5 steps.
 
 Writing a plan also means asking whether the work should be tracked in an issue tracker and in
 which project — one ticket by default, split only with explicit approval.
