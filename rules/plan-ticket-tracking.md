@@ -36,8 +36,10 @@ rule makes it part of writing the plan.
 - **The ticket's description is the plan's `## Summary`** (plus a pointer to the plan file) — not
   words improvised at filing time. The Summary was written in plain language for exactly the reader
   a ticket has; one text, two homes, no second story. If the Summary changes materially while the
-  ticket is open, update the description to match — an edit to your own ticket's text, not a state
-  change, so it needs no approval gate. (`plan-progress-section.md` owns the Summary section itself;
+  ticket is open, update the description to match — **gate-free only for a ticket this plan filed**:
+  that description is your own text. A ticket *adopted* via update-before-create carries someone
+  else's words — there, propose the new description and get a yes before replacing it, the same
+  courtesy as any destructive edit. (`plan-progress-section.md` owns the Summary section itself;
   `/plan-finish` audits the two for drift.)
 
 ## Record the answer under the H1

@@ -25,6 +25,9 @@ longer — the discipline is per-section weight, not a global line budget.
   as *inferred*. A confident-sounding status that came from guesswork is worse than no status.
 - **Report the plan's own claims as claims.** If a `✅` row says the suite passed, that is what the
   table says — do not restate it as a fact you verified. Use `/plan-finish` to actually verify.
+- **Never re-summarize the whole plan body.** The body is already the long version. With the line
+  cap retired, this rule is the only thing standing between a summary and a second copy of the
+  plan — the technical summary distills the how; it never reproduces sections, phases, or tables.
 
 ## 1. Resolve the plan file
 
@@ -123,8 +126,8 @@ The current step, spelled out — id, what it does, and what it is waiting on. T
 blocker and every `⏭️` with its reason, quoted from the Notes column. **This is the section the skill
 exists for**; when the plan has started, lead the reader here.
 
-If the plan has not started, replace this section with one line — *"Not started — N waiting, first is
-`<id>`."* **Count only `⬜` in that N**: a plan with 16 `⬜` and 2 `⛔` is "16 waiting, 2 blocked by
+If the plan has not started, one line stands **in place of this section, with no `## Where we are`
+header** (the same rule as the complete case): *"Not started — N waiting, first is `<id>`."* **Count only `⬜` in that N**: a plan with 16 `⬜` and 2 `⛔` is "16 waiting, 2 blocked by
 design", never "18 waiting". A count that disagrees with the tally line discredits both.
 
 ### Verification & exit criteria

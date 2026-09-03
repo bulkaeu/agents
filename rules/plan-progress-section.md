@@ -3,7 +3,7 @@ description: Every plan opens with a plain-language Summary and a Progress table
 alwaysApply: true
 ---
 
-# Plans open with a Progress section
+# Plans open with a Summary and a Progress section
 
 Applies in **Cursor** and **Claude Code** whenever creating, iterating on, or executing a plan
 (`~/.claude/plans/*.md`, `~/.cursor/plans/*.plan.md`, `.cursor/plans/*.plan.md`, and any plan markdown
@@ -114,7 +114,8 @@ every row's first cell carries one: `| 1 ✅ |`, `| 3 ⛔ |`.)
 
 ## Ownership
 
-This rule owns **the Progress table**. Siblings own the rest, and none of them duplicates this one:
+This rule owns **the `## Summary` section and the Progress table**. Siblings own the rest, and none
+of them duplicates this one:
 
 - `plan-atomic-todos.md` — how finely a step is cut.
 - `ui-rendered-files-use-write-tool.md` — which tool writes the file.
@@ -123,8 +124,9 @@ This rule owns **the Progress table**. Siblings own the rest, and none of them d
 - `plan-ticket-tracking.md` — whether the plan is tracked, and the `**Ticket:**` line above the
   Summary. When a ticket is filed, its description carries the Summary — that rule consumes the
   section this one owns.
-- `/plan-summary` renders the Summary in full; `/plan-finish` audits a filed ticket's description
-  against it.
+
+Consumers, not owners: `/plan-summary` renders the Summary in full, and `/plan-finish` audits a
+filed ticket's description against it.
 
 The `/plan-summary` skill reads this table, and the `Stop` hook in `~/.claude/settings.json` counts
 `⬜`/`🟡` rows to nag about unfinished work. Both depend on the first cell being `<id> <icon>` — a

@@ -61,7 +61,7 @@ they run when asked for and not on a guess.
 
 | Skill | What it does |
 | --- | --- |
-| `plan-summary` | Summary of a plan: its own plain-language Summary in full, a technical twin, and the last/next 5 steps from its Progress table. Read-only. |
+| `plan-summary` | Summary of a plan: its own plain-language Summary in full, a technical twin, and its recent + upcoming Progress steps (windowed only past 10 rows). Read-only. |
 | `plan-finish` | Finishes a plan: audits the check suite, commit state, docs, cleanup and plan state — then fixes what it found and reports what it did. Stops only for work that is destructive, gated, ambiguous, or not its own to delete. |
 | `plan-review` | Reviews and refines a plan until nothing above Very Low remains, then fixes the remaining nits in a closing pass — only deliberate tradeoffs stay, with reasons. |
 | `verify-changes` | Stages conversation-related changes, runs code review per repo, summarizes. |
