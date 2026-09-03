@@ -1,5 +1,5 @@
 ---
-description: Every plan opens with a Progress table of atomic steps — status icon, name, notes — kept current as work proceeds
+description: Every plan opens with a plain-language Summary and a Progress table of atomic steps, both kept current as work proceeds
 alwaysApply: true
 ---
 
@@ -11,11 +11,21 @@ the user is working on).
 
 ## The rule
 
-- **Every plan starts with `## Progress`**, after the H1 and before `## Context`. Exactly one thing
-  may sit between them: the one-line `**Ticket:**` field that `plan-ticket-tracking.md` owns.
-  Nothing else — a plan whose Progress table is below a paragraph of preamble is a plan whose
-  status is not the first thing a reader sees. A plan without a Progress table is unfinished,
-  even if the body is complete.
+- **Every plan starts with `## Summary` then `## Progress`**, after the H1 and before `## Context`.
+  In order: the optional one-line `**Ticket:**` field that `plan-ticket-tracking.md` owns, then
+  `## Summary`, then the table. Nothing else sits in that opening — free-floating preamble is still
+  forbidden; the Summary *is* the sanctioned preamble, with a shape. A plan missing either section
+  is unfinished, even if the body is complete.
+
+- **The Summary is plain language, scaled to the plan, up to ~30 lines.** A few lines for a small
+  change, a substantial overview for a staged project. It covers *what* is being done, *why*, and
+  the shape of *how*, at a level a reader who will never open the code can follow — no file paths,
+  no command names, no jargon. Status lives in the table and technical detail in the body; the
+  Summary is the narrative a person reads first, and the text a ticket can carry whole.
+  **The cap is a ceiling, not a target** — padding a small plan's summary to 30 lines is the same
+  defect as one line on a six-phase migration: the length stops matching the plan. And like the
+  table, it changes when the plan does: a scope shift that leaves the Summary untrue gets the
+  Summary edit in the same change, because it is the first thing anyone reads.
 - **Write it when the plan is written** — not when execution starts. A plan that has never run is a
   table of `⬜` rows, and that is the useful state: it is the step list the user approves.
 - **Legend line above the table**, verbatim:
@@ -81,6 +91,12 @@ before anything else, not a tidy-up for later. The `Stop` hook in `~/.claude/set
 ## Example
 
 ```markdown
+## Summary
+
+We are speeding up the events page, which now takes several seconds to load for our biggest
+customers. The fix is an index on the events table plus filling in some missing older data, and
+retiring one obsolete column. Nothing changes for users except the speed.
+
 ## Progress
 
 **Legend:** ⬜ waiting · 🟡 in progress · ✅ done · ⛔ blocked · ⏭️ skipped (reason required)
@@ -104,7 +120,11 @@ This rule owns **the Progress table**. Siblings own the rest, and none of them d
 - `ui-rendered-files-use-write-tool.md` — which tool writes the file.
 - `no-plan-copies.md` — one topic, one plan file.
 - `plan-mode-edit-plans.md` — that editing a plan needs no permission.
-- `plan-ticket-tracking.md` — whether the plan is tracked, and the `**Ticket:**` line above the table.
+- `plan-ticket-tracking.md` — whether the plan is tracked, and the `**Ticket:**` line above the
+  Summary. When a ticket is filed, its description carries the Summary — that rule consumes the
+  section this one owns.
+- `/plan-summary` renders the Summary in full; `/plan-finish` audits a filed ticket's description
+  against it.
 
 The `/plan-summary` skill reads this table, and the `Stop` hook in `~/.claude/settings.json` counts
 `⬜`/`🟡` rows to nag about unfinished work. Both depend on the first cell being `<id> <icon>` — a

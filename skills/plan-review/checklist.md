@@ -33,9 +33,12 @@ Use during Step 1 of [SKILL.md](SKILL.md). In Cursor, use alongside `/code-revie
 
 - [ ] Steps match the body — frontmatter todos in Cursor, `## Progress` rows in Claude Code (same
       phases, no orphan steps)
-- [ ] House plan rules hold: a `## Progress` table exists, sits right after the H1 (only a
-      `**Ticket:**` line may precede it), and its rows are atomic and current
+- [ ] House plan rules hold: a `## Summary` and a `## Progress` table exist, in that order right
+      after the H1 (only a `**Ticket:**` line may precede them), rows atomic and current
       (`plan-progress-section.md`, `plan-atomic-todos.md`)
+- [ ] The `## Summary` is plain language (no paths, commands, or jargon), sized to the plan
+      (~30-line ceiling), and still true of the body — a body that outgrew its summary is drift.
+      Absent only in plans predating the rule
 - [ ] The `**Ticket:**` line records the tracking answer — filed id, `pending — <why>`, or
       `none — not tracked`; absent only in plans predating `plan-ticket-tracking.md`
 - [ ] Naming conventions are consistent (jobs, resources, paths, env vars)

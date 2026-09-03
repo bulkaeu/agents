@@ -61,7 +61,7 @@ they run when asked for and not on a guess.
 
 | Skill | What it does |
 | --- | --- |
-| `plan-summary` | One-page summary of a plan: what, how, and — from its Progress table — exactly where it stands. Read-only. |
+| `plan-summary` | Summary of a plan: its own plain-language Summary in full, a technical twin, and the last/next 5 steps from its Progress table. Read-only. |
 | `plan-finish` | Finishes a plan: audits the check suite, commit state, docs, cleanup and plan state — then fixes what it found and reports what it did. Stops only for work that is destructive, gated, ambiguous, or not its own to delete. |
 | `plan-review` | Reviews and refines a plan until nothing above Very Low remains, then fixes the remaining nits in a closing pass — only deliberate tradeoffs stay, with reasons. |
 | `verify-changes` | Stages conversation-related changes, runs code review per repo, summarizes. |
@@ -76,7 +76,7 @@ short and each one owns exactly one thing.
 
 | Rule | Owns |
 | --- | --- |
-| `plan-progress-section.md` | Every plan opens with a `## Progress` table, and how it is kept current |
+| `plan-progress-section.md` | Every plan opens with a plain-language Summary and a `## Progress` table, and how both are kept current |
 | `plan-ticket-tracking.md` | Whether a plan is tracked in an issue tracker, and how the answer is recorded |
 | `plan-atomic-todos.md` | How finely a plan step is cut |
 | `no-plan-copies.md` | One topic, one plan file |

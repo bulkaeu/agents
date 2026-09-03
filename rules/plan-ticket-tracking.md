@@ -33,6 +33,12 @@ rule makes it part of writing the plan.
   same feature splits the history the user tracks against, which is worse than having none.
 - **File once the answer is yes** — while the plan is being written, not after it is approved. The
   user naming the project is the authorization to file.
+- **The ticket's description is the plan's `## Summary`** (plus a pointer to the plan file) — not
+  words improvised at filing time. The Summary was written in plain language for exactly the reader
+  a ticket has; one text, two homes, no second story. If the Summary changes materially while the
+  ticket is open, update the description to match — an edit to your own ticket's text, not a state
+  change, so it needs no approval gate. (`plan-progress-section.md` owns the Summary section itself;
+  `/plan-finish` audits the two for drift.)
 
 ## Record the answer under the H1
 
@@ -66,7 +72,8 @@ unasked, and asks again. Tickets from an approved split all list on the one line
 
 This rule owns **whether a plan is tracked and how the answer is recorded**. Siblings own the rest:
 
-- `plan-progress-section.md` — the Progress table, including where the `**Ticket:**` line sits.
+- `plan-progress-section.md` — the Progress table and the `## Summary` section this rule copies
+  into tickets, including where the `**Ticket:**` line sits.
 - `plan-atomic-todos.md` — how finely a step is cut.
 - `no-plan-copies.md` — one topic, one plan file.
 

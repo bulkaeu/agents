@@ -121,6 +121,7 @@ If the plan carries a `**Ticket:**` line with an identifier, read that issue and
 | --- | --- | --- |
 | every row `✅` | still open / In Progress | Drift — the work is done and the tracker does not know |
 | rows still `⬜`/`🟡` | closed | Drift the other way — closed early, or the plan is stale |
+| every row `✅`, plan has a `## Summary` | description no longer matches the Summary | Drift — the plan's story moved and the tracker still tells the old one. **Report-only**: propose the description update; applying it follows `plan-ticket-tracking.md`'s sync line |
 | `**Ticket:** none` | — | Nothing to check |
 | no `**Ticket:**` line | — | Predates the rule. Note it; do not retro-file |
 

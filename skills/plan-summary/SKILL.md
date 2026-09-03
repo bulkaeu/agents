@@ -1,19 +1,21 @@
 ---
 name: plan-summary
 description: >-
-  Renders a one-page summary of an implementation plan — what it will do, how it
-  will do it, and, when the plan is already in progress, exactly where it stands
-  from its Progress table. Read-only: it reports on a plan, it does not execute
-  one. Use when the user invokes /plan-summary or asks for a summary, overview,
-  recap, or status of a plan.
+  Renders a summary of an implementation plan: the plan's own plain-language
+  Summary in full, a technical summary of the same scale, and where the work
+  stands — recently finished and upcoming steps from its Progress table.
+  Read-only: it reports on a plan, it does not execute one. Use when the user
+  invokes /plan-summary or asks for a summary, overview, recap, or status of
+  a plan.
 disable-model-invocation: true
 argument-hint: "[optional plan path]"
 ---
 
 # Plan summary
 
-One screen that answers three questions about a plan: **what** are we doing, **how**, and — if it has
-started — **where are we**. Nothing else. A summary that runs to two screens has failed at its job.
+Answers three questions about a plan: **what** are we doing (in the plan's own plain words),
+**how** (in technical ones), and **where are we**. Each section is as long as it needs to be and no
+longer — the discipline is per-section weight, not a global line budget.
 
 ## Hard rules
 
@@ -21,7 +23,6 @@ started — **where are we**. Nothing else. A summary that runs to two screens h
   is the offer in *No Progress table* below, and only after the user says yes.
 - **Never invent progress.** If the plan has no Progress table, say so and label anything you derive
   as *inferred*. A confident-sounding status that came from guesswork is worse than no status.
-- **Never re-summarize the whole plan body.** The body is already the long version.
 - **Report the plan's own claims as claims.** If a `✅` row says the suite passed, that is what the
   table says — do not restate it as a fact you verified. Use `/plan-finish` to actually verify.
 
@@ -54,71 +55,60 @@ sitting in the first cell after the step id.
 ### Legacy tables
 
 Plans written before `plan-progress-section.md` put the icon in its own `Status` column:
-`| # | Phase | Status | Date | Notes |`. **Read those too** — several existing plans use it, and
-refusing to parse them makes the skill useless on exactly the plans most worth summarizing.
-
-Rule: if any table row contains one of the five icons in *any* cell, treat that table as the
-Progress table. Take the step name from the first non-numeric text cell and the notes from the last.
-Do not offer to convert the format — the summary is read-only, and a working table in an old shape
-is not a defect.
+`| # | Phase | Status | Date | Notes |`. **Read those too** — refusing to parse them makes the skill
+useless on exactly the plans most worth summarizing. If any table row contains one of the five icons
+in *any* cell, treat that table as the Progress table; take the step name from the first non-numeric
+text cell and the notes from the last. Do not offer to convert the format — the summary is
+read-only, and a working table in an old shape is not a defect.
 
 Tally each state. **Current step** = the `🟡` row; if none, the first `⬜`. If every row is `✅`/`⏭️`,
 the plan is complete — say so in one line rather than printing a "where we are" section.
 
-## 3. Render the one-pager
+## 3. Render the summary
 
 Print to chat. Never write it to a file unless asked.
 
 ### Ticket
 
-The plan's `**Ticket:**` line, verbatim, as the first thing after the heading — a reader asking "where
-are we" needs the tracker id in the same breath as the answer.
+The plan's `**Ticket:**` line, verbatim, first — a reader asking "where are we" needs the tracker id
+in the same breath as the answer. **Report all three of its forms, including the empty one.**
+`**Ticket:** none — not tracked` is information; silently omitting the section when the plan is
+untracked is not, because the reader cannot then tell "untracked" from "the skill forgot to look".
+If the plan has no `**Ticket:**` line at all, say *"no ticket field — predates
+`plan-ticket-tracking.md` or was never asked"*.
 
-**Report all three of its forms, including the empty one.** `**Ticket:** none — not tracked` is
-information; silently omitting the section when the plan is untracked is not, because the reader
-cannot then tell "untracked" from "the summary forgot to look". If the plan has no `**Ticket:**` line
-at all, say *"no ticket field — predates `plan-ticket-tracking.md` or was never asked"*.
+### Summary — the plan's own, in full
 
-### What
+Quote the plan's `## Summary` **verbatim and whole**. It was written in plain language for exactly
+this reader, sized to the plan by `plan-progress-section.md`'s own rule — do not condense it,
+trim it, or restyle it. If the plan predates the rule and has no `## Summary`, derive 2–3 plain
+sentences from `## Context` and label them ***derived** — plan has no Summary section*.
 
-Two or three sentences from `## Context`: the problem, and the intended outcome. Not the approach.
+### Technical summary
 
-### How
-
-5–10 bullets, one per phase or `§` section, in execution order. One line each. If the plan has more
-than 10 phases, group them and say so.
+The same scale as the plan's Summary, written by you from the plan body: the approach, the files
+and systems touched, the key decisions and their reasons — file paths, commands and jargon belong
+here. The Summary above says *what and why* for any reader; this section says *how* for the one who
+will open the code. Scaled like its twin: a few lines for a small plan, more for a staged one,
+never padded.
 
 ### Progress
 
-The tally line first, because it is the part most often read alone:
+The tally line first:
 
 `12/18 done · 1 in progress · 2 blocked · 1 skipped`
 
-Then the table — **at most 10 rows**, in the plan's own three columns.
+Then the window: **the last 5 steps implemented and the next 5 to implement** — the trailing `✅`
+rows in table order (most recently done last), then every upcoming `⬜` row up to 5, in order. Mark
+any cut with `… N earlier rows omitted` above and `… N later rows omitted` below. A plan with 10 or
+fewer such rows simply shows them all.
 
-**Which rows**, by what state the plan is in:
+**Never reorder rows.** Render them in the plan's own order even when ids run out of sequence — the
+table is the source of truth, and silently sorting it hides a real defect the reader should see and
+fix in the plan, per `plan-progress-section.md`.
 
-| Plan state | Render |
-| --- | --- |
-| In progress | An active window: the last two `✅`, every `🟡` and `⛔`, every `⏭️` (their reasons outlive them), the next three `⬜` |
-| Not started | The **first 10 rows in order** — a scattered window is useless when nothing has run; the reader wants the step list |
-| Complete | The **last 10 rows in order** — the most recent work is what a reader returning to a finished plan needs |
-
-**Put the omission marker on the side the cut is on**: `… N earlier rows omitted` *above* the table
-when the rows shown are the later ones, `… N later rows omitted` *below* when they are the earlier
-ones. A marker on the wrong side says the opposite of what happened.
-
-**Never reorder rows.** Render them in the plan's own order even when the ids run out of sequence.
-The table is the source of truth, and silently sorting it hides a real defect — a misplaced row is
-something the reader should see and fix in the plan, per `plan-progress-section.md`.
-
-**Always put the icon in cell 1**, `7 ⛔`, exactly as `plan-progress-section.md` specifies — including
-for an *inferred* table. Inferred describes where the status came from, not how it is formatted, and
-an icon-less table is one `/plan-summary` cannot re-read next time.
-
-**Notes carries notes, never status.** `waiting` in a Notes cell is the icon said twice and the
-actual notes never. If a derived row has no note, leave the cell empty. If the source todo carried
-text worth keeping — a blocker, a constraint — that is what goes there.
+`🟡`, `⛔` and `⏭️` rows are not lost to the window — they carry the reasons, and they all appear in
+**Where we are**.
 
 ### Where we are
 
@@ -126,10 +116,9 @@ The current step, spelled out — id, what it does, and what it is waiting on. T
 blocker and every `⏭️` with its reason, quoted from the Notes column. **This is the section the skill
 exists for**; when the plan has started, lead the reader here.
 
-If nothing has run yet, replace this section with one line: *"Not started — N waiting, first is
-`<id>`."* **Count only `⬜` in that N.** A plan with 16 `⬜` and 2 `⛔` is not "18 steps waiting" —
-say *"Not started — 16 waiting, 2 blocked by design, first is `<id>`"*, then list the blockers as
-usual. A count that disagrees with the tally line two paragraphs above discredits both.
+If the plan has not started, replace this section with one line — *"Not started — N waiting, first is
+`<id>`."* **Count only `⬜` in that N**: a plan with 16 `⬜` and 2 `⛔` is "16 waiting, 2 blocked by
+design", never "18 waiting". A count that disagrees with the tally line discredits both.
 
 ### Verification & exit criteria
 
@@ -142,7 +131,7 @@ Plan path, size, last modified. One line.
 
 ## No Progress table
 
-Say so plainly in the first line of the Progress section, then:
+Say so plainly in the Progress section, then:
 
 1. Derive a best-effort status from whatever the plan does have — `✅` markers in body tables,
    `- [x]` checklists, a `## Status` line — and **label it *inferred*.**
@@ -152,18 +141,19 @@ Say so plainly in the first line of the Progress section, then:
    body's real step boundaries rather than inventing tidier ones.
 
 **Put the offer last** — after the footer, as the closing line. Mid-page it interrupts the summary
-the user actually asked for, and it reads as part of the plan's content rather than as your question.
-
-Do not nag. One offer per invocation.
+the user asked for, and it reads as part of the plan's content rather than as your question. Do not
+nag: one offer per invocation.
 
 ## Examples
 
-**`/plan-summary`** — resolves the active plan, prints the six sections. The user reads the tally and
-the *Where we are* section and stops.
+**`/plan-summary` mid-flight** — ticket line, the plan's 20-line Summary quoted whole, a matching
+technical summary from the body, tally, the last 5 `✅` and next 5 `⬜`, then *Where we are* with the
+one `🟡` and both `⛔` reasons. The user reads the Summary and *Where we are* and stops.
 
-**`/plan-summary ~/.claude/plans/old-migration.md`** — explicit path, no Progress table, 8 body rows
-with `✅`. Prints *"No Progress table — status below is inferred from 8 `✅` markers in the body"*,
-then offers to add one.
+**`/plan-summary` on a pre-rule plan** — no `## Summary`: 2–3 sentences derived from Context,
+labelled *derived*; no Progress table either: status *inferred* from 8 body checkmarks, and the
+add-a-table offer as the closing line.
 
-**A 30-step plan mid-flight** — tally line, `… 14 earlier rows omitted`, then the window: two recent
-`✅`, the `🟡`, both `⛔` rows with their blockers, the `⏭️`, and the next three `⬜`.
+**A 30-step plan, 22 done** — `… 17 earlier rows omitted`, the last 5 `✅`, the next 5 `⬜`,
+`… 3 later rows omitted`, and the blocked row's reason in *Where we are* even though it sits outside
+the window.
