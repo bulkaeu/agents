@@ -51,6 +51,8 @@ a dead link costs them a detour and some trust.
 - **Pull requests and issues** are full URLs, with the owner and repo taken from the remote —
   never a bare `#123`, and never a default repository assumed.
 - **Which tool writes a file** is `ui-rendered-files-use-write-tool.md`.
+- **Collisions with another agent session** over the same file, branch or PR are
+  `shared-state-between-agents.md`.
 
 ## Per-project concretes
 
