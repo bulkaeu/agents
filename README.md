@@ -80,7 +80,7 @@ short and each one owns exactly one thing.
 | `plan-ticket-tracking.md` | Whether a plan is tracked in an issue tracker, and how the answer is recorded |
 | `plan-atomic-todos.md` | How finely a plan step is cut |
 | `no-plan-copies.md` | One topic, one plan file |
-| `plan-mode-edit-plans.md` | Plan files are edited without asking permission |
+| `plan-mode-edit-plans.md` | Plan files are edited without asking permission — and what the harness's own permission gate does to that |
 | `ui-rendered-files-use-write-tool.md` | Which tool writes a file the UI renders |
 | `migration-apply-confirmation.md` | Database migrations are never applied without an explicit yes |
 
