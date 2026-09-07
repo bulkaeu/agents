@@ -80,8 +80,11 @@ short and each one owns exactly one thing.
 | `plan-ticket-tracking.md` | Whether a plan is tracked in an issue tracker, and how the answer is recorded |
 | `plan-atomic-todos.md` | How finely a plan step is cut |
 | `no-plan-copies.md` | One topic, one plan file |
+| `plans-live-in-a-plans-repo.md` | Where plan documents live and how they are published |
 | `plan-mode-edit-plans.md` | Plan files are edited without asking permission — and what the harness's own permission gate does to that |
 | `ui-rendered-files-use-write-tool.md` | Which tool writes a file the UI renders |
+| `file-links-must-resolve.md` | How a file reference is written so the link resolves from the UI's project root |
+| `shared-state-between-agents.md` | Concurrency between agent sessions sharing one checkout, branch, or pull request |
 | `migration-apply-confirmation.md` | Database migrations are never applied without an explicit yes |
 
 ## Contributing to this repo
