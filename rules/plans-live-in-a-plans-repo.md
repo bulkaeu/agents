@@ -89,3 +89,8 @@ This rule owns **where plan documents live and how they are published**. Sibling
 - `plan-ticket-tracking.md` — whether a plan is tracked, and its `**Ticket:**` line.
 - `plan-mode-edit-plans.md` — that editing a plan needs no permission.
 - `ui-rendered-files-use-write-tool.md` — which tool writes the file.
+
+<!-- Canonical copy: bulkaeu/agents → rules/plans-live-in-a-plans-repo.md. install.sh links it to
+     ~/.claude/rules/plans-live-in-a-plans-repo.md and ~/.cursor/rules/plans-live-in-a-plans-repo.mdc. Edit the repo copy,
+     never a symlink. Keep the frontmatter — it is what makes alwaysApply work in Cursor. -->
+

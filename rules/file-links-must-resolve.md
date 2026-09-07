@@ -1,3 +1,8 @@
+---
+description: File references in messages are written so the link resolves from the UI's project root, not the shell's working directory
+alwaysApply: true
+---
+
 # File links must resolve when clicked
 
 Applies to every user-facing message that mentions a file, in Claude Code and Cursor alike.
@@ -59,3 +64,8 @@ a dead link costs them a detour and some trust.
 A project whose layout makes this trap likely — a workspace directory holding several checkouts —
 should record its own prefix in its `AGENTS.md` / `CLAUDE.md`, so no session has to rediscover it.
 This rule owns the principle; the project owns its path.
+
+<!-- Canonical copy: bulkaeu/agents → rules/file-links-must-resolve.md. install.sh links it to
+     ~/.claude/rules/file-links-must-resolve.md and ~/.cursor/rules/file-links-must-resolve.mdc. Edit the repo copy,
+     never a symlink. Keep the frontmatter — it is what makes alwaysApply work in Cursor. -->
+

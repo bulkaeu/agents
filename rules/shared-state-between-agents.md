@@ -1,3 +1,8 @@
+---
+description: Concurrent agent sessions sharing one checkout, branch or PR announce before they change shared state and pin every claim to a revision
+alwaysApply: true
+---
+
 # Shared state between concurrent agents
 
 Applies whenever more than one agent session can touch the same thing at the same time — one
@@ -117,3 +122,8 @@ This rule owns **concurrency between agent sessions**. Siblings own the rest:
 A project whose layout makes collisions likely — several sessions in one checkout — should say so in
 its own `AGENTS.md` / `CLAUDE.md`, including how to tell whether another session is mid-edit. This
 rule owns the discipline; the project owns its concretes.
+
+<!-- Canonical copy: bulkaeu/agents → rules/shared-state-between-agents.md. install.sh links it to
+     ~/.claude/rules/shared-state-between-agents.md and ~/.cursor/rules/shared-state-between-agents.mdc. Edit the repo copy,
+     never a symlink. Keep the frontmatter — it is what makes alwaysApply work in Cursor. -->
+
