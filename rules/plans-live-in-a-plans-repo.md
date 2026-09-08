@@ -33,7 +33,9 @@ is overwritten. These documents outlive the work they describe, so they get a re
   ```
 
 - **Never leave a plan as the only copy in a scratch directory.** Session scratchpads are erased.
-  If a snapshot is worth keeping, it belongs in the repo's `archive/`.
+  If a snapshot is worth keeping, it belongs in the repo's `archive/`. That includes plans about
+  agent tooling itself (rules, skills, harness settings) — they get a project directory in the
+  private plans repo like any other project, not only a Cursor/Claude session file.
 - **The working copy stays where the paths point.** Docs, tickets and agent config reference plan
   files by their existing path; moving them under a per-project prefix locally breaks all of it.
   The prefix exists **only on the remote**, so the two differ by design.
@@ -89,6 +91,7 @@ This rule owns **where plan documents live and how they are published**. Sibling
 - `plan-ticket-tracking.md` — whether a plan is tracked, and its `**Ticket:**` line.
 - `plan-mode-edit-plans.md` — that editing a plan needs no permission.
 - `ui-rendered-files-use-write-tool.md` — which tool writes the file.
+- `plan-yaml-frontmatter.md` — parse Cursor plan YAML before claiming todos are healthy.
 
 <!-- Canonical copy: bulkaeu/agents → rules/plans-live-in-a-plans-repo.md. install.sh links it to
      ~/.claude/rules/plans-live-in-a-plans-repo.md and ~/.cursor/rules/plans-live-in-a-plans-repo.mdc. Edit the repo copy,

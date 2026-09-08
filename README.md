@@ -79,6 +79,7 @@ short and each one owns exactly one thing.
 | `plan-progress-section.md` | Every plan opens with a plain-language Summary and a `## Progress` table, and how both are kept current |
 | `plan-ticket-tracking.md` | Whether a plan is tracked in an issue tracker, and how the answer is recorded |
 | `plan-atomic-todos.md` | How finely a plan step is cut |
+| `plan-yaml-frontmatter.md` | After plan edits, YAML-parse Cursor frontmatter before claiming todos are healthy |
 | `no-plan-copies.md` | One topic, one plan file |
 | `plans-live-in-a-plans-repo.md` | Where plan documents live and how they are published |
 | `plan-mode-edit-plans.md` | Plan files are edited without asking permission — and what the harness's own permission gate does to that |
