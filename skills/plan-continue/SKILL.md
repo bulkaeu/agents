@@ -60,6 +60,9 @@ For every row, compare what the table claims against what actually exists:
 | Row | Checked against |
 | --- | --- |
 | `✅` | Commits since the previous `✅` in each repo; the working tree; on-disk artifacts for rows outside a repo; and whether its Notes cell records an **auditable result** rather than restating the step name |
+| `🟡` | Re-verified from scratch. A crashed run leaves this icon behind — never assume it finished, and never assume it did not |
+| `⛔` | Re-attempted **only** if the blocker is demonstrably gone. Otherwise it stays parked, reason intact |
+| `⬜` | Nothing to check — it is the work ahead |
 
 **The auditable bar is low on purpose: does the Note carry at least one thing you could go and
 check?** A path, a count, a sha, a version, a byte size, a timing. `Wrote out/alpha.txt, 6 B` clears
@@ -68,9 +71,6 @@ corrections — a cold reader applying a stricter reading turned one real drift 
 
 **A thin Note is not a correction.** The icon is right; only the prose is weak. Note it in the
 report as an observation and move on — never repair a row whose work actually happened.
-| `🟡` | Re-verified from scratch. A crashed run leaves this icon behind — never assume it finished, and never assume it did not |
-| `⛔` | Re-attempted **only** if the blocker is demonstrably gone. Otherwise it stays parked, reason intact |
-| `⬜` | Nothing to check — it is the work ahead |
 
 **Repair the table to match reality**, then **name every correction in the report**: which row, what
 the table claimed, what you found. A silent repair is indistinguishable from a table that was right
