@@ -52,6 +52,29 @@ the user is working on).
   suites green, `format:check` clean" is. A `✅` whose note only restates the step name is a `✅` no
   one can audit later.
 
+### Markers the executing skills read
+
+`/plan-build` and `/plan-continue` run a table unattended, so a few words in the Step cell carry
+meaning. Write them exactly:
+
+| Marker | Use it for |
+| --- | --- |
+| `BLOCKED — wait for user: <what>` | A step that needs the user's action or explicit yes — an apply, a cutover, a run only they can do. `BLOCKED — wait for user confirmation: <what>` is the same marker |
+| `hand-off row` | A step that prints work for the user to do outside the run; the run ends there and resumes with `/plan-continue` |
+| `(⏭️ if <condition>)` | A skip you allow in advance — "fix the findings (`⏭️` if the check was clean)" |
+
+**Closed, parked, open.** `✅` and `⏭️` rows are *closed*; `⛔` rows are *parked*; `⬜` and `🟡` are
+*open*. A plan is complete when every row is closed.
+
+### Optional sections after the body
+
+- **`## Verification`** — the plan's own acceptance checks, each one able to fail. A check that
+  runs during a step is recorded in that step's Notes; the close-out reads it there rather than
+  re-running it.
+- **`## Run log`** — written by an executing skill, not by hand: rulings it made on your behalf,
+  review findings it deferred, the run's starting commits. It lives in the file so it survives a
+  long run's context being summarised.
+
 ## Keeping it current — this is the part that gets skipped
 
 A Progress table is only worth having if it is true *right now*. A table updated in one batch at the
@@ -65,7 +88,7 @@ end is a changelog, not a progress tracker, and it was useless during the only w
 | A step finishes | `🟡` → `✅`, **and write the Notes cell in the same edit** |
 | A step is blocked | → `⛔` with the blocker named in Notes |
 | A step is skipped | → `⏭️` with the reason in Notes |
-| A phase completes | Confirm every row in it is resolved before starting the next |
+| A phase completes | Confirm every row in it is closed or parked — none left open — before starting the next |
 | Scope changes | Add, split, or retire rows in the same edit that changes the body |
 
 **Rules for those edits:**

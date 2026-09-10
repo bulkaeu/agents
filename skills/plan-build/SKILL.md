@@ -16,8 +16,10 @@ A plan that has been approved and then executed one permission prompt at a time 
 approving. This skill takes a plan whose steps are all still waiting and works it to the last row,
 stopping only where stopping is the correct answer.
 
-Read [RULES.md](RULES.md) now — it is the safety surface and this file assumes it. The loop and the
-close-out are [EXECUTION.md](EXECUTION.md).
+Read [RULES.md](RULES.md) and [the stop-list](../plan-shared/STOPS.md) now — together they are the
+safety surface, and this file assumes both. The loop and the close-out are
+[EXECUTION.md](EXECUTION.md); shared terms and the plan ladder are
+[CONVENTIONS.md](../plan-shared/CONVENTIONS.md).
 
 **For a plan already part-way through, this is the wrong skill.** Use `/plan-continue`, which
 reconciles the table against reality before resuming.
@@ -36,17 +38,9 @@ Working slowly is a cost; working around the harness is a breach.
 
 ## 1. Resolve the plan
 
-In order, stopping at the first hit:
-
-1. A path or `@`-mention in the invocation.
-2. The session's active plan file, or the only plan touched this session.
-3. The project's own plan directory: walk up from cwd to the nearest `.claude/settings*.json` that
-   sets `plansDirectory`, resolved against **the directory holding that settings file** — often not
-   a git toplevel. Else `plans/` under the git toplevel, if it exists.
-4. Most recently modified in `~/.claude/plans/`, `~/.cursor/plans/`, `.cursor/plans/`.
-
-Two or more plausible → list them with mtimes and **stop**. Never guess: executing the wrong plan is
-not a mistake you can take back.
+The ladder in `CONVENTIONS.md`. This skill executes, so **at the last rung it lists the candidates
+and stops** rather than picking the most recent — and two or more plausible at any rung means list
+and stop. Never guess: executing the wrong plan is not a mistake you can take back.
 
 Read the whole file. The body is where the steps are actually specified.
 
@@ -57,7 +51,7 @@ All four, before any work:
 | Check | On failure |
 | --- | --- |
 | A conforming `## Progress` table exists | Offer **once** to derive one from the body, then stop |
-| Every row is `⬜` (or `⏭️`) | It is a resume — say so, point at `/plan-continue`, offer once to proceed anyway |
+| Every row is `⬜` (or `⏭️`), bar author-parked `⛔` rows | It is a resume — say so, point at `/plan-continue`, offer once to proceed anyway |
 | No concurrent session | Report what you found and stop |
 | Repository scope known | Proceed; *no repo* is a state, not a failure |
 
@@ -71,6 +65,11 @@ paths, the cwd, and anything in `git worktree list` — and check each. Rows who
 outside any repository are verified on disk, not by `git log`. **No repository in scope is a state,
 not an error**: the concurrency check reports *no repo* and passes.
 
+**Author-parked rows are not a resume.** A `⛔` the plan's author wrote before any run — the
+pending-ticket row `plan-ticket-tracking.md` requires is the usual one — passes this check. It is
+listed as already parked, and the run starts at the first `⬜`. A `⛔` whose Notes record a run's
+blocker, or any `🟡`/`✅`, is a resume.
+
 These two pre-flight offers are outside rule 1's one-question budget, which governs execution.
 
 ## 3. `--dry-run`
@@ -79,13 +78,14 @@ Pre-flight only. Prints:
 
 - the **verdict** — would run from row *N*, or refuses because …;
 - the ***will park*** list — rows whose step text carries the explicit `BLOCKED` marker, printed on
-  both verdicts including a refusal;
+  both verdicts including a refusal — and, before it, any author-parked `⛔` rows as *already
+  parked*;
 - and **writes nothing**.
 
 Rows that merely *depend* on a marked row are not listed: dependent parking is an execution-time
 consequence of rule 2, and a dry run is a text scan, not a simulation.
 
-State plainly, every time, that the other stop-list categories — deploys, migrations, deletions,
+State plainly, every time, that the other stop-list categories — deploys, migrations, sends, deletions,
 judgement calls — are recognised at execution time from what a step actually does. **A clean
 dry-run is not clearance.**
 
@@ -99,6 +99,7 @@ Report shape — follow it, so two runs on the same plan are comparable:
 /plan-build --dry-run · <plan file>
 Verdict:  would run from row <n>   |   REFUSED — <why>
 Pre-flight: table <pass/fail> · all-⬜ <pass/fail> · concurrency <pass/no repo> · scope <…>
+Parked:   row <n> <step-id> — already parked by the author: <its Notes>
 Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
            (dependents are not listed; they park at execution under rule 2)
 A clean dry-run is not clearance. Nothing written.
@@ -126,8 +127,9 @@ asked nothing after the initial approval.
 whatever depended on it parked with *depends on 8*. Close-out runs on what landed. One closing
 question, with the exact deploy command, so a yes is one word.
 
-**A plan with a migration and a deploy** — two questions, not one: the batch, and the migration on
-its own with its exact command. Rule 1 forbids folding the second into the first.
+**A plan with a migration and a deploy** — each asked on its own with its exact command, never folded
+into a batch: `STOPS.md` puts both in the asked-alone set. With one other parked row, that is three
+questions — the migration, the deploy, and a batch of one.
 
 **`/plan-build` on a part-done table** — refuses, names the `✅` rows it found, points at
 `/plan-continue`, and offers once to proceed anyway. It does not silently re-run finished steps.

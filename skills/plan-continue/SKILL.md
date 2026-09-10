@@ -25,7 +25,9 @@ The contract and the loop live in the **`plan-build` directory beside this one**
 exception to bundling, because two copies of a safety contract drift and the drift is silent:
 
 - `${CLAUDE_SKILL_DIR}/../plan-build/RULES.md` — read it **now**, before anything else.
+- `${CLAUDE_SKILL_DIR}/../plan-shared/STOPS.md` — the stop-list `RULES.md` defers to; read it now too.
 - `${CLAUDE_SKILL_DIR}/../plan-build/EXECUTION.md` — the loop, hand-off rows, close-out, report.
+- `${CLAUDE_SKILL_DIR}/../plan-shared/CONVENTIONS.md` — the plan ladder, markers and terms.
 
 On a host that does not set that variable, the same relative path from this file's own directory.
 `install.sh` links every skill into the same parent, so the sibling is present under any normal
@@ -38,10 +40,8 @@ Identical to `/plan-build`. In plan mode → call `ExitPlanMode`; otherwise noth
 
 ## 1. Resolve the plan
 
-The same ladder as `/plan-build` and `/plan-status`: explicit path or `@`-mention → the session's
-active plan → the project's `plansDirectory` (resolved against the settings file's own directory),
-else `plans/` under the git toplevel → most recent in `~/.claude/plans/`, `~/.cursor/plans/`,
-`.cursor/plans/`. Two or more plausible → list with mtimes and stop.
+The ladder in `CONVENTIONS.md`. This skill executes, so at the last rung it lists the candidates and
+stops rather than picking one; two or more plausible at any rung → list with mtimes and stop.
 
 ## 2. Repository scope
 
@@ -50,8 +50,8 @@ Before reconciling, list every repo the plan touches — its own paths, the cwd,
 `git log`. **No repository in scope is a state, not an error.** Work that is done but not yet
 committed is verified from the working tree; absence of a commit is not absence of the work.
 
-Run the concurrency check here too: another session's dirty tree or leftover sequencer means stop
-and report, not clean up.
+Run `plan-build`'s concurrency check (its `SKILL.md` §2) here too: another session's dirty tree or
+leftover sequencer means stop and report, not clean up.
 
 ## 3. Reconcile — the part that earns the skill
 
@@ -65,9 +65,8 @@ For every row, compare what the table claims against what actually exists:
 | `⬜` | Nothing to check — it is the work ahead |
 
 **The auditable bar is low on purpose: does the Note carry at least one thing you could go and
-check?** A path, a count, a sha, a version, a byte size, a timing. `Wrote out/alpha.txt, 6 B` clears
-it; `Wrote the file` does not. Set the bar higher and a healthy table fills with spurious
-corrections — a cold reader applying a stricter reading turned one real drift into three.
+check?** — the *auditable Note* in `CONVENTIONS.md`. Set the bar higher and a healthy table fills
+with spurious corrections.
 
 **A thin Note is not a correction.** The icon is right; only the prose is weak. Note it in the
 report as an observation and move on — never repair a row whose work actually happened.
@@ -79,7 +78,7 @@ all along, and the difference is the whole point.
 **A hand-off row already `✅` is accepted as done.** Its evidence is the run that printed it, which
 by design left no commit and no artifact; reverting it would re-enter the hand-off forever.
 
-**Rule 3's evidenced-action clause matters most here.** A `BLOCKED — wait for user` row whose
+**`STOPS.md`'s evidenced-action clause matters most here.** A `BLOCKED — wait for user` row whose
 awaited action is already evidenced — in this session's context, or on disk — is verified and
 ticked, not parked. The marker gates the action, not the bookkeeping after it.
 

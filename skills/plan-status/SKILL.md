@@ -31,18 +31,9 @@ six. `/plan-summary` already renders the long form; reaching for prose here defe
 
 ## 1. Resolve the plan
 
-In order, stopping at the first hit:
-
-1. A path or `@`-mention in the invocation.
-2. The session's active plan file, or the only plan touched this session.
-3. The project's own plan directory: walk up from cwd to the nearest `.claude/settings*.json` that
-   sets `plansDirectory`, and resolve that value against **the directory holding that settings
-   file** — which is often not a git toplevel. If none sets one, `plans/` under the git toplevel,
-   if it exists.
-4. Most recently modified in `~/.claude/plans/`, `~/.cursor/plans/`, `.cursor/plans/`.
-
-Two or more plausible → list them with mtimes and stop. A status of the wrong plan is
-indistinguishable from a status of the right one until it misleads.
+The ladder in [CONVENTIONS.md](../plan-shared/CONVENTIONS.md), all four rungs — this skill is
+read-only, so its last rung may pick the most recent plan. Two or more plausible at a rung → list
+them with mtimes and stop.
 
 ## 2. Read three cheap sources
 
@@ -52,9 +43,8 @@ indistinguishable from a status of the right one until it misleads.
 | `git status --short` and `git log --oneline -5` | The `Session` line |
 | What this session actually did | Whether the plan is moving right now |
 
-Run git in the plan's own repository; if the plan is not inside one, the cwd's. Legacy tables that
-put the icon in its own `Status` column count too — if any row carries one of the five icons in any
-cell, that is the Progress table.
+Run git in the plan's own repository; if the plan is not inside one, the cwd's. Legacy tables count
+too, read as `CONVENTIONS.md` describes.
 
 ## 3. Print this shape
 
@@ -72,12 +62,13 @@ Field rules, so two runs on the same plan match:
 
 - **`<plan name>`** is the **filename stem** (`fixture-inflight`), never the H1 — an H1 is often a
   sentence and swamps the line.
-- **`<ticket, condensed>`** is the identifier alone (`ABC-123`). A plan whose ticket line says
-  `none` renders `no ticket`; a plan with no ticket line at all renders `no ticket field`.
+- **`<ticket, condensed>`** is the identifier alone (`ABC-123`), also when the line writes it as a
+  link, `[ABC-123](<url>)`. A plan whose ticket line says `none` renders `no ticket`; `pending`
+  renders `ticket pending`; no ticket line at all renders `no ticket field`.
 - **`Doing`** is the `🟡` row; with no `🟡` it is the first `⬜`, and the clause says so — *waiting,
   nothing in flight* — because "Doing" otherwise overstates.
-- **`Next`** lists the rows *after* `Doing`, by row id, never re-listing `Doing` itself. Row ids,
-  not ordinals: `1)` `2)` tells the reader nothing they can look up.
+- **`Next`** lists the rows *after* `Doing`, by **row id** (`CONVENTIONS.md`), never re-listing
+  `Doing` itself. Ids, not ordinals: `1)` `2)` tells the reader nothing they can look up.
 
 `Blocked` is omitted entirely when nothing is `⛔` — an empty label reads as a fact you checked and
 is one more line than the reader needed.

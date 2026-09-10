@@ -9,10 +9,12 @@ copy step and nothing to keep in sync.
 
 ```
 skills/            one directory per skill, each with a SKILL.md
+skills/plan-shared/  files the plan-* skills share — not a skill, so no SKILL.md
 rules/             always-apply rules, one .md each
 claude/            CLAUDE.md — global instructions for Claude Code
 install.sh         links all of the above into ~/.claude, ~/.cursor and ~/.agents
 sanitize-check.sh  refuses to publish private identifiers — see Sanitization
+check-plan-skills.sh  static checks for the plan-* skills — see Contributing
 .sanitize-allow    tracked: strings that legitimately look private (placeholders, boilerplate)
 .sanitize-terms    gitignored: the names this checkout must not publish
 ```
@@ -72,6 +74,11 @@ they run when asked for and not on a guess.
 | `update-js-libs` | Updates npm/yarn/pnpm dependencies, classifies the bumps, runs the project's checks. |
 | `12factor` | Audits a project against the Twelve-Factor App methodology: grades all 12 factors with file-level evidence and fixes, report in chat. |
 
+`skills/plan-shared/` is not a command. It holds what the six `plan-*` skills share, each in one
+place: `STOPS.md` (the stop-list), `CONVENTIONS.md` (how a plan is found and read, the severity
+scale) and `scripts/table-claims.sh` (checks a Progress table's shas and paths against git and
+disk). `install.sh` links it beside the skills, which is what lets them reach it.
+
 ## Rules
 
 Every `.md` in `rules/` is loaded automatically by both agents, always-apply. They are deliberately
@@ -94,7 +101,13 @@ short and each one owns exactly one thing.
 ## Contributing to this repo
 
 - **Keep `SKILL.md` under ~200 lines.** Detail goes in a sibling `.md` linked from it —
-  `plan-finish/CHECKLIST.md`, `migrate/RULES.md`. One level of references, no deeper.
+  `plan-finish/CHECKLIST.md`, `migrate/RULES.md`. One level of references, no deeper — with two
+  named exceptions: the `plan-*` skills read `plan-shared/`, and `plan-build`'s close-out reads
+  `plan-finish`'s files. Both are one hop to a sibling directory, never a chain.
+- **Run `bash check-plan-skills.sh` after touching any `plan-*` skill, `plan-shared/`, or the plan
+  rules.** It checks line counts, frontmatter, that the ladder and stop-list live in one place,
+  links, time-sensitive wording, the severity scale and `RULES.md`'s pinned headings, then runs
+  `sanitize-check.sh`. `--root <dir>` points it at a copy of the repo.
 - **Bundle a skill's helper scripts inside that skill** and resolve their paths at runtime. A
   hardcoded install path breaks the moment someone clones this somewhere else.
 - **Rules stay short — most under ~50 lines.** A rule governing a recurring artifact (the Progress

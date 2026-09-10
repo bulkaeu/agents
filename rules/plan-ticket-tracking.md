@@ -55,10 +55,16 @@ One line, directly under the H1 and above `## Progress`:
 **The "no" line is not optional.** Without it the next session finds no field, treats the question as
 unasked, and asks again. Tickets from an approved split all list on the one line.
 
+The identifier may be written as a link — `[ABC-123](<issue url>)` — and every plan skill reads both
+forms. **The pending row is parked by the author**, not by a run: a brand-new plan whose only
+non-`⬜` row is that `⛔` has still not started, and `/plan-build` runs it rather than treating it as
+a resume.
+
 ## Once a ticket exists
 
-- **Every commit for that plan starts with the identifier** — `ABC-123: <what changed>`. No ticket
-  means no prefix; this rule never invents one.
+- **Every commit for that plan starts with the identifier** — `ABC-123: <what changed>`, including
+  commits an executing skill (`/plan-build`, `/plan-continue`, `/plan-finish`) makes on the plan's
+  behalf. No ticket means no prefix; this rule never invents one.
 - **Never invent or guess an identifier.** Resolve it through the tracker and use what comes back. A
   wrong id silently attaches work to someone else's ticket.
 - **Confirm the destination before filing.** A tracker tool answering is not proof it points at the

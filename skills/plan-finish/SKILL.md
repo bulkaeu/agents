@@ -21,22 +21,20 @@ finishes the job** — it fixes what the audit found and reports what it did.
 the user to authorize one at a time costs them the time the skill exists to save. If the audit found
 it and it is reversible and in scope, fix it.
 
-Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it before the audit.
+Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it before the audit, with
+[the stop-list](../plan-shared/STOPS.md) and [CONVENTIONS.md](../plan-shared/CONVENTIONS.md).
 
 ## Hard rules
 
 - **Audit fully, then act.** Complete the whole read-only audit before changing anything — fixing as
   you go means acting without the full picture. But once the audit is done, *act*: the report is the
   record of what you did, not a request for permission to start.
-- **Fix by default; stop only for the listed exceptions.** The stop-list below is exhaustive. If
-  something is not on it, do it — do not invent a reason to ask.
-- **One approval covers a batch.** When you do need a yes, ask once for the whole set: "these four
-  things" → one yes → all four. Never turn six worktrees into six prompts.
-- **A harness prompt is not a stop-list item, and not an obstacle to route around.** A `PreToolUse`
-  hook may still prompt on `git add`/`commit` even though this skill treats them as fix-by-default —
-  that prompt is the environment's gate and it is legitimate. Answer it and continue; **never** rephrase
-  a command, chain it, or wrap it to evade a matcher. "Fix by default" governs what you decide to do,
-  never how you get a command past a hook.
+- **Fix by default; stop only for `STOPS.md`.** That list is exhaustive. If something is not on it,
+  do it — do not invent a reason to ask.
+- **One approval covers a batch** — except `STOPS.md`'s asked-alone set, each of which is asked on
+  its own. Otherwise ask once for the whole set: "these four things" → one yes → all four. Never
+  turn six worktrees into six prompts.
+- **A harness prompt is not a stop** (`STOPS.md`): answer the hook and continue.
 - **A check you did not run is not a check that passed.** If tooling is missing or a script does not
   exist, say so by name. Never let an unrun check read as green.
 - **Report what the commands actually said.** Real counts, real failures. "Tests pass" is not a result.
@@ -49,39 +47,27 @@ Anything reversible, in scope, and implied by the word *finish*:
 - Remaining plan steps that are **reversible and local** — edits, refactors, doc changes, tests, and
   the commits carrying them. The plan called for them and the user said finish.
 
-  **"Reversible and local" is the test, not "the plan said so".** A plan step that deploys, migrates,
-  publishes, sends, deletes data, or touches anything outside this checkout is *not* ordinary work —
-  it stops, whether or not the plan happened to mark it `BLOCKED`. A plan author who forgot to flag a
-  deploy step must not thereby authorize it.
+  **"Reversible and local" is the test, not "the plan said so"** — a step on `STOPS.md`'s list stops
+  whether or not the plan marked it `BLOCKED`.
 - Scratch files, decoys, and probes **this skill or this plan created**.
 - Doc drift it can verify mechanically — a stale count, a missing table row, a renamed path.
 - `git add` and `git commit` of the work in scope — **by explicit path, never `git add -A` or
   `git add .`**. A blanket add stages whatever else appeared in the working tree since the audit:
-  another agent's half-written file, a stray download. It has happened — a sweep published a
-  concurrent session's file, unreviewed and unscanned, in a commit whose message never mentioned it.
-  Between staging and committing, `git status --short` must show only the paths you named.
+  another agent's half-written file, a stray download. Between staging and committing,
+  `git status --short` must show only the paths you named.
 - `git push` of those commits to the current branch's existing upstream.
 
 ### What it stops for
 
-Exhaustive. Everything else is a fix, not a question.
-
-| Stop | Why |
-| --- | --- |
-| `git push --force`, deleting a remote branch, `git reset --hard`, amending a pushed commit | Destroys work or published history |
-| Deleting a branch, worktree, or file **it did not create** | Not its to delete |
-| Database migration apply/rollback | `migration-apply-confirmation.md` owns this; needs an explicit yes |
-| Closing, reassigning, or deleting a tracker issue | `plan-ticket-tracking.md` owns this — creating is authorised, destructive edits are not |
-| A step the plan itself marks `BLOCKED` or waiting on the user | The plan already said to stop |
-| A red check whose fix is not obvious, or a doc change needing a judgment call on wording or scope | Guessing produces work the user has to undo |
-| Anything outward-facing to a *new* destination — first push of a new repo, publishing, filing into a tracker not yet agreed | Approval for one destination is not approval for another |
-
-When you stop, say what you were about to do and the exact command, so a yes is one word.
+Everything on [`STOPS.md`](../plan-shared/STOPS.md), and nothing else. When you stop, say what you
+were about to do and the exact command, so a yes is one word.
 
 ## 1. Scope
 
-Resolve the plan with the same ladder as `plan-summary`: explicit path or `@`-mention → the session's
-active plan → most recently modified in `~/.claude/plans/`, `~/.cursor/plans/`, `.cursor/plans/`.
+Resolve the plan with the ladder in `CONVENTIONS.md`. This skill commits and pushes, so it **never
+picks a plan by recency**: at the last rung, or with two or more plausible at any rung, list the
+candidates with mtimes and offer a repo-only audit instead — the user names a plan, or takes the
+audit.
 
 **If no plan resolves, do not stop and ask.** Audit the current repo anyway, skip the Progress check
 in area 4, and label the report *no plan — repo audit only*. "Is this change done?" is a first-class

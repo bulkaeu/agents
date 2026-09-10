@@ -12,9 +12,14 @@ Applies whenever creating, editing, or iterating on Cursor/Claude plans (`~/.cur
 - Each atomic step is **one** completable action (one verb, one clear done-state). The step lives
   in **frontmatter todos** in Cursor and in the **`## Progress` table** in Claude (see
   `plan-progress-section.md`); the same granularity rule governs both.
+- **The done-state must be observable** — something a reader, or an executing agent, can check
+  without asking you: a file that exists, a count, an exit code, a command's output. "Improve the
+  error handling" has none; "`npm test` green with the new `retry.spec.ts`" has one. A step an
+  executor cannot verify is a step it has to guess about.
 - **Do NOT** pack multiple steps into one todo (no “do A; then B; also C”).
 - Prefer splitting prep / implement / docs / blocked-apply / verify into separate todos.
-- Use `BLOCKED — wait for user confirmation: …` as its own todo when apply/cutover needs an explicit yes.
+- A step that needs the user's explicit yes — an apply, a cutover — is its own todo, carrying the
+  `BLOCKED — wait for user` marker that `plan-progress-section.md` spells out.
 
 ```text
 ❌ BAD: Export template; backup keys; write AL2023 template; update docs

@@ -5,8 +5,8 @@ description: >-
   Summary in full, a technical summary of the same scale, and where the work
   stands — recently finished and upcoming steps from its Progress table.
   Read-only: it reports on a plan, it does not execute one. Use when the user
-  invokes /plan-summary or asks for a summary, overview, recap, or status of
-  a plan.
+  invokes /plan-summary or asks for a summary, overview or recap of a plan —
+  a one-glance status is /plan-status.
 disable-model-invocation: true
 argument-hint: "[optional plan path]"
 ---
@@ -31,38 +31,17 @@ longer — the discipline is per-section weight, not a global line budget.
 
 ## 1. Resolve the plan file
 
-In order, stopping at the first hit:
-
-1. A path or `@`-mention in the invocation → use it.
-2. The session's active plan file, or the only plan touched this session.
-3. Most recently modified in `~/.claude/plans/`, `~/.cursor/plans/`, `.cursor/plans/`.
-
-If two or more are plausible, **list the candidates with their mtimes and stop**. Never guess — a
-summary of the wrong plan is indistinguishable from a summary of the right one until it misleads.
+The ladder in [CONVENTIONS.md](../plan-shared/CONVENTIONS.md), all four rungs — the same plan
+`/plan-status` would pick. This skill is read-only, so its last rung may pick the most recent plan.
+If two or more are plausible at a rung, **list the candidates with their mtimes and stop**.
 
 Read the whole file, including frontmatter.
 
 ## 2. Parse the Progress table
 
-Per `plan-progress-section.md`, rows look like `| A1 ✅ | step-id — description | notes |`, the icon
-sitting in the first cell after the step id.
-
-| Icon | State |
-| --- | --- |
-| ⬜ | waiting |
-| 🟡 | in progress |
-| ✅ | done |
-| ⛔ | blocked |
-| ⏭️ | skipped |
-
-### Legacy tables
-
-Plans written before `plan-progress-section.md` put the icon in its own `Status` column:
-`| # | Phase | Status | Date | Notes |`. **Read those too** — refusing to parse them makes the skill
-useless on exactly the plans most worth summarizing. If any table row contains one of the five icons
-in *any* cell, treat that table as the Progress table; take the step name from the first non-numeric
-text cell and the notes from the last. Do not offer to convert the format — the summary is
-read-only, and a working table in an old shape is not a defect.
+Rows, icons and legacy tables are read as `CONVENTIONS.md` describes — including legacy tables that
+put the icon in a `Status` column. Do not offer to convert one: the summary is read-only, and a
+working table in an old shape is not a defect.
 
 Tally each state. **Current step** = the `🟡` row; if none, the first `⬜`. If every row is `✅`/`⏭️`,
 the plan is complete — one line says so **in place of the Where-we-are section, with no
@@ -105,9 +84,8 @@ The tally line first:
 
 Then the rows. **First count the window-relevant rows** — trailing `✅` plus upcoming `⬜`. **Ten or
 fewer: show them all, no cut.** Only beyond ten does the window apply: the last 5 implemented (`✅`,
-in table order, most recently done last) and the next 5 to implement (`⬜`, in order). A fresh reader
-verified against this text once cut a 9-row table to 5 because "last 5" led the paragraph — the
-count comes first for exactly that reason.
+in table order, most recently done last) and the next 5 to implement (`⬜`, in order). The count
+comes first so a nine-row table is never cut to five.
 
 Mark any cut on the side it happens: `… N earlier rows omitted` **above the table, never after it**
 (the cut precedes the first shown row), `… N later rows omitted` below. Naming the omitted step ids
@@ -122,8 +100,10 @@ fix in the plan, per `plan-progress-section.md`.
 
 ### Where we are
 
-The current step, spelled out — id, what it does, and what it is waiting on. Then every `⛔` with its
-blocker and every `⏭️` with its reason, quoted from the Notes column. **This is the section the skill
+The current step, spelled out — row id, what it does, and what it is waiting on. Then every `⛔` with
+its blocker and every `⏭️` with its reason, quoted from the Notes column. If the plan has a
+`## Run log`, add its rulings and deferred findings, one line each — they are decisions a run made
+on the reader's behalf. **This is the section the skill
 exists for**; when the plan has started, lead the reader here.
 
 If the plan has not started, one line stands **in place of this section, with no `## Where we are`

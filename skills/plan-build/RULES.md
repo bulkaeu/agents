@@ -4,9 +4,9 @@ The safety surface of `/plan-build` and `/plan-continue`. Both `SKILL.md` files 
 first, before resolving a plan. `EXECUTION.md` restates inline only the rules it enforces; this is
 the canonical wording.
 
-The stop table below is **reproduced in full** rather than cited. A rules file that sends you to a
-second file to learn what you may not do is a two-hop read, and a partially-read rules file is how a
-gate gets silently skipped.
+**The stop-list itself lives in [`../plan-shared/STOPS.md`](../plan-shared/STOPS.md)** — one file
+shared with `plan-finish`, so the two can never disagree. Read it now, with this one; rules 1, 3 and
+4 below are defined by it.
 
 ## 1. Uninterrupted by default
 
@@ -14,14 +14,8 @@ Ordinary, reversible, in-scope work is simply done. Handing back a list of small
 the user to authorise one at a time costs them the time these skills exist to save.
 
 During execution the run asks **at most one question, after close-out**, covering the whole parked
-set — **except the irreversible-outward set, which is asked one item at a time**. A database
-migration apply or rollback, a deploy, and a publish to a live surface are never folded into the
-batch: each is listed separately with its exact command, because a yes to "these six things" is
-exactly the blanket approval `migration-apply-confirmation.md` refuses to accept — and a deploy is
-no more recoverable than a migration. Everything else parked goes in the one batch.
-
-So a run with four parked rows, one of them a deploy, asks **two** questions: the batch of three,
-and the deploy on its own. Not four, and not one.
+set — **except the asked-alone set in `STOPS.md`**, each of which is asked on its own with its
+exact command.
 
 Pre-flight offers (derive a Progress table? proceed on a part-done plan?) sit outside this budget —
 they happen before execution starts.
@@ -36,53 +30,14 @@ The one sanctioned halt is a **hand-off row**, defined in `EXECUTION.md`.
 
 ## 3. The stop-list
 
-Exhaustive. Everything else is work, not a question.
-
-| Stop | Why |
-| --- | --- |
-| `git push --force`, deleting a remote branch, `git reset --hard`, amending a pushed commit | Destroys work or published history |
-| Deleting a branch, worktree, or file **neither this run nor the plan it is executing** created | Not its to delete |
-| Database migration apply/rollback | `migration-apply-confirmation.md` owns this; needs an explicit yes, asked on its own |
-| Closing, reassigning, or deleting a tracker issue | `plan-ticket-tracking.md` owns this — creating is authorised, destructive edits are not |
-| A step the plan itself marks `BLOCKED` or waiting on the user | The plan already said to stop |
-| A red check whose fix is not obvious, or a doc change needing a judgment call on wording or scope | Guessing produces work the user has to undo |
-| Anything outward-facing to a *new* destination — first push of a new repo, publishing, filing into a tracker not yet agreed | Approval for one destination is not approval for another |
-| **Deploying** — shipping to any running environment | Promoted from `plan-finish`'s prose; not ordinary work whatever the plan says |
-| **Publishing to a live surface** — a package registry, a public site, a shared channel | Same; the audience cannot be un-notified |
-
-Pushing to a branch's **existing upstream** stays ordinary, exactly as in `plan-finish`. So do
-`git add` and `git commit` of work in scope, by explicit path.
-
-### Origin, and the three deliberate divergences
-
-This table comes from `plan-finish`'s. Three rows differ on purpose:
-
-1. **Deploys** — promoted from its prose (*"a plan step that deploys, migrates, publishes, sends,
-   deletes data… stops"*) into a row of its own.
-2. **Publishing to a live surface** — promoted from the same sentence.
-3. **The deletion row, widened** from *"it did not create"* to *"neither this run nor the plan it is
-   executing"*. A resumed run must be able to delete what an earlier session of the same plan
-   created; the narrow reading parks every cleanup step that crosses a session boundary.
-
-That sentence's *"touches anything outside this checkout"* is deliberately **not** promoted — it
-would park every step that writes under `~/`, which is ordinary and reversible.
-
-**For every other row: if this table and `plan-finish`'s ever differ, `plan-finish` wins and this
-file is the one to fix.**
-
-### Evidenced action
-
-A `BLOCKED — wait for user` row whose awaited action is **already evidenced** — in this session's
-context, or on disk — is *verified and ticked*, not parked. The marker gates the action, not the
-bookkeeping after it. A migration someone already applied still may not be re-run; recording that it
-happened is not running it.
+`STOPS.md`, in full — including its evidenced-action clause: a `BLOCKED — wait for user` row whose
+awaited action is already evidenced is verified and ticked, not parked. Everything not on that list
+is work, not a question.
 
 ## 4. A harness prompt is not a stop-list item
 
-A `PreToolUse` hook may prompt on `git add`/`commit` even though this contract calls them ordinary.
-That prompt is the environment's gate and it is legitimate. Answer it and continue. **Never**
-rephrase a command, chain it, or wrap it to slip past a matcher — "uninterrupted" governs what you
-decide to do, never how you get a command past a hook.
+`STOPS.md` states it. In short: answer the hook's prompt and continue; never re-shape a command to
+get past a matcher.
 
 ## 5. One boundary, one edit
 

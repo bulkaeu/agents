@@ -1,9 +1,9 @@
 ---
 name: plan-review
 description: >-
-  Iteratively review and refine implementation plans until nothing above Very Low
-  remains, then fix the remaining Very Low nits in a closing pass — only
-  deliberate tradeoffs stay accepted, with reasons. Review runs via the
+  Reviews and refines an implementation plan round by round until nothing above
+  Very Low remains, then fixes the remaining Very Low nits in a closing pass —
+  only deliberate tradeoffs stay accepted, with reasons. Review runs via the
   /code-review command on the plan file where the session offers one, else an
   inlined review mindset. Use when the user invokes /plan-review, asks to review
   or harden a plan, or wants a plan review cycle after planning.
@@ -23,9 +23,9 @@ Iteratively review and refine an implementation plan until only **Very Low** fin
 
 ## Resolve the plan file
 
-1. If the user passes a path or `@`-mentions a `.plan.md` or plan markdown file → use it.
-2. Else if the conversation has a clear active plan (recent plan output, or only one plan file touched this session — commonly `~/.claude/plans/*.md` in Claude Code, `~/.cursor/plans/*.plan.md` or `.cursor/plans/*.plan.md` in Cursor) → use that.
-3. Else ask once: "Which plan file should I review?"
+The ladder in [CONVENTIONS.md](../plan-shared/CONVENTIONS.md). This skill edits the plan, so at the
+last rung — or with two or more plausible at any rung — it lists the candidates with mtimes and
+stops rather than picking one.
 
 Read the **full plan** (YAML frontmatter + body), not just todos.
 
