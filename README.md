@@ -61,6 +61,9 @@ they run when asked for and not on a guess.
 
 | Skill | What it does |
 | --- | --- |
+| `plan-status` | One glance at a plan: the step in flight, the done count, the working copy, the next few steps, anything blocked. At most twelve lines. Read-only. |
+| `plan-build` | Runs a plan that has not started, first row to last, without stopping for ordinary work. Parks what is gated, asks about the whole parked set once at the end, then applies `plan-finish`'s checklist. `--dry-run` rehearses. |
+| `plan-continue` | Resumes a part-done plan: reconciles its Progress table against the repositories and disk, repairs what drifted, then runs the rest as `plan-build` does. Reads `RULES.md` and `EXECUTION.md` from the sibling `plan-build` directory — it needs that skill installed. |
 | `plan-summary` | Summary of a plan: its own plain-language Summary in full, a technical twin, and its recent + upcoming Progress steps (windowed only past 10 rows). Read-only. |
 | `plan-finish` | Finishes a plan: audits the check suite, commit state, docs, cleanup and plan state — then fixes what it found and reports what it did. Stops only for work that is destructive, gated, ambiguous, or not its own to delete. |
 | `plan-review` | Reviews and refines a plan until nothing above Very Low remains, then fixes the remaining nits in a closing pass — only deliberate tradeoffs stay, with reasons. |

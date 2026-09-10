@@ -1,0 +1,136 @@
+---
+name: plan-build
+description: >-
+  Runs a plan that has not started, from its first step to its last, without
+  stopping for ordinary work — leaving plan mode first, ticking each Progress
+  row as it goes, parking anything gated and asking about the whole parked set
+  once at the end. Offers --dry-run to rehearse. Use when the user invokes
+  /plan-build or asks to build, execute, implement or run a plan end to end.
+disable-model-invocation: true
+argument-hint: "[optional plan path] [--dry-run]"
+---
+
+# Plan build — run a fresh plan end to end
+
+A plan that has been approved and then executed one permission prompt at a time was not worth
+approving. This skill takes a plan whose steps are all still waiting and works it to the last row,
+stopping only where stopping is the correct answer.
+
+Read [RULES.md](RULES.md) now — it is the safety surface and this file assumes it. The loop and the
+close-out are [EXECUTION.md](EXECUTION.md).
+
+**For a plan already part-way through, this is the wrong skill.** Use `/plan-continue`, which
+reconciles the table against reality before resuming.
+
+## 0. Mode
+
+A `SKILL.md` body cannot set the permission mode; only the harness can.
+
+- **In plan mode** → call `ExitPlanMode`. One approval, and the session returns to
+  `permissions.defaultMode`.
+- **Not in plan mode** → nothing to do.
+- **Never** attempt `bypassPermissions`, and never re-shape a command to slip past a hook (rule 4).
+
+If the resulting mode still prompts on ordinary edits, say so in one line and carry on under it.
+Working slowly is a cost; working around the harness is a breach.
+
+## 1. Resolve the plan
+
+In order, stopping at the first hit:
+
+1. A path or `@`-mention in the invocation.
+2. The session's active plan file, or the only plan touched this session.
+3. The project's own plan directory: walk up from cwd to the nearest `.claude/settings*.json` that
+   sets `plansDirectory`, resolved against **the directory holding that settings file** — often not
+   a git toplevel. Else `plans/` under the git toplevel, if it exists.
+4. Most recently modified in `~/.claude/plans/`, `~/.cursor/plans/`, `.cursor/plans/`.
+
+Two or more plausible → list them with mtimes and **stop**. Never guess: executing the wrong plan is
+not a mistake you can take back.
+
+Read the whole file. The body is where the steps are actually specified.
+
+## 2. Pre-flight
+
+All four, before any work:
+
+| Check | On failure |
+| --- | --- |
+| A conforming `## Progress` table exists | Offer **once** to derive one from the body, then stop |
+| Every row is `⬜` (or `⏭️`) | It is a resume — say so, point at `/plan-continue`, offer once to proceed anyway |
+| No concurrent session | Report what you found and stop |
+| Repository scope known | Proceed; *no repo* is a state, not a failure |
+
+**Concurrency** (`shared-state-between-agents.md`), in every repo in scope: `git status --short` for
+work that is not yours, and `.git/CHERRY_PICK_HEAD`, `.git/MERGE_HEAD`, `.git/rebase-merge` for a
+sequencer someone left mid-flight. Another session's dirty tree is not yours to clean, and a
+cleanup command is the dangerous one.
+
+**Repository scope**: list every repo the plan touches the way `plan-finish` does — the plan's own
+paths, the cwd, and anything in `git worktree list` — and check each. Rows whose artifacts live
+outside any repository are verified on disk, not by `git log`. **No repository in scope is a state,
+not an error**: the concurrency check reports *no repo* and passes.
+
+These two pre-flight offers are outside rule 1's one-question budget, which governs execution.
+
+## 3. `--dry-run`
+
+Pre-flight only. Prints:
+
+- the **verdict** — would run from row *N*, or refuses because …;
+- the ***will park*** list — rows whose step text carries the explicit `BLOCKED` marker, printed on
+  both verdicts including a refusal;
+- and **writes nothing**.
+
+Rows that merely *depend* on a marked row are not listed: dependent parking is an execution-time
+consequence of rule 2, and a dry run is a text scan, not a simulation.
+
+State plainly, every time, that the other stop-list categories — deploys, migrations, deletions,
+judgement calls — are recognised at execution time from what a step actually does. **A clean
+dry-run is not clearance.**
+
+**A dry run makes no offers.** The pre-flight offers in section 2 — derive a table, proceed anyway
+on a part-done plan — are absent here: accepting either means executing, which a dry run cannot do.
+Report the refusal and stop.
+
+Report shape — follow it, so two runs on the same plan are comparable:
+
+```
+/plan-build --dry-run · <plan file>
+Verdict:  would run from row <n>   |   REFUSED — <why>
+Pre-flight: table <pass/fail> · all-⬜ <pass/fail> · concurrency <pass/no repo> · scope <…>
+Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
+           (dependents are not listed; they park at execution under rule 2)
+A clean dry-run is not clearance. Nothing written.
+```
+
+## 4. Execute
+
+Per [EXECUTION.md](EXECUTION.md): `🟡` → work → verify → `✅` with Notes, one row at a time, parking
+what rule 3 says to park.
+
+## 5. Close out, ask, report
+
+Close-out, the single question, and the report are all in `EXECUTION.md` — including the order they
+happen in and the fact that `plan-finish`'s own closing ask is folded into the one question.
+
+**Unless the run ended at a hand-off row**, which defers both to the run that resumes.
+
+## Examples
+
+**A fresh 12-row plan** — pre-flight clean, twelve rows worked in order, checks green, one commit,
+close-out applied from `plan-finish/CHECKLIST.md`, no parked rows. Report is one line. The user was
+asked nothing after the initial approval.
+
+**A plan with a deploy step at row 8** — rows 1–7 and 9–12 done, row 8 `⛔` *deploy, rule 3*, and
+whatever depended on it parked with *depends on 8*. Close-out runs on what landed. One closing
+question, with the exact deploy command, so a yes is one word.
+
+**A plan with a migration and a deploy** — two questions, not one: the batch, and the migration on
+its own with its exact command. Rule 1 forbids folding the second into the first.
+
+**`/plan-build` on a part-done table** — refuses, names the `✅` rows it found, points at
+`/plan-continue`, and offers once to proceed anyway. It does not silently re-run finished steps.
+
+**`--dry-run` on the same plan** — the refusal, the *will park* list, and the reminder that the list
+covers only the explicit markers. Nothing written.
