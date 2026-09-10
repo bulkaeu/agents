@@ -28,10 +28,12 @@ In order, stopping at the first hit:
 **Two or more plausible at any rung → list them with mtimes and stop.** A report on the wrong plan
 reads exactly like a report on the right one until it misleads.
 
-**Stop means the report ends at the list:** every candidate, each with its mtime — no grouping, no
-ranking, and no pre-flight, verdict or preview for any of them, however likely one looks. Choosing
-is the user's move; an "if you name this one…" report is a pick in all but name. (`plan-finish`'s
-repo-only audit, below, is not an exception: it needs no plan, so it previews none.)
+**Stop means the report ends at the list:** the candidates newest first, each with its mtime — past
+25, about a screenful, the 25 newest and the total count. No grouping, no ranking, and no pre-flight, verdict or
+preview for any of them, however likely one looks; an example invocation uses a placeholder path,
+never a candidate's. Choosing is the user's move; an "if you name this one…" report is a pick in all
+but name. (`plan-finish`'s repo-only audit, below, is not an exception: it needs no plan, so it
+previews none.)
 
 **The last rung picks a plan only for the read-only skills**, `plan-status` and `plan-summary`. The
 four that edit or execute — `plan-review`, `plan-build`, `plan-continue`, `plan-finish` — list the

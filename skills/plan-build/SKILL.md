@@ -105,6 +105,15 @@ Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
 A clean dry-run is not clearance. Nothing written.
 ```
 
+When no plan resolves, the shape is fixed too, so runs from different directories compare:
+
+```
+/plan-build --dry-run · (no plan resolved)
+Verdict:  REFUSED — plan not resolved, <N> candidates at rung <r>
+<the candidate list, as CONVENTIONS.md shapes it>
+A clean dry-run is not clearance. Nothing written.
+```
+
 ## 4. Execute
 
 Per [EXECUTION.md](EXECUTION.md): `🟡` → work → verify → `✅` with Notes, one row at a time, parking

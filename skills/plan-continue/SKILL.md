@@ -103,6 +103,10 @@ Resume at: row <n>
 Nothing written.
 ```
 
+When no plan resolves, the same fixed shape as `plan-build`'s: `/plan-continue --dry-run · (no plan
+resolved)`, `Verdict:  REFUSED — plan not resolved, <N> candidates at rung <r>`, the candidate list
+as `CONVENTIONS.md` shapes it, `Nothing written.`
+
 ## 5. Resume
 
 Start at the `🟡` row if one survived reconciliation, else the first `⬜`. Then the loop in
