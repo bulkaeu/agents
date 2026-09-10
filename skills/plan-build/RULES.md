@@ -63,3 +63,25 @@ Name what did not run, and why. "Tests pass" is not a result; the counts are.
 A step that cannot be done as written becomes `⛔` with the reason — not a quietly narrowed step
 that ticks green. Rewriting the target to match what you managed is the one failure this whole
 contract exists to prevent.
+
+## 9. Subagents are not authoritative
+
+An implementer's `DONE` is a claim, and so is a reviewer's `PASS`. The controller runs the
+done-state check itself, reads the diff, and confirms every claimed file and sha before it ticks.
+**Only the controller writes** the table, the Run log and commits; a subagent that did any of them
+has left work to be undone, not work to be kept.
+
+## 10. Rulings, not stalls
+
+A judgement the stop-list does not cover — an ambiguous step, a finding that contradicts the
+wording, a fix loop that stopped converging — is made, not asked. Log it in the Run log as
+`R<n> · <row id> · <what> — <why> — <cost if wrong>` and carry on; the report lists every ruling
+under **Rulings I made**. A ruling never releases a stop-list item.
+
+## 11. Independent review
+
+A row that changes files in the plan's repositories is built by one subagent and reviewed by
+another that did not write it, and the run ends with a review of its whole diff — the mechanics are
+in `DISPATCH.md`. Independence comes from a reviewer the run dispatches itself, never from how some
+other command happens to behave on a given call. Without subagents, the row's Notes say
+`review: same-agent`.

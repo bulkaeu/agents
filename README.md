@@ -64,8 +64,8 @@ they run when asked for and not on a guess.
 | Skill | What it does |
 | --- | --- |
 | `plan-status` | One glance at a plan: the step in flight, the done count, the working copy, the next few steps, anything blocked. At most twelve lines. Read-only. |
-| `plan-build` | Runs a plan that has not started, first row to last, without stopping for ordinary work. Parks what is gated, asks about the whole parked set once at the end, then applies `plan-finish`'s checklist. `--dry-run` rehearses. |
-| `plan-continue` | Resumes a part-done plan: reconciles its Progress table against the repositories and disk, repairs what drifted, then runs the rest as `plan-build` does. Reads `RULES.md` and `EXECUTION.md` from the sibling `plan-build` directory — it needs that skill installed. |
+| `plan-build` | Runs a plan that has not started, first row to last, without stopping for ordinary work. Each code row is built by a fresh implementer subagent and checked by a separate reviewer subagent that did not write it (`DISPATCH.md`, two prompt files, `scripts/row-snapshot.sh`); the run ends with a review of its whole diff. Parks what is gated, asks about the whole parked set once at the end, then applies `plan-finish`'s checklist. `--dry-run` rehearses and prints the dispatch count. |
+| `plan-continue` | Resumes a part-done plan: reconciles its Progress table against the repositories and disk (`table-claims.sh`), repairs what drifted, hands partial work to a fresh implementer, then runs the rest as `plan-build` does. Reads `RULES.md`, `EXECUTION.md` and `DISPATCH.md` from the sibling `plan-build` directory — it needs that skill installed. |
 | `plan-summary` | Summary of a plan: its own plain-language Summary in full, a technical twin, and its recent + upcoming Progress steps (windowed only past 10 rows). Read-only. |
 | `plan-finish` | Finishes a plan: audits the check suite, commit state, docs, cleanup and plan state — then fixes what it found and reports what it did. Stops only for work that is destructive, gated, ambiguous, or not its own to delete. |
 | `plan-review` | Reviews and refines a plan until nothing above Very Low remains, then fixes the remaining nits in a closing pass — only deliberate tradeoffs stay, with reasons. |
@@ -106,8 +106,8 @@ short and each one owns exactly one thing.
   `plan-finish`'s files. Both are one hop to a sibling directory, never a chain.
 - **Run `bash check-plan-skills.sh` after touching any `plan-*` skill, `plan-shared/`, or the plan
   rules.** It checks line counts, frontmatter, that the ladder and stop-list live in one place,
-  links, time-sensitive wording, the severity scale and `RULES.md`'s pinned headings, then runs
-  `sanitize-check.sh`. `--root <dir>` points it at a copy of the repo.
+  links, time-sensitive wording, the severity scale, `RULES.md`'s pinned headings, the dispatch
+  prompts' status tokens and placeholders, and the standing orders, then runs `sanitize-check.sh`. `--root <dir>` points it at a copy of the repo.
 - **Bundle a skill's helper scripts inside that skill** and resolve their paths at runtime. A
   hardcoded install path breaks the moment someone clones this somewhere else.
 - **Rules stay short — most under ~50 lines.** A rule governing a recurring artifact (the Progress

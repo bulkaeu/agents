@@ -3,9 +3,10 @@ name: plan-continue
 description: >-
   Resumes a plan already part-way through: reconciles its Progress table
   against what the repositories and disk actually show, repairs the rows that
-  drifted, then runs the rest to the end without stopping for ordinary work.
-  Offers --dry-run to propose corrections without applying them. Use when the
-  user invokes /plan-continue or asks to continue, resume or pick up a plan.
+  drifted, then runs the rest to the end without stopping for ordinary work —
+  each code step built by one subagent and reviewed by another. Offers
+  --dry-run to propose corrections without applying them. Use when the user
+  invokes /plan-continue or asks to continue, resume or pick up a plan.
 disable-model-invocation: true
 argument-hint: "[optional plan path] [--dry-run]"
 ---
@@ -19,6 +20,17 @@ step: it makes the table true first, and says what it corrected.
 
 For a plan whose rows are all still `⬜`, use `/plan-build` instead.
 
+## Standing orders
+
+Re-read these, `RULES.md`, the Progress table and the Run log after any context summary.
+
+1. Make the table true before running anything, and name every correction.
+2. The table and the Run log are the ledger. Never re-dispatch a `✅` row.
+3. A code row is built by an implementer and checked by a separate reviewer; the controller writes
+   no code on it (`DISPATCH.md`).
+4. Only the controller writes the table, the Run log and commits.
+5. Stop only for `STOPS.md`; every other judgement is a logged ruling. One question, after close-out.
+
 ## Files this skill uses
 
 The contract and the loop live in the **`plan-build` directory beside this one** — a deliberate
@@ -27,7 +39,10 @@ exception to bundling, because two copies of a safety contract drift and the dri
 - `${CLAUDE_SKILL_DIR}/../plan-build/RULES.md` — read it **now**, before anything else.
 - `${CLAUDE_SKILL_DIR}/../plan-shared/STOPS.md` — the stop-list `RULES.md` defers to; read it now too.
 - `${CLAUDE_SKILL_DIR}/../plan-build/EXECUTION.md` — the loop, hand-off rows, close-out, report.
+- `${CLAUDE_SKILL_DIR}/../plan-build/DISPATCH.md` — how a code row is built and reviewed, with the
+  two prompt files beside it and `scripts/row-snapshot.sh`.
 - `${CLAUDE_SKILL_DIR}/../plan-shared/CONVENTIONS.md` — the plan ladder, markers and terms.
+- `${CLAUDE_SKILL_DIR}/../plan-shared/scripts/table-claims.sh` — what the table claims, checked.
 
 On a host that does not set that variable, the same relative path from this file's own directory.
 `install.sh` links every skill into the same parent, so the sibling is present under any normal
@@ -55,12 +70,21 @@ leftover sequencer means stop and report, not clean up.
 
 ## 3. Reconcile — the part that earns the skill
 
-For every row, compare what the table claims against what actually exists:
+For every row, compare what the table claims against what actually exists. Start with the evidence
+the table itself cites:
+
+```bash
+bash ${CLAUDE_SKILL_DIR}/../plan-shared/scripts/table-claims.sh <plan> --repo <repo>...
+```
+
+It lists, per row, each sha in Notes that resolves or is MISSING and each backticked path that
+exists or is MISSING. A MISSING is a question, not a verdict — a path a row deleted or moved is
+meant to be absent — but it is where drift shows first.
 
 | Row | Checked against |
 | --- | --- |
 | `✅` | Commits since the previous `✅` in each repo; the working tree; on-disk artifacts for rows outside a repo; and whether its Notes cell records an **auditable result** rather than restating the step name |
-| `🟡` | Re-verified from scratch. A crashed run leaves this icon behind — never assume it finished, and never assume it did not |
+| `🟡` | Re-verified from scratch. A crashed run leaves this icon behind — never assume it finished, and never assume it did not. For a code row, look for its base and passes in the run directory (`DISPATCH.md`) |
 | `⛔` | Re-attempted **only** if the blocker is demonstrably gone. Otherwise it stays parked, reason intact |
 | `⬜` | Nothing to check — it is the work ahead |
 
@@ -109,14 +133,24 @@ as `CONVENTIONS.md` shapes it, `Nothing written.`
 
 ## 5. Resume
 
-Start at the `🟡` row if one survived reconciliation, else the first `⬜`. Then the loop in
-`EXECUTION.md`, unchanged: `🟡` → work → verify → `✅` with Notes, parking what `RULES.md` says to
-park, close-out and one question at the end — unless a hand-off row ends the run first.
+Start at the **first open row in table order** — `🟡` or `⬜`. Usually that is the `🟡` a crashed
+run left, but a `✅` that reconciliation demoted to `⬜` comes before it and runs first; starting at
+the `🟡` would skip it for good. Then the loop in `EXECUTION.md`, unchanged: `🟡` → work → verify → `✅` with Notes, parking what `RULES.md` says to
+park, final review, close-out and one question at the end — unless a hand-off row ends the run
+first. Record a run base only if the Run log has none (`DISPATCH.md`).
+
+**Partial work on a `🟡` code row is kept, not discarded.** A fresh implementer gets a brief that
+names the partial files as its starting point and finishes the row; its diff, from the recorded base
+or `HEAD` if none was recorded, shows the partial work and the rest together, and the reviewer checks
+all of it. Throwing the partial work away would discard what the crashed run got right. **In the
+Reconcile report every `🟡` gets a line**: `✅` if it proves finished, `⬜` if nothing of it
+exists, or `🟡` kept with its partial files named.
 
 ## Examples
 
-**A run that crashed mid-step** — row 7 is `🟡`. Re-verified: the file it was writing exists but is
-half-written. Row 7 goes back to `⬜`, the correction is named, and the loop redoes it properly.
+**A run that crashed mid-step** — row 7 is `🟡`, and the file it was writing exists but is
+half-written, uncommitted. The Reconcile line names it; a fresh implementer finishes from it, a
+reviewer passes the whole row, and it ticks.
 
 **A table ahead of reality** — row 3 is `✅` claiming a migration file that is not on disk. Repaired
 to `⬜`, named in the report, re-done, and the run continues to the end.

@@ -174,6 +174,36 @@ expected='## 1. Uninterrupted by default
 actual="$(grep -E '^## [1-8]\. ' skills/plan-build/RULES.md 2>/dev/null)"
 [[ "$actual" == "$expected" ]] || fail K11 "skills/plan-build/RULES.md:1" "rules 1–8 headings changed"
 
+# K12 — dispatch contract: one status-token line in all three files; each prompt's placeholders
+# drawn from its own allowed set, since the controller fills those and nothing else
+checks=$((checks + 1))
+want=""
+for f in skills/plan-build/implementer-prompt.md skills/plan-build/reviewer-prompt.md skills/plan-build/DISPATCH.md; do
+  got="$(grep -m1 '^\*\*Status tokens:\*\*' "$f" 2>/dev/null)"
+  if [[ -z "$got" ]]; then fail K12 "$f:1" "no **Status tokens:** line"; continue; fi
+  [[ -z "$want" ]] && want="$got"
+  [[ "$got" == "$want" ]] || fail K12 "$f:$(grep -n -m1 '^\*\*Status tokens:\*\*' "$f" | cut -d: -f1)" "status tokens differ from implementer-prompt.md"
+done
+placeholders() { # <file> <allowed, space-separated>
+  local f="$1" allowed=" $2 "
+  grep -noE '\{[a-z_]+\}' "$f" 2>/dev/null | while IFS=: read -r n p; do
+    p="${p#\{}"; p="${p%\}}"
+    [[ "$allowed" == *" $p "* ]] || echo "FAIL [K12] $f:$n — placeholder {$p} is not in this prompt's set ($2)"
+  done
+}
+placeholders skills/plan-build/implementer-prompt.md "brief findings out" | record
+placeholders skills/plan-build/reviewer-prompt.md "brief diff report findings" | record
+
+# K13 — the two executing skills keep standing orders near the top, where a re-read after a
+# context summary lands
+checks=$((checks + 1))
+for s in plan-build plan-continue; do
+  f="skills/$s/SKILL.md"
+  n="$(grep -n -m1 '^## Standing orders' "$f" 2>/dev/null | cut -d: -f1)"
+  if [[ -z "$n" ]]; then fail K13 "$f:1" "no ## Standing orders section"
+  elif (( n > 40 )); then fail K13 "$f:$n" "## Standing orders starts at line $n, past line 40"; fi
+done
+
 # K14 — plan-shared is not a command; every skill has a README row
 checks=$((checks + 1))
 [[ -e skills/plan-shared/SKILL.md ]] && fail K14 "skills/plan-shared/SKILL.md:1" "plan-shared must not be a skill"

@@ -2,7 +2,8 @@
 name: plan-build
 description: >-
   Runs a plan that has not started, from its first step to its last, without
-  stopping for ordinary work — leaving plan mode first, ticking each Progress
+  stopping for ordinary work — leaving plan mode first, handing each code step
+  to a fresh subagent and having a second one review it, ticking each Progress
   row as it goes, parking anything gated and asking about the whole parked set
   once at the end. Offers --dry-run to rehearse. Use when the user invokes
   /plan-build or asks to build, execute, implement or run a plan end to end.
@@ -18,11 +19,23 @@ stopping only where stopping is the correct answer.
 
 Read [RULES.md](RULES.md) and [the stop-list](../plan-shared/STOPS.md) now — together they are the
 safety surface, and this file assumes both. The loop and the close-out are
-[EXECUTION.md](EXECUTION.md); shared terms and the plan ladder are
+[EXECUTION.md](EXECUTION.md); how a code row is built and reviewed is [DISPATCH.md](DISPATCH.md),
+with its two prompts beside it; shared terms and the plan ladder are
 [CONVENTIONS.md](../plan-shared/CONVENTIONS.md).
 
 **For a plan already part-way through, this is the wrong skill.** Use `/plan-continue`, which
 reconciles the table against reality before resuming.
+
+## Standing orders
+
+Re-read these, `RULES.md`, the Progress table and the Run log after any context summary.
+
+1. The table and the Run log are the ledger. Never re-dispatch a `✅` row.
+2. A code row is built by an implementer and checked by a separate reviewer; the controller writes
+   no code on it (`DISPATCH.md`).
+3. Only the controller writes the table, the Run log and commits.
+4. Stop only for `STOPS.md`. Every other judgement is a ruling, logged, and the run goes on.
+5. One question, after close-out — bar `STOPS.md`'s asked-alone set, each asked on its own.
 
 ## 0. Mode
 
@@ -80,6 +93,8 @@ Pre-flight only. Prints:
 - the ***will park*** list — rows whose step text carries the explicit `BLOCKED` marker, printed on
   both verdicts including a refusal — and, before it, any author-parked `⛔` rows as *already
   parked*;
+- the **dispatch count** — the rows `EXECUTION.md` would classify as dispatch, by id, and the
+  subagent floor that implies (`DISPATCH.md`, *Cost*), so the cost is known before anything starts;
 - and **writes nothing**.
 
 Rows that merely *depend* on a marked row are not listed: dependent parking is an execution-time
@@ -102,6 +117,7 @@ Pre-flight: table <pass/fail> · all-⬜ <pass/fail> · concurrency <pass/no rep
 Parked:   row <n> <step-id> — already parked by the author: <its Notes>
 Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
            (dependents are not listed; they park at execution under rule 2)
+Dispatch: <k> rows (<ids>) → at least <2k + 1> subagents
 A clean dry-run is not clearance. Nothing written.
 ```
 
@@ -116,21 +132,27 @@ A clean dry-run is not clearance. Nothing written.
 
 ## 4. Execute
 
-Per [EXECUTION.md](EXECUTION.md): `🟡` → work → verify → `✅` with Notes, one row at a time, parking
-what rule 3 says to park.
+Per [EXECUTION.md](EXECUTION.md): record the run base, then `🟡` → work (dispatched or inline) →
+verify → `✅` with Notes, one row at a time, parking what rule 3 says to park.
 
-## 5. Close out, ask, report
+## 5. Review, close out, ask, report
 
-Close-out, the single question, and the report are all in `EXECUTION.md` — including the order they
-happen in and the fact that `plan-finish`'s own closing ask is folded into the one question.
+The final review, close-out, the single question and the report are all in `EXECUTION.md` —
+including the order they happen in and the fact that `plan-finish`'s own closing ask is folded into
+the one question.
 
-**Unless the run ended at a hand-off row**, which defers both to the run that resumes.
+**Unless the run ended at a hand-off row**, which defers all of them to the run that resumes.
 
 ## Examples
 
-**A fresh 12-row plan** — pre-flight clean, twelve rows worked in order, checks green, one commit,
-close-out applied from `plan-finish/CHECKLIST.md`, no parked rows. Report is one line. The user was
-asked nothing after the initial approval.
+**A fresh 12-row plan** — pre-flight clean, twelve rows worked in order: five code rows each built by
+an implementer, passed by a reviewer and committed; seven inline. Final review PASS, checks green,
+close-out applied from `plan-finish/CHECKLIST.md`, no parked rows. Report is one line plus any
+rulings. The user was asked nothing after the initial approval.
+
+**A reviewer catches a defect** — row 4's reviewer finds a CONFIRMED path traversal the step's
+"copy verbatim" would ship. One fix round under a logged ruling, a re-review reports it ADDRESSED,
+and the row ticks with both review files cited. The ruling is in the report.
 
 **A plan with a deploy step at row 8** — rows 1–7 and 9–12 done, row 8 `⛔` *deploy, rule 3*, and
 whatever depended on it parked with *depends on 8*. Close-out runs on what landed. One closing
