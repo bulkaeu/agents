@@ -1,6 +1,9 @@
 # Plan Review Checklist
 
-Use during Step 1 of [SKILL.md](SKILL.md). In Cursor, use alongside `/code-review` on the plan; in Claude Code, use as the primary review checklist. Skip sections that are out of scope for the plan under review.
+Use during Step 1 of [SKILL.md](SKILL.md), on every host: round 1's reviewer works through it
+section by section (via [reviewer-prompt.md](reviewer-prompt.md)), and later rounds use it
+in-thread. `/code-review` is only an optional extra pass, in Claude Code. Skip sections that are
+out of scope for the plan under review.
 
 ## Correctness and assumptions
 
@@ -28,6 +31,29 @@ Use during Step 1 of [SKILL.md](SKILL.md). In Cursor, use alongside `/code-revie
 - [ ] Acceptance criteria or smoke tests are defined for major phases
 - [ ] Test gaps are acknowledged when behavior changes are planned
 - [ ] Manual verification steps name who runs them and what "pass" looks like
+
+## Executability
+
+For a plan an executor — `plan-build` or `plan-continue` — will run unattended. The markers and
+terms are those of [CONVENTIONS.md](../plan-shared/CONVENTIONS.md) (*Row markers*, *Terms*); hold
+the plan to that file, not to a paraphrase of it.
+
+- [ ] **Markers** — every step that needs the user's action or yes carries the exact
+      `BLOCKED — wait for user: …` marker, in either spelling *Row markers* accepts; so does every
+      step that applies a migration, deploys, publishes, sends or deletes data. A `hand-off row`
+      says what resumes the plan; a `(⏭️ if …)` names a condition someone can check; `review: deep`
+      and `review: default` are used as *Row markers* defines them. A marker spelled any other way
+      is not parsed
+- [ ] **Done-states** — every row names an observable done-state (*Terms*): a file, a count, an
+      exit code, a command's output — something an executor can check without asking. "Improve X"
+      with no check is a finding
+- [ ] **Failable Verification** — every `## Verification` item can fail, and names what failing
+      looks like. A check that asserts something did *not* happen is tied to proof that the thing
+      that would do it actually ran; without that proof it passes vacuously, before any run
+- [ ] **Scope cuts** — anything the user asked for or decided that the plan drops or narrows is
+      named as out of scope, with its reason, where the decision is recorded. No step quietly
+      narrows a recorded decision. The check reaches only decisions written down — in the plan or a
+      document it cites
 
 ## Internal consistency
 
