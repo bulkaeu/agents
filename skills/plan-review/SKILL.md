@@ -30,15 +30,16 @@ Read the **full plan** (YAML frontmatter + body), not just todos.
 
 Review the plan as an **implementation spec**, not repository code: findings first, ordered by
 severity, no praise or broad summaries. Do **not** edit the plan in Step 1 — fixes happen in Step 2.
-Do not invoke Bugbot, security review, or project MR/local code-review skills — those target repo
-diffs.
+Do not invoke Bugbot, security review, or project MR/local code-review skills — they target diffs.
 
 ### Round 1 — a dispatched reviewer subagent
 
 Independence comes from a reviewer that did not write the plan, dispatched by this skill. In order:
 
-- **Note `git status --short`** in each repository in scope (`CONVENTIONS.md`, *Terms*), and the
-  plan's checksum (`shasum -a 256 <plan>`) — the plan usually sits outside every repository.
+- **Note `git status --short`** in each repository in scope (`CONVENTIONS.md`, *Terms*) and the
+  plan's checksum (`shasum -a 256 <plan>`), and save a **write-check snapshot** of the plan as
+  `plan-review/write-check-<n>.snapshot`, beside the review saved below — git cannot restore a plan's
+  uncommitted edits, wherever it lives. Never edited, never a second plan (`no-plan-copies.md`).
 - **Dispatch one fresh `Explore` subagent** with [reviewer-prompt.md](reviewer-prompt.md): the text
   below its `---` line, `{plan}` and `{checklist}` replaced with the paths of the plan and
   [checklist.md](checklist.md), nothing added. Set its model **explicitly**, on the row-reviewer
@@ -47,7 +48,7 @@ Independence comes from a reviewer that did not write the plan, dispatched by th
   the next free number — outside every repository, and never over an earlier cycle's review.
 - **Run the write check** (`DISPATCH.md` §6): both notes against the present, plus the scratchpad
   and the review's directory — anything the controller did not write. Any write is a finding; stray
-  files are removed, and a changed plan is restored to the text read before dispatch.
+  files are removed; a changed plan is restored from the snapshot, then re-checked against the checksum.
 - **Build the round output** below from the reply — findings, labels, locations, severities as given.
 
 **Host without subagents** — not Cursor, which dispatches: run round 1 in-thread with the same
@@ -65,13 +66,13 @@ its output when it rests on the repository — or **UNVERIFIED**, saying what co
 why. **Refute before reporting:** look for the step that covers the finding, the section that defers
 it, the decision that records it as deliberate, the marker that gates it. Report only what survives.
 
-### Optional — a `/code-review` pass (Claude Code only)
+### Optional — a `/code-review` pass
 
-`/code-review` may be run on the plan file as an extra pass in any round, **never as the source of
-independence**: whether it fans out to separate agents or runs as a single pass by the calling agent
-depends on how it is invoked, not on this skill. Its findings join the round output under the
-evidence rules and severity scale here, and the cycle log records the **mode it actually ran in** —
-fanned out, or a single pass by the calling agent — as its output reports it. No `/code-review`: skip.
+On any host whose session offers it, `/code-review` may be run on the plan file as an extra pass in
+any round, **never as the source of independence**: whether it fans out to separate agents or runs
+as a single pass by the calling agent depends on how it is invoked, not on this skill. Its findings
+join the round output under the evidence rules and severity scale here, and the cycle log records
+the **mode it actually ran in**, one of those two, as its output reports it. No `/code-review`: skip.
 
 ### Severity scale
 
@@ -147,9 +148,8 @@ Append or update a `### Plan review cycle` section in the plan:
 **Very low (accepted):** … — each with its reason
 ```
 
-- **Low+ found** — brief list of every finding above Very Low, severity-labelled, or `None`. Low
-  findings continue the loop, so a round that found only Lows must not read `None` — that is the
-  stop signature
+- **Low+ found** — brief list of every finding above Very Low, severity-labelled, or `None`. Lows
+  continue the loop, so a round that found only Lows must not read `None`: that is the stop signature
 - **Re-reviewing a plan whose existing log has the old `Medium+ found` header:** rename the header
   to `Low+ found` in the same edit that appends the new rows — old rows keep their meaning (they
   never hid Lows behind `None` knowingly), and mixing the two semantics under one header recreates

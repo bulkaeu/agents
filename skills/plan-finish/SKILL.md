@@ -27,7 +27,7 @@ Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it befor
 
 ## Hard rules
 
-- **Audit fully, then act.** Complete the whole read-only audit before changing anything — fixing as
+- **Audit fully, then act.** Complete the whole audit before changing anything — fixing as
   you go means acting without the full picture. But once the audit is done, *act*: the report is the
   record of what you did, not a request for permission to start.
 - **Never run an open row.** A `⬜`/`🟡` row (*open*, per `CONVENTIONS.md`) is reported, not run,
@@ -80,7 +80,7 @@ is a first-class way to invoke this skill.
 Then list every repo the work touched — the plan's own paths, the cwd, and anything in
 `git worktree list`. A plan that spanned three repos needs three audits, not one.
 
-## 2. Audit — read-only, in order
+## 2. Audit, in order
 
 | # | Area | Question it answers |
 | - | --- | --- |

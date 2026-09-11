@@ -23,7 +23,7 @@ manifest and run everything CI runs.
 cat package.json | python3 -c 'import json,sys;print("\n".join(json.load(sys.stdin).get("scripts",{})))'
 # Shell / docs — list the root's scripts and the tracked ones, then run each check among them
 ls ./*.sh; git ls-files '*.sh'
-git ls-files -z '*.sh' | LC_ALL="$(locale -a | grep -iEm1 'utf-?8$')" xargs -0 shellcheck -S warning
+git ls-files -z '*.sh' | LC_ALL="$(locale -a | grep -iEm1 'utf-?8$')" xargs -0 -r shellcheck -S warning
 ```
 
 | Ecosystem | Where the scripts are | Typical full suite |
@@ -33,7 +33,7 @@ git ls-files -z '*.sh' | LC_ALL="$(locale -a | grep -iEm1 'utf-?8$')" xargs -0 s
 | Go | `Makefile`, CI config | `gofmt -l .`, `go vet ./...`, `go test ./...`, `go build ./...` |
 | Python | `pyproject.toml`, `tox.ini` | `ruff format --check`, `ruff check`, `mypy`, `pytest` |
 | Make-driven | `Makefile` targets | `make check` or the individual targets it calls |
-| Shell / docs | no manifest at all | **every check script at the repository root** — `check-*.sh`, `sanitize-check.sh`, whatever the root holds; list them rather than assume. `bash -n` each tracked script, and `shellcheck -S warning` on each (not bare `shellcheck`, whose default level also fails on info and style notes that flag intentional patterns), run with `LC_ALL` set to a UTF8 locale available on the host (`locale -a` lists them) — under the default `C`/`POSIX` locale it can crash printing non-ASCII output from the scripts. Any installer's `--dry-run`; formatter only if one is configured |
+| Shell / docs | no manifest at all | **every check script at the repository root** — `check-*.sh`, `sanitize-check.sh`, whatever the root holds; list them rather than assume. `bash -n` each tracked `*.sh` file, and `shellcheck -S warning` on each (not bare `shellcheck`, whose default level also fails on info and style notes that flag intentional patterns), run with `LC_ALL` set to a UTF8 locale available on the host (`locale -a` lists them) — under the default `C`/`POSIX` locale it can crash printing non-ASCII output from the scripts. Any installer's `--dry-run`; formatter only if one is configured |
 
 **No manifest is not no checks.** A repo of shell and markdown still has a runnable suite — syntax
 checks, a linter, an idempotent script's dry run. Run what exists and name it. Report "no project
@@ -100,15 +100,14 @@ grep -rn "<name>" README.md AGENTS.md CLAUDE.md docs/ 2>/dev/null
 ```
 
 Drift is a doc that names something the diff **renamed or removed**, or a documented command whose
-flags changed. A doc that simply does not mention new internals is not drift — do not manufacture
-work.
+flags changed. A doc that does not mention new internals is not drift — do not manufacture work.
 
 ### The plan's own table is a doc too
 
 Two different questions, and the second is the one that finds things:
 
-1. **Is every row resolved?** A row still `⬜`/`🟡` after the work is done is an unfinished step or a
-   stale table.
+1. **Which rows are closed, parked, open?** An open row (`⬜`/`🟡`) after the work is done is an
+   unfinished step or a stale table.
 2. **Do the commits and the rows account for each other?** An audit both ways. *Every commit in the
    work's range has a row:*
 
@@ -135,10 +134,11 @@ bash "${CLAUDE_SKILL_DIR}/../plan-shared/scripts/table-claims.sh" "<plan-file>" 
   --repo <repo> [--repo <repo>]... --root "$run_dir"
 ```
 
-Every repository in scope is a `--repo`; the run directory (`row-snapshot.sh dir` prints it) is a
-`--root`, so cited review files resolve. A `--root` replaces the default, the plan repo's parent —
-pass that too if Notes cite paths relative to it. **Each MISSING is a question, not a verdict**: a
-path a row deleted or moved is meant to be absent. A claimed sha or path really absent is drift.
+Every repository in scope is a `--repo`, the plan's own included — any `--repo` drops the script's
+default, the plan's repository. The run directory (`row-snapshot.sh dir` prints it) is a `--root`,
+so cited review files resolve. A `--root` replaces the default, the plan repo's parent — pass that
+too if Notes cite paths relative to it. **Each MISSING is a question, not a verdict**: a path a row
+deleted or moved is meant to be absent. A claimed sha or path really absent is drift.
 
 **Re-read the plan from disk before auditing it.** Do not audit a copy carried in context from
 earlier in the session — it may predate edits made since, and you will report a defect that was

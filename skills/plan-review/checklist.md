@@ -2,8 +2,8 @@
 
 Use during Step 1 of [SKILL.md](SKILL.md), on every host: round 1's reviewer works through it
 section by section (via [reviewer-prompt.md](reviewer-prompt.md)), and later rounds use it
-in-thread. `/code-review` is only an optional extra pass, in Claude Code. Skip sections that are
-out of scope for the plan under review.
+in-thread. `/code-review` is only an optional extra pass, on any host whose session offers it. Skip
+sections that are out of scope for the plan under review.
 
 ## Correctness and assumptions
 
@@ -50,10 +50,9 @@ the plan to that file, not to a paraphrase of it.
 - [ ] **Failable Verification** — every `## Verification` item can fail, and names what failing
       looks like. A check that asserts something did *not* happen is tied to proof that the thing
       that would do it actually ran; without that proof it passes vacuously, before any run
-- [ ] **Scope cuts** — anything the user asked for or decided that the plan drops or narrows is
-      named as out of scope, with its reason, where the decision is recorded. No step quietly
-      narrows a recorded decision. The check reaches only decisions written down — in the plan or a
-      document it cites
+- [ ] **Scope cuts** — anything the user asked for or decided, recorded in the plan or a document
+      it cites, that the plan drops or narrows is named in the plan as out of scope, with its reason
+      and a pointer to where the decision is recorded. No step quietly narrows a recorded decision
 
 ## Internal consistency
 
