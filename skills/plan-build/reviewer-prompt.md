@@ -64,6 +64,10 @@ including untrusted input reaching a file path, a shell command, or a query (for
 traversal or injection). A copy, move, or verbatim port is reviewed for what the code does in its
 new place: that the plan chose to copy it does not exempt a defect the diff ships.
 
+For every value the diff takes from outside itself — an argument, a file's contents, an environment
+variable — trace where it flows: into a file path, a command, or a write. Say, for each, whether it
+can escape its intended place.
+
 ## Do not flag
 
 - Problems that exist outside the diff and that the change did not make worse — not the code the

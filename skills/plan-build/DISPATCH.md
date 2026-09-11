@@ -52,10 +52,11 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 - **Implementer:** a `general-purpose` subagent, model Sonnet. Fix round 3 steps up to the strongest
   model the host offers. It returns its report as its reply. **Save that reply verbatim** as
   `report-<n>.md` — only the controller writes files, exactly as for a reviewer's review.
-- **Reviewer:** an `Explore` subagent, model **set explicitly** to Sonnet; `Explore` may otherwise
-  default to a smaller one. It has no Edit, Write or Agent tool, so it is read-only by construction,
-  and it returns its findings as its reply. **Save that reply verbatim** as `review-<n>.md` — only
-  the controller writes files, and a paraphrased review is not a review.
+- **Reviewer:** an `Explore` subagent, model **set explicitly** to the strongest the host offers;
+  `Explore` may otherwise default to a smaller one. `Explore` keeps Bash, so it is not read-only by
+  construction — read-only is enforced by the prompt alone, and the write check below backs it up.
+  It returns its findings as its reply. **Save that reply verbatim** as `review-<n>.md` — only the
+  controller writes files, and a paraphrased review is not a review.
 - Every dispatch is a **fresh** subagent. A re-review is a new reviewer handed the saved findings,
   never "the same reviewer" — subagents do not outlive their session.
 
@@ -86,6 +87,11 @@ bash scripts/row-snapshot.sh diff <plan> <row id> --repo <repo>...
 ```
 
 Dispatch the reviewer with that diff, the brief (`Mode: row`), the report, and `{findings}` = `none`.
+
+**After every reviewer dispatch** — this one, a rereview in §7, and the final review below — compare
+`git status --short` in each repository in scope against its state before the dispatch, and check
+the scratchpad and the run directory for anything not saved there by the controller itself. Any
+write is a finding, recorded like any other finding; stray files are removed.
 
 ## 7. Fix loop
 
@@ -122,7 +128,8 @@ ruling that raises the bar is its opposite. One that lowers the bar is not a rul
 
 Only the controller writes the table and commits. Before the tick: run the done-state check fresh,
 confirm every claimed file exists and every claimed sha is in `git log`. Then `✅` with Notes
-carrying that evidence and a review token: `review: rows/<row id>/review-<n>.md PASS`.
+carrying that evidence and a review token, its path its own backticked span so
+`table-claims.sh` can check it: review: `rows/<row id>/review-<n>.md` PASS.
 
 ## The run base — per repository
 
@@ -142,7 +149,8 @@ run as one diff file. With no run base recorded, diff against `@{upstream}` and 
 log. One fresh reviewer in `Mode: run`, its brief listing the rows this run did. Findings at Medium
 or above go to **one** fix subagent for the whole list, then one re-review; there is no second
 wave. What stays open is a ruling or a parked item for the closing question. Log
-`final review: <file> <verdict>` in the Run log.
+`final review: <file> <verdict>` in the Run log. Run the write check from §6 after this dispatch,
+and after the re-review, too.
 
 ## Fallback — a host without subagents
 
@@ -152,5 +160,6 @@ Notes `review: same-agent`. That is weaker, and the label says so rather than hi
 ## Cost
 
 A dispatched row costs at least 2 subagents, and up to 9 — one `NEEDS_CONTEXT` retry, then three
-fix rounds; the final review adds 1 to 3. Only code rows dispatch, Sonnet by default. A dry run prints the floor —
-2 × dispatched rows + 1 — before anything starts.
+fix rounds; the final review adds 1 to 3. Only code rows dispatch: implementers Sonnet by default,
+reviewers on the strongest model. A dry run prints the floor — 2 × dispatched rows + 1 — before
+anything starts.

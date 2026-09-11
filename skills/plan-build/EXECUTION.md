@@ -57,8 +57,11 @@ done; trust them over a memory of intending to do it.
 Before any `✅`, fresh in the same turn as the tick:
 
 - the row's done-state check, run by the controller, with its output in Notes;
-- every file the row claims exists, and every sha it cites resolves — `../plan-shared/scripts/table-claims.sh`
-  checks both across the repos in scope;
+- every file the row claims exists, every sha it cites resolves, and every review file the row's
+  Notes cite — the `review:` token, and any other `review-<n>.md` a fix round added —
+  `../plan-shared/scripts/table-claims.sh` checks all three across the repos in scope, run with
+  the run directory (`row-snapshot.sh dir <plan>` prints it) also passed as a `--root`, so the
+  review token's `rows/<row id>/review-<n>.md` path resolves;
 - for a dispatched row, a saved review with `Verdict: PASS` and nothing at Medium or above left
   open (`DISPATCH.md` §7).
 
@@ -170,6 +173,6 @@ An example table, icons omitted so this file never reads as live work:
 ```markdown
 | # | Step | Notes |
 | - | ---- | ----- |
-| 1 | `add-index` — index on the events table | 2.1 M rows, 41 s · review: rows/1/review-1.md PASS |
+| 1 | `add-index` — index on the events table | 2.1 M rows, 41 s · review: `rows/<row id>/review-<n>.md` PASS |
 | 2 | `deploy-staging` — ship the image | BLOCKED: deploy, rule 3 |
 ```
