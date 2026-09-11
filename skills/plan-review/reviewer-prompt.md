@@ -2,7 +2,8 @@
 
 The prompt `plan-review` gives one fresh `Explore` subagent to run **round 1** of a plan review, on
 the reviewer tiers in [DISPATCH.md](../plan-build/DISPATCH.md) §3. The target is a plan document,
-not a code diff. Later rounds are the skill's own scoped re-checks and do not use this file.
+not a code diff. Later rounds are the skill's own in-thread re-checks: they reuse this file's
+lenses, checklist and spot-check rules, without dispatching it.
 
 The controller fills the two placeholders below with paths and adds nothing else: no hints, no
 expected findings, no remarks about the plan. Everything the reviewer needs is in this file or one
