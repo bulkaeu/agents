@@ -57,14 +57,23 @@ Exactly five levels:
 - **Low** — should be fixed for clarity or maintainability.
 - **Very Low** — a nit, optional polish, or a safe-by-design tradeoff.
 
+## Quality
+
+Quality findings cover correctness, security, and maintainability of the diff as it stands —
+including untrusted input reaching a file path, a shell command, or a query (for example, path
+traversal or injection). A copy, move, or verbatim port is reviewed for what the code does in its
+new place: that the plan chose to copy it does not exempt a defect the diff ships.
+
 ## Do not flag
 
-- Problems that exist outside the diff and that the change did not make worse.
+- Problems that exist outside the diff and that the change did not make worse — not the code the
+  diff itself copies, moves, or ports in, which is judged on what it does in its new place.
 - Anything a linter, type checker, or the project's own checks already catch.
 - Style with no observable effect.
 - A departure from the step's wording that the brief records as a ruling. A ruling is not a spec
   failure.
-- Design choices the plan made deliberately, unless this diff turns one into a defect.
+- Design choices the plan made deliberately, unless this diff turns one into a defect — this does
+  not cover code the diff adds, copies, or moves; only the plan's decisions to have it do so.
 - Missing tests, unless the brief requires them.
 - "Could be a problem" with no failure you can describe.
 

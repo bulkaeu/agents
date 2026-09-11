@@ -5,11 +5,13 @@
 # For every Progress row: its id and icon, each commit sha in its Notes (resolves in some repo in
 # scope, or missing), and each backticked path in its Notes (exists, or missing).
 #
-#   table-claims.sh <plan.md> [--repo <dir>]... [--root <dir>]
+#   table-claims.sh <plan.md> [--repo <dir>]... [--root <dir>]...
 #
 #   --repo  a repository in scope; repeatable. Default: the plan's own repo and the cwd's, if any.
 #   --root  a directory relative paths may also resolve under — typically a workspace holding
-#           several checkouts. Default: the parent of the plan's repo toplevel.
+#           several checkouts; repeatable, for a plan whose Notes cite paths relative to more than
+#           one directory (a run directory, a skills directory). Default: the parent of the plan's
+#           repo toplevel.
 #
 # A sha counts as present if `git cat-file` resolves it as a commit in ANY repo in scope. A path
 # counts as present if it exists as given (after ~ expansion), under any repo in scope, or under
@@ -19,15 +21,15 @@
 # Output: one line per row, then a tally. Exit 0 always on a readable plan; 2 on a usage error.
 set -euo pipefail
 
-usage() { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
 plan=""
-root=""
+roots=()
 repos=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --repo) [[ $# -ge 2 ]] || usage; repos+=("$2"); shift 2 ;;
-    --root) [[ $# -ge 2 ]] || usage; root="$2"; shift 2 ;;
+    --root) [[ $# -ge 2 ]] || usage; roots+=("$2"); shift 2 ;;
     -h|--help) usage ;;
     *) [[ -z "$plan" ]] || usage; plan="$1"; shift ;;
   esac
@@ -41,8 +43,8 @@ if [[ ${#repos[@]} -eq 0 ]]; then
   cwd_top="$(git rev-parse --show-toplevel 2>/dev/null || true)"
   [[ -n "$cwd_top" && "$cwd_top" != "$plan_top" ]] && repos+=("$cwd_top")
 fi
-if [[ -z "$root" ]]; then
-  if [[ -n "$plan_top" ]]; then root="$(dirname "$plan_top")"; else root="$plan_dir"; fi
+if [[ ${#roots[@]} -eq 0 ]]; then
+  if [[ -n "$plan_top" ]]; then roots+=("$(dirname "$plan_top")"); else roots+=("$plan_dir"); fi
 fi
 
 sha_ok() {
@@ -65,7 +67,7 @@ path_ok() {
   local p="$1" r
   [[ "$p" == \~/* ]] && p="$HOME/${p#\~/}"
   if [[ "$p" == /* ]]; then [[ -e "$p" ]]; return; fi
-  for r in "${repos[@]+"${repos[@]}"}" "$root" "$plan_dir"; do
+  for r in "${repos[@]+"${repos[@]}"}" "${roots[@]+"${roots[@]}"}" "$plan_dir"; do
     [[ -e "$r/$p" ]] && return 0
   done
   return 1

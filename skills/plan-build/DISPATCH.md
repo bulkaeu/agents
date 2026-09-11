@@ -50,7 +50,8 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 ## 3. Agents and models
 
 - **Implementer:** a `general-purpose` subagent, model Sonnet. Fix round 3 steps up to the strongest
-  model the host offers.
+  model the host offers. It returns its report as its reply. **Save that reply verbatim** as
+  `report-<n>.md` — only the controller writes files, exactly as for a reviewer's review.
 - **Reviewer:** an `Explore` subagent, model **set explicitly** to Sonnet; `Explore` may otherwise
   default to a smaller one. It has no Edit, Write or Agent tool, so it is read-only by construction,
   and it returns its findings as its reply. **Save that reply verbatim** as `review-<n>.md` — only
@@ -63,7 +64,8 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 Take the text below the `---` line of the prompt file and replace its placeholders with paths, or
 with `none`. Add nothing: no hints, no expected answers, no pre-judged findings.
 
-- [implementer-prompt.md](implementer-prompt.md) — `{brief}`, `{findings}`, `{out}` (the report path).
+- [implementer-prompt.md](implementer-prompt.md) — `{brief}`, `{findings}`, `{out}` (the path the
+  controller saves the reply to).
 - [reviewer-prompt.md](reviewer-prompt.md) — `{brief}`, `{diff}`, `{report}`, `{findings}`.
 
 ## 5. Statuses
@@ -90,6 +92,14 @@ Dispatch the reviewer with that diff, the brief (`Mode: row`), the report, and `
 **Open** means a spec ❌, or a finding at Critical, High or Medium. An UNVERIFIED open finding is
 checked by the controller: confirmed, it stays open; refuted, it is dropped with a ruling. Low and
 Very Low findings go to the Run log as *deferred* and do not enter the loop.
+
+A defect the controller confirms itself while reading the diff (`RULES.md` rule 9) is an **open
+finding**, handled exactly like a reviewer's CONFIRMED one: the controller records it with its
+evidence in the row's findings file, it goes to a fresh implementer in the next fix round, and only
+a fresh reviewer in `rereview` mode can report it ADDRESSED. **The controller never closes a finding
+itself** — confirming one only opens it; §8's override of the step's wording applies to it the same
+way, at Medium or above. Independence stays in the *finding* of defects and in the *closing* of
+them.
 
 Each round: a fresh implementer with `{findings}` = the latest review file; a new diff from the
 **original** base, so the whole row is shown with its fixes in; a fresh reviewer, `Mode: rereview`.

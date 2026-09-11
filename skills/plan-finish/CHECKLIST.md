@@ -30,7 +30,7 @@ cat package.json | python3 -c 'import json,sys;print("\n".join(json.load(sys.std
 | Go | `Makefile`, CI config | `gofmt -l .`, `go vet ./...`, `go test ./...`, `go build ./...` |
 | Python | `pyproject.toml`, `tox.ini` | `ruff format --check`, `ruff check`, `mypy`, `pytest` |
 | Make-driven | `Makefile` targets | `make check` or the individual targets it calls |
-| Shell / docs | no manifest at all | `bash -n` each tracked script, `shellcheck`, any installer's `--dry-run`; formatter only if one is configured |
+| Shell / docs | no manifest at all | `bash -n` each tracked script, `shellcheck` run with `LC_ALL` set to a UTF8 locale available on the host (`locale -a` lists them) — under the default `C`/`POSIX` locale it can crash printing non-ASCII output from the scripts, any installer's `--dry-run`; formatter only if one is configured |
 
 **No manifest is not no checks.** A repo of shell and markdown still has a runnable suite — syntax
 checks, a linter, an idempotent script's dry run. Run what exists and name it. Report "no project

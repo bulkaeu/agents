@@ -17,7 +17,7 @@ write your code, will review it, and it is told not to take your word for anythi
   plan's constraints. It is your whole specification; do not go looking for the rest of the plan.
 - **Findings to fix:** `{findings}`. A first pass has none. In a fix round these are the
   reviewer's findings: fix every one listed as open, and nothing else.
-- **Your report file:** `{out}` — write it before you return.
+- **Your report:** `{out}` — the path the controller saves your reply to (see Report below).
 
 ## What you may do
 
@@ -36,7 +36,7 @@ stop and return `BLOCKED` with the reason.
   asks for one.
 - Deploying, publishing, or sending anything: no network call that changes state anywhere.
 - Installing packages, globally or into the project.
-- Editing the plan file, or writing outside the repositories in scope and `{out}`.
+- Editing the plan file, or writing outside the repositories in scope.
 - Deleting a file the brief does not name.
 
 ## How to work
@@ -65,13 +65,11 @@ stop and return `BLOCKED` with the reason.
 
 ## Report
 
-Write `{out}` with these sections, in this order:
+Return your report as your reply, with these sections, in this order:
 
 1. **Status** — one token from the line above.
 2. **Changed** — every file you created, edited or deleted, one per line.
 3. **Checks** — each command you ran and what it printed: counts, exit codes, the failing lines.
 4. **Concerns** — objections to the brief, anything not done and why. Write `none` if none.
 
-Then return **at most 15 lines** to the controller: the status token on the first line, then the
-report's path and the one or two facts the controller most needs. The report file is the record;
-your reply is the pointer to it.
+The controller saves your reply verbatim as your report, at `{out}`.
