@@ -50,8 +50,8 @@ Independence comes from a reviewer that did not write the plan, dispatched by th
   files are removed, and a changed plan is restored to the text read before dispatch.
 - **Build the round output** below from the reply — findings, labels, locations, severities as given.
 
-**Host without subagents** (Cursor): run round 1 in-thread with the same prompt, filled the same
-way, labelled `same-agent` in the cycle log.
+**Host without subagents** — not Cursor, which dispatches: run round 1 in-thread with the same
+prompt, filled the same way, labelled `same-agent` in the cycle log.
 
 ### Rounds 2 onward — scoped re-checks, in-thread
 

@@ -49,14 +49,14 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 
 ## 3. Agents and models
 
-Models are named by tier — **standard**, **strong**, **strongest** — with a family in parentheses
-as an example, never a version or an id:
+Models are named by tier — **standard**, **strong**, **strongest**. The model a tier means on each
+host, never a Claude model on Cursor, is `CONVENTIONS.md`, *Model tiers*:
 
 | Who | Default | Steps up |
 | --- | --- | --- |
-| Implementer | standard (Sonnet) | strong (Opus) for a risky step, an edit to instructions, rules or prompts, and fix round 2; strongest (Fable) for fix round 3 only |
-| Reviewer — row and rereview | strong (Opus) | strongest (Fable) for a risky step, a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
-| Final whole-run review | strong (Opus) | strongest (Fable) if any dispatch this run went to the strongest tier, or a Medium-or-worse defect turned up during the run |
+| Implementer | standard | strong for a risky step, an edit to instructions, rules or prompts, and fix round 2; strongest for fix round 3 only |
+| Reviewer — row and rereview | strong | strongest for a risky step, a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
+| Final whole-run review | strong | strongest if any dispatch this run went to the strongest tier, or a Medium-or-worse defect turned up during the run |
 
 **Risky** means untrusted input reaching file paths or shell commands, auth, secrets, data deletion,
 or migrations. The controller judges it from the step text and the diff. A `review: default` marker
@@ -75,12 +75,13 @@ deletes data`, `<row id> · review-<n>.md — reviewer on the default tier: revi
 step not risky`, `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
 review: default does not cancel`.
 
-- **Implementer:** a `general-purpose` subagent, model per the table. It returns its report as its
-  reply. **Save that reply verbatim** as `report-<n>.md` — only the controller writes files, exactly
-  as for a reviewer's review.
-- **Reviewer:** an `Explore` subagent, model **set explicitly** per the table; `Explore` may
-  otherwise default to a smaller one. `Explore` keeps Bash, so it is not read-only by
-  construction — read-only is enforced by the prompt alone, and the write check below backs it up.
+- **Implementer:** a `general-purpose` subagent (`generalPurpose` on Cursor), model per the table.
+  It returns its report as its reply. **Save that reply verbatim** as `report-<n>.md` — only the
+  controller writes files, exactly as for a reviewer's review.
+- **Reviewer:** an `Explore` subagent (`explore` on Cursor), model **set explicitly** per the
+  table; `Explore` may otherwise default to a smaller one. `Explore` keeps Bash, so it is not
+  read-only by construction — read-only is enforced by the prompt alone, and the write check below
+  backs it up.
   It returns its findings as its reply. **Save that reply verbatim** as `review-<n>.md` — only the
   controller writes files, and a paraphrased review is not a review.
 - Every dispatch is a **fresh** subagent. A re-review is a new reviewer handed the saved findings,

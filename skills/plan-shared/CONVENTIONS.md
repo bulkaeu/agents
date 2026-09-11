@@ -13,6 +13,7 @@ read them.
 - Closed, parked, open
 - Terms
 - Severity scale
+- Model tiers
 
 ## Resolving the plan — the ladder
 
@@ -111,3 +112,23 @@ One scale for every review in the family — plan review, row review, final revi
 
 What each skill does with a severity — loop, fix, defer — is that skill's call, stated in its own
 file.
+
+## Model tiers
+
+Subagents are dispatched by tier — **standard**, **strong**, **strongest** — and `plan-build`'s
+`DISPATCH.md` §3 says which dispatch gets which. Each host maps a tier to a model **family**, never
+a version or an id: the newest model of that family the host offers is the one meant, so a new
+release needs no edit here.
+
+| Tier | Claude Code | Cursor |
+| --- | --- | --- |
+| standard | Sonnet | Composer |
+| strong | Opus | Grok, at high effort where the host offers a choice |
+| strongest | Fable | Grok, as for strong — Cursor has two tiers |
+
+- **On Cursor, pick from the host's own list of subagent models** — the family's newest entry. A
+  family the list does not offer means `inherit`, logged once per run in the Run log. **Never pass
+  a Claude model on Cursor**: it bills a separate, costlier quota, so a dispatch naming one is a
+  defect even when it works.
+- **On any other host**, dispatch with `inherit` for every tier, logged once per run.
+- The Run log names the tier on Cursor too, strongest included, though its model is strong's.
