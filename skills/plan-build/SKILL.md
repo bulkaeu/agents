@@ -94,7 +94,9 @@ Pre-flight only. Prints:
   both verdicts including a refusal — and, before it, any author-parked `⛔` rows as *already
   parked*;
 - the **dispatch count** — the rows `EXECUTION.md` would classify as dispatch, by id, and the
-  subagent floor that implies (`DISPATCH.md`, *Cost*), so the cost is known before anything starts;
+  subagent floor that implies (`DISPATCH.md`, *Cost*), so the cost is known before anything starts,
+  and the floor's count per model tier from `DISPATCH.md` §3 — each row's implementer and reviewer
+  judged from its step text, markers included, and the final review's tier as the table predicts it;
 - and **writes nothing**.
 
 Rows that merely *depend* on a marked row are not listed: dependent parking is an execution-time
@@ -117,7 +119,7 @@ Pre-flight: table <pass/fail> · all-⬜ <pass/fail> · concurrency <pass/no rep
 Parked:   row <n> <step-id> — already parked by the author: <its Notes>
 Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
            (dependents are not listed; they park at execution under rule 2)
-Dispatch: <k> rows (<ids>) → at least <2k + 1> subagents
+Dispatch: <k> rows (<ids>) → at least <2k + 1> subagents · standard <a> · strong <b> · strongest <c>
 A clean dry-run is not clearance. Nothing written.
 ```
 

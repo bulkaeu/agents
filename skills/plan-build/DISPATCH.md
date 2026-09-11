@@ -49,11 +49,37 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 
 ## 3. Agents and models
 
-- **Implementer:** a `general-purpose` subagent, model Sonnet. Fix round 3 steps up to the strongest
-  model the host offers. It returns its report as its reply. **Save that reply verbatim** as
-  `report-<n>.md` — only the controller writes files, exactly as for a reviewer's review.
-- **Reviewer:** an `Explore` subagent, model **set explicitly** to the strongest the host offers;
-  `Explore` may otherwise default to a smaller one. `Explore` keeps Bash, so it is not read-only by
+Models are named by tier — **standard**, **strong**, **strongest** — with a family in parentheses
+as an example, never a version or an id:
+
+| Who | Default | Steps up |
+| --- | --- | --- |
+| Implementer | standard (Sonnet) | strong (Opus) for a risky step, an edit to instructions, rules or prompts, and fix round 2; strongest (Fable) for fix round 3 only |
+| Reviewer — row and rereview | strong (Opus) | strongest (Fable) for a risky step, a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
+| Final whole-run review | strong (Opus) | strongest (Fable) if any dispatch this run went to the strongest tier, or a Medium-or-worse defect turned up during the run |
+
+**Risky** means untrusted input reaching file paths or shell commands, auth, secrets, data deletion,
+or migrations. The controller judges it from the step text and the diff. A `review: default` marker
+cancels only the risk step-up: the row's reviewer stays on the default tier even when the step is
+risky, but fix round 3 and a stalled fix loop still step it up, and the implementer still steps up.
+A row carrying both `review: deep` and `review: default` gets the strongest-tier reviewer —
+`review: deep` wins (`CONVENTIONS.md`, *Row markers*). **Every step-up is logged in the Run log
+with its reason** — `reviewer on the strongest tier: step writes to a path built from an argument`.
+**A row carrying a `review:` marker, `deep` or `default`, has its reviewer's tier logged for every
+review of that row, whether or not the marker changed anything** — one line per review, with its
+reason, naming the row and the review file it covers (it is also the step-up's line when there is
+one), so a fix loop whose tier changes (round 3, a stall) still shows which review ran on which
+tier: `<row id> · review-<n>.md — reviewer on the strongest tier: review: deep marker`,
+`<row id> · review-<n>.md — reviewer on the default tier: review: default holds a step that
+deletes data`, `<row id> · review-<n>.md — reviewer on the default tier: review: default marker,
+step not risky`, `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
+review: default does not cancel`.
+
+- **Implementer:** a `general-purpose` subagent, model per the table. It returns its report as its
+  reply. **Save that reply verbatim** as `report-<n>.md` — only the controller writes files, exactly
+  as for a reviewer's review.
+- **Reviewer:** an `Explore` subagent, model **set explicitly** per the table; `Explore` may
+  otherwise default to a smaller one. `Explore` keeps Bash, so it is not read-only by
   construction — read-only is enforced by the prompt alone, and the write check below backs it up.
   It returns its findings as its reply. **Save that reply verbatim** as `review-<n>.md` — only the
   controller writes files, and a paraphrased review is not a review.
@@ -109,9 +135,12 @@ them.
 
 Each round: a fresh implementer with `{findings}` = the latest review file; a new diff from the
 **original** base, so the whole row is shown with its fixes in; a fresh reviewer, `Mode: rereview`.
-At most **3 rounds**, round 3 on the stronger model. **If the open count does not fall** between two
-rounds, or anything is open after round 3, stop and write a ruling: accept with the reason and the
-risk, or park the row. A row is never ticked with a finding at Medium or above still open.
+At most **3 rounds**, on §3's tiers: the implementer on strong in round 2 and strongest in round 3,
+the reviewer on strongest in round 3. **If the open count does not fall** between two rounds, the
+loop has stalled: the next round's review runs on the strongest tier. If it still does not fall after
+a strongest-tier review, or anything is open after round 3, stop and write a ruling: accept with the
+reason and the risk, or park the row. A row is never ticked with a finding at Medium or above still
+open.
 
 ## 8. Rulings — including overriding the step's wording
 
@@ -146,9 +175,11 @@ overwrites it** — if the Run log already has one, it stands.
 
 After the last row and before close-out: `row-snapshot.sh diff <plan> run --repo …` gives the whole
 run as one diff file. With no run base recorded, diff against `@{upstream}` and say so in the Run
-log. One fresh reviewer in `Mode: run`, its brief listing the rows this run did. Findings at Medium
-or above go to **one** fix subagent for the whole list, then one re-review; there is no second
-wave. What stays open is a ruling or a parked item for the closing question. Log
+log. One fresh reviewer in `Mode: run`, its brief listing the rows this run did, on the tier §3's
+last row gives: strongest if any dispatch this run went to the strongest tier or a Medium-or-worse
+defect turned up during the run, strong otherwise — the step-up logged like any other. Findings at
+Medium or above go to **one** fix subagent for the whole list, then one re-review; there is no
+second wave. What stays open is a ruling or a parked item for the closing question. Log
 `final review: <file> <verdict>` in the Run log. Run the write check from §6 after this dispatch,
 and after the re-review, too.
 
@@ -160,6 +191,6 @@ Notes `review: same-agent`. That is weaker, and the label says so rather than hi
 ## Cost
 
 A dispatched row costs at least 2 subagents, and up to 9 — one `NEEDS_CONTEXT` retry, then three
-fix rounds; the final review adds 1 to 3. Only code rows dispatch: implementers Sonnet by default,
-reviewers on the strongest model. A dry run prints the floor — 2 × dispatched rows + 1 — before
-anything starts.
+fix rounds; the final review adds 1 to 3. Only code rows dispatch, each on §3's tiers: implementers
+standard and reviewers strong by default, stepping up on the table's triggers. A dry run prints the
+floor — 2 × dispatched rows + 1 — and its count per model tier before anything starts.

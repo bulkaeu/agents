@@ -64,6 +64,8 @@ Markers live in the Step cell's text. The skills parse exactly these:
 | `BLOCKED — wait for user: …` or `BLOCKED — wait for user confirmation: …` | The step needs the user's action or yes. Both spellings are accepted; an executor parks it unless the action is already evidenced (`STOPS.md`) |
 | `hand-off row` | The step gives the user work to do outside the run, then the run ends. The one sanctioned mid-table halt |
 | `(⏭️ if …)` | A conditional skip the author allowed in advance; the Notes must say which condition held |
+| `review: deep` | The row's reviewer runs on the strongest model tier (`DISPATCH.md` §3). On a row that also carries `review: default`, `review: deep` wins: an author asking for depth outranks an exemption. Every review of the row logs its reviewer's tier and reason in the Run log, naming the row and the review file it covers |
+| `review: default` | The row's reviewer stays on the default tier even when the controller would judge the step risky. It cancels only that risk step-up: fix round 3 and a stalled fix loop still step the reviewer up, and a risky row's implementer still steps up. Every review of the row logs its reviewer's tier and reason in the Run log, naming the row and the review file it covers, whether or not the marker held anything back. `review: deep` on the same row wins |
 
 **A pending ticket is author-parked.** `plan-ticket-tracking.md`'s `**Ticket:** pending` puts a `⛔`
 row in a brand-new plan. That row was parked by the author, not by a run, so it does not make the
