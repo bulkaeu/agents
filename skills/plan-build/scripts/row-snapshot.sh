@@ -6,9 +6,9 @@
 #   row-snapshot.sh base <plan.md> <row-id> [--repo <dir>]...
 #   row-snapshot.sh diff <plan.md> <row-id> [<ref>] [--repo <dir>]...
 #
-# dir   Print the run directory, ~/.claude/plan-runs/<plan stem>/, creating it. Everything a row
-#       produces (base, brief, report, diff, review) lives there, outside every repository, so
-#       none of it can reach a commit.
+# dir   Print the run directory, ~/.claude/plan-runs/<plan stem>/, creating nothing: base and diff
+#       create what they write. Everything a row produces (base, brief, report, diff, review)
+#       lives there, outside every repository, so none of it can reach a commit.
 # base  Per repo: record a commit holding the tree as it stands (`git stash create`, or HEAD when
 #       the tree is clean) and copy every untracked file, which no commit holds. Never HEAD~1: a
 #       row may make several commits. Use the row id `run` for the run base.
@@ -53,7 +53,6 @@ case "$cmd" in
   *) usage ;;
 esac
 
-mkdir -p "$run_dir"
 if [[ "$cmd" == dir ]]; then echo "$run_dir"; exit 0; fi
 
 row_dir="$run_dir/rows/$row"

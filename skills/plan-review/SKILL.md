@@ -36,17 +36,18 @@ Do not invoke Bugbot, security review, or project MR/local code-review skills �
 
 Independence comes from a reviewer that did not write the plan, dispatched by this skill. In order:
 
-- **Note `git status --short`** in each repository in scope (`CONVENTIONS.md`, *Terms*) and the
-  plan's checksum (`shasum -a 256 <plan>`), and save a **write-check snapshot** of the plan as
-  `plan-review/write-check-<n>.snapshot`, beside the review saved below — git cannot restore a plan's
-  uncommitted edits, wherever it lives. Never edited, never a second plan (`no-plan-copies.md`).
+- **Note `git status --short`** in each repository in scope (`CONVENTIONS.md`, *Terms*), a listing —
+  path, size, mtime — of the files under any directory the plan names as its base that lie outside every
+  repository, and the plan's checksum (`shasum -a 256 <plan>`); save a **write-check snapshot** of the
+  plan as `plan-review/write-check-<n>.snapshot`, beside the review saved below — git cannot restore a
+  plan's uncommitted edits, wherever it lives. Never edited, never a second plan (`no-plan-copies.md`).
 - **Dispatch one fresh `Explore` subagent** with [reviewer-prompt.md](reviewer-prompt.md): the text
   below its `---` line, `{plan}` and `{checklist}` replaced with the paths of the plan and
   [checklist.md](checklist.md), nothing added. Set its model **explicitly**, on the row-reviewer
   tiers of [DISPATCH.md](../plan-build/DISPATCH.md) §3. The prompt resolves paths across the scope.
 - **Save its reply verbatim** as `~/.claude/plan-runs/<plan stem>/plan-review/review-<n>.md`, `<n>`
   the next free number — outside every repository, and never over an earlier cycle's review.
-- **Run the write check** (`DISPATCH.md` §6): both notes against the present, plus the scratchpad
+- **Run the write check** (`DISPATCH.md` §6): every note against the present, plus the scratchpad
   and the review's directory — anything the controller did not write. Any write is a finding; stray
   files are removed; a changed plan is restored from the snapshot, then re-checked against the checksum.
 - **Build the round output** below from the reply — findings, labels, locations, severities as given.
@@ -190,8 +191,7 @@ Final message to the user:
 **Round 2 finds only Very Low nits:**
 
 1. Print Very Low findings (optional pagination note, diagram label, a stale cross-reference)
-2. Closing pass: fix them — except the one recording a deliberate tradeoff, which stays accepted
-   with its reason
+2. Closing pass: fix them — except the one recording a deliberate tradeoff, accepted with its reason
 3. Re-read the edited sections; nothing new above Very Low → write cycle log → stop
 
 **Clean plan:**
