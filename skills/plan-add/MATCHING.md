@@ -167,9 +167,9 @@ those at a different step, and a reader following the reference has nothing to n
 
 ## 7. The insertion mechanic
 
-**Anchor each `Edit` on the preceding row, and make one `Edit` per row inserted or removed.** The
-match text is the whole line of the row *before* the insertion point; the replacement is that line
-plus the new one. The row you are inserting before appears in neither.
+**Anchor insertions and removals on the preceding row, and make one `Edit` per row inserted, removed
+or reopened in place.** The match text is the whole line of the row *before* the insertion point;
+the replacement is that line plus the new one. The row you are inserting before appears in neither.
 
 **The duplicate comes from a replacement that restates a row its match text does not contain.**
 Batching several rows into one replacement is where it bites: every row the replacement carries but
@@ -179,11 +179,11 @@ the match omits is written a second time, wherever the anchor sits.
 twice. So **re-read the table and count the rows after inserting** — old count plus rows added, or
 you have one. Use `Edit`, never a `sed` pass (`ui-rendered-files-use-write-tool.md`).
 
-Reopens take the same discipline, in two shapes. A reopen that stays put is one `Edit` on its own
-line, icon and Notes together. A reopen that moves (§6) is a removal then an insertion: the removal
-matches the moved row's line with the line above it and replaces them with that line alone; the
-insertion, anchored as above on the row the reopen now follows, writes the moved row reopened, `⬜`
-and §5 Notes. Never span the rows between in one `Edit`: that is the batched replacement above.
+Reopens come in two shapes. A reopen that stays put is one `Edit` on its own line, icon and Notes
+together. A reopen that moves (§6) is a removal then an insertion: the removal matches the moved
+row's line with the line above it and replaces them with that line alone; the insertion, anchored on
+the row the reopen will follow, writes the moved row reopened, `⬜` and §5 Notes. Never span the
+rows between in one `Edit`: that is the batched replacement above, duplicating every row it carries.
 
 ## 8. Cursor plans
 
