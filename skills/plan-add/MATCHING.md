@@ -5,21 +5,21 @@ adjacent one, what each match does to the row, and how to get new rows into the 
 duplicating the row that follows them. Terms — row id, step id, done-state, closed/parked/open — are
 [CONVENTIONS.md](../plan-shared/CONVENTIONS.md)'s.
 
-Run all three tests before deciding — an addition can both change an artifact and retire the row, and
+Run all three tests before deciding — an addition can both break a row's output and retire it, and
 §3's precedence needs both answers. State the evidence in one sentence someone else can go and check.
 
 ## 1. The three relate tests, worked through
 
-### Test 1 — the addition changes an artifact the row produced or verified
+### Test 1 — the addition makes what the row produced or verified no longer correct
 
-**Evidence:** name the artifact, and name both rows that touch it — a file path, a generated
-snapshot, a config key, a database table. An artifact you cannot name is a suspicion.
+**Evidence:** name the artifact, name both rows that touch it, and say which part of the earlier
+row's output stops holding. A part you cannot name is a suspicion; a directory is not an artifact.
 
-**Worked.** Row 2 wrote the schema module; the addition adds a column to that same module. What row
-2 left on disk is not what will be there afterwards. Matched.
+**Worked.** Row 2 wrote the schema column as nullable; the addition makes it required. What row 2
+left on disk is now wrong, not merely edited around. Matched.
 
-**Near-miss.** The addition adds a *new* module beside it, in the same directory. Row 2's artifact
-is untouched — a directory is not an artifact, and neither is a subsystem. Not matched.
+**Near-miss.** The addition edits that same module beside row 2's column, leaving the column
+exactly as row 2 wrote it. A changed file is not a changed output. Not matched.
 
 ### Test 2 — the row's done-state would now answer differently
 
@@ -42,9 +42,9 @@ test holds when they are the same clause — one purpose, two mechanisms.
 **Worked.** Row 7 polls an endpoint for status. The addition receives the same status on a webhook.
 The poll is not wanted. Matched.
 
-**Near-miss.** The addition puts a retry inside that same poll. The row's purpose survives; only its
-implementation moved — that is test 1, not test 3. Replacement retires a step; changing how a step
-works does not.
+**Near-miss.** The addition puts a retry inside that poll. The row's purpose survives, so test 3
+does not hold; an implementation change answers neither test 1's correctness question nor test 2's
+done-state question by itself. Replacement retires a step; changing how a step works does not.
 
 ## 2. What is not a test
 

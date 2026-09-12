@@ -75,7 +75,7 @@ indistinguishable from having forgotten.
 Full method in [MATCHING.md](MATCHING.md). The summary is three evidence tests, and a row — closed,
 parked or still waiting — is matched when any one of them holds:
 
-- the new work **changes an artifact** that row produced or verified;
+- the new work **makes what that row produced or verified no longer correct**;
 - that row's **done-state would now answer differently**;
 - the new work **replaces what the row was for**.
 
@@ -172,11 +172,12 @@ resolves at rung 2; the addition names a script, so one `Explore` run confirms i
 prints. No closed row is matched. Rows 1–4 are closed, so the new row goes in as `4a`, in place,
 with the script's exit code as its done-state. Short report, then the review cycle on the whole plan.
 
-**An addition that reopens two closed rows.** A new column on the schema changes the artifact the
-migration row produced, and the fixture row's done-state would now answer differently — two tests,
-two matches. Both rows go back to waiting, their original Notes intact plus the reason and the id of
-the row that caused it. One row is in flight, so the guard holds before the first table write: print
-the new rows and the two intended reopens, and wait for the yes before writing any of them.
+**An addition that reopens two closed rows.** A schema change makes a column the migration row wrote
+as nullable required, so that row's output is now wrong, and the fixture row's done-state would now
+answer differently — two tests, two matches. Both rows go back to waiting, their original Notes
+intact plus the reason and the id of the row that caused it. One row is in flight, so the guard
+holds before the first table write: print the new rows and the two intended reopens, and wait for
+the yes before writing any of them.
 
 **An addition that does not belong.** The user asks to fold an unrelated refactor into a plan about
 the price loop. No evidence test holds and the two share nothing but a repository. Say so, and offer
