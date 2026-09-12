@@ -128,8 +128,15 @@ instead** — the row becomes `⏭️`, an open one included, and a superseded r
 reason and the id of the row that caused the change — the earlier run is evidence, and overwriting
 it destroys the only record of what that step once produced.
 
-Every write here is under step 4's guard, evaluated before the first table write of the whole
-change: if it stopped you, these reopens were in what you printed.
+**A reopened row whose causing rows run later moves down to sit after the last of them, keeping its
+id.** Left where it is, it sits above its own causes, and a top-down executor runs it first — against
+a tree the addition has not landed in, so the check passes and the reopen bought nothing. Moving it
+makes the order true, and the out-of-sequence ids that result are correct rather than a defect: the
+position sequences, the id only identifies ([MATCHING.md](MATCHING.md) §6). **A superseded row is not
+moved** — a `⏭️` never runs, so its position carries nothing.
+
+Every write here is under step 4's guard, a move included, evaluated before the first table write of
+the whole change: if it stopped you, these reopens were in what you printed.
 
 ## 6. Update the Summary and the ticket
 

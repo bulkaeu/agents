@@ -54,10 +54,8 @@ done-state question by itself. Replacement retires a step; changing how a step w
 - **"Probably worth a recheck."** A hunch with a hedge in front of it.
 
 **Acting on a false match costs more than the rerun.** The row goes back to `⬜`, so the plan reports
-itself incomplete when it is not; an executor picks the row up and redoes work nobody asked for,
-side effects included; and the Notes gain a reason no evidence supports, which the next reader has
-to disprove before trusting the rest of the column. Reopens also spend their credibility — a reader
-who has waved away three cosmetic ones waves away the fourth.
+itself incomplete when it is not; an executor redoes work nobody asked for, side effects included;
+and the Notes gain a reason no evidence supports, which the next reader has to disprove.
 
 **The opposite error is as real.** A missed match leaves a `✅` standing over work the addition
 invalidated, which is the failure this whole step exists to prevent. Unsure is not a verdict: go and
@@ -72,13 +70,12 @@ read the artifact or re-answer the done-state, then decide.
 | Leave alone | untouched, and unremarked | no test holds |
 
 - **Reopen** returns the step to the queue. The row keeps its id, its step text and its recorded
-  result; only the icon and the Notes move.
+  result; the icon, the Notes and — where its causes run later — its place in the order move (§6).
 - **Supersede** retires the step. An open row superseded never runs. A closed row whose output the
   addition discards keeps its recorded result beside the supersede line — the work did run, and that
   Note is the only surviving proof of what the plan once produced.
-- **Leave alone** means no edit and no note. A closed row the addition does not touch is evidence
-  the addition was scoped well; writing "checked, still valid" into it is noise the column cannot
-  filter back out.
+- **Leave alone** means no edit and no note. Writing "checked, still valid" into a closed row the
+  addition does not touch is noise the column cannot filter back out.
 - **One row, one outcome.** Where test 3 holds alongside test 1 or test 2, supersede wins —
   reopening a step you have just decided against asks someone to redo work you do not want.
 
@@ -87,14 +84,12 @@ Deciding the outcome is this file's job. *Writing* it is gated by the guard in `
 ## 4. The verification-row case
 
 **A row whose whole job is a check matches on test 2 nearly every time.** Its done-state is a count,
-an exit code or a command's output over code the addition changes, so the answer moves by
-construction. Still run the test — a check scoped to a subsystem the addition never touches
-genuinely does not move — but expect it to hold.
+an exit code or a command's output over code the addition changes, so the answer moves by construction.
+Still run the test — a check scoped away from the addition does not move — but expect it to hold.
 
-**Placement is what makes the reopen honest.** The new code rows go *before* the verification row. A
-reopened `⬜` sitting above the rows that caused it tells an executor to run the check first and the
-code after: the check passes, against a tree the addition has not landed in, and the reopen bought
-nothing. Appending the new rows at the end produces exactly that.
+**Placement is what makes the reopen honest.** The new code rows go *before* the verification row,
+and a reopened row already above them moves down to follow them (§6). Either way the check runs after
+the work; run it first and it passes against a tree the addition has not landed in.
 
 Rows 1–4 already closed, the addition landing as `3a` and `3b` (icons omitted from the first cell,
 so this file never reads as live work):
@@ -154,14 +149,19 @@ through.
 trigger is *started*, not *has closed rows*: a plan with a `🟡` row and nothing closed is running,
 and an executor is holding an id that renumbering would repoint under it.
 
-**What renumbering breaks is silent.** The Run log, the review files under the run directory, the
-report the user has already read and any ticket comment all cite rows by id. Renumbering fails
-nothing — it repoints every one of those at a different step, and a reader following the reference
-has nothing to notice.
+**What renumbering breaks is silent.** The Run log, the review files, the report the user has already
+read and any ticket comment all cite rows by id. Renumbering fails nothing — it repoints every one of
+those at a different step, and a reader following the reference has nothing to notice.
 
 - **The id identifies; the position sequences.** Suffixed ids stop being sortable, and that is fine:
   rows sit in the order they run, so `3`, `3c`, `3a`, `4` is a correct table when that is the order.
   Never move a row to make the ids read alphabetically.
+- **A reopen whose causes run later does move — down to sit after the last of them, keeping its id.**
+  That is the opposite of the move forbidden above, not an exception: the forbidden one rewrites the
+  order to flatter the ids, this one lets the ids read out of sequence so the order stays true. Left
+  in place, such a row sits above its own causes and a top-down executor runs it against a tree the
+  addition has not landed in — §4's verification row most often, any reopened row the same way. **A
+  superseded row is never moved** — a `⏭️` never runs, so its position carries nothing.
 - **Never reuse or repoint a suffix.** Take the next unused letter, wherever the row goes.
 - **Phase-lettered plans suffix the same way** — `A1a` after `A1`.
 
@@ -172,29 +172,29 @@ whole line of the row *before* the insertion point; the replacement is that line
 The row you are inserting before appears in neither.
 
 **The duplicate comes from a replacement that restates a row its match text does not contain.**
-Anchored on the preceding row there is nothing to restate — the replacement is that one line plus
-the new one. Batching several rows into one replacement is where it bites: every row the replacement
-carries but the match omits is written a second time, wherever the anchor sits.
+Batching several rows into one replacement is where it bites: every row the replacement carries but
+the match omits is written a second time, wherever the anchor sits.
 
-**The duplicate is silent.** The table reads as longer, not as wrong; an executor runs the step
-twice, or picks whichever copy it read first. So **re-read the table and count the rows after
-inserting** — old count plus rows added, or you have one. Use `Edit`, never a `sed` pass
-(`ui-rendered-files-use-write-tool.md`): the bytes land and the rendered panel keeps the old table.
+**The duplicate is silent.** The table reads as longer, not as wrong, and an executor runs the step
+twice. So **re-read the table and count the rows after inserting** — old count plus rows added, or
+you have one. Use `Edit`, never a `sed` pass (`ui-rendered-files-use-write-tool.md`).
 
-Reopens take the same discipline — one `Edit` per row changed, each matching that row's line alone.
+Reopens take the same discipline, in two shapes. A reopen that stays put is one `Edit` on its own
+line, icon and Notes together. A reopen that moves (§6) is a removal then an insertion: the removal
+matches the moved row's line with the line above it and replaces them with that line alone; the
+insertion is anchored as above, on the row the reopen will now follow. Never span the rows between
+in one `Edit` — that is the batched replacement above, duplicating every row it carries.
 
 ## 8. Cursor plans
 
 **A Cursor plan carries its steps twice** — the `## Progress` table and the YAML frontmatter `todos`
 that drive the panel. Every change above lands in both, in the same edit: rows added, rows reopened,
-rows superseded.
+rows superseded, rows moved.
 
 - **Mirror the state, not only the text.** Cursor's todos carry `completed`, `pending`, `cancelled`
   or `in_progress` — a reopened row's todo goes back to `pending`, a superseded one to `cancelled`,
   and deleting a todo is the frontmatter's version of deleting a row.
-- **Quote any todo text holding `:`, `#`, `[` or `{`.** An unquoted colon makes the frontmatter fail
-  to parse and the panel render mangled. Notes never reach the frontmatter, so §5's
-  `Earlier result:` stays a table-only string.
+- **Quote any todo text holding `:`, `#`, `[` or `{`.** An unquoted colon breaks the parse and
+  mangles the panel. Notes never reach the frontmatter, so `Earlier result:` stays table-only.
 - **Parse the frontmatter afterwards** — `plan-yaml-frontmatter.md` owns the command and the
-  assertions. A correct Progress table proves nothing about the panel, and neither does a screenshot
-  of it: claim the todos are healthy only once the parse prints its count.
+  assertions. A correct table proves nothing about the panel; only the parse's printed count does.
