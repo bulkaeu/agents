@@ -18,7 +18,7 @@ row's output stops holding. A part you cannot name is a suspicion; a directory i
 **Worked.** Row 2 wrote the schema column as nullable; the addition makes it required. What row 2
 left on disk is now wrong, not merely edited around. Matched.
 
-**Near-miss.** The addition edits that same module beside row 2's column, leaving the column
+**Near-miss.** The addition edits that same file beside row 2's column, leaving the column
 exactly as row 2 wrote it. A changed file is not a changed output. Not matched.
 
 ### Test 2 — the row's done-state would now answer differently
