@@ -1,7 +1,7 @@
 # Plan-skill conventions
 
-Shared by all six plan skills. Each `SKILL.md` cites this file instead of restating it, so a change
-here lands everywhere at once. The rules a plan *author* reads — `plan-progress-section.md`,
+Shared by all seven plan skills. Each `SKILL.md` cites this file instead of restating it, so a
+change here lands everywhere at once. The rules a plan *author* reads — `plan-progress-section.md`,
 `plan-atomic-todos.md`, `plan-ticket-tracking.md` — own the formats; this file owns how the skills
 read them.
 
@@ -33,13 +33,16 @@ reads exactly like a report on the right one until it misleads.
 25, about a screenful, the 25 newest and the total count. No grouping, no ranking, and no pre-flight, verdict or
 preview for any of them, however likely one looks; an example invocation uses a placeholder path,
 never a candidate's. Choosing is the user's move; an "if you name this one…" report is a pick in all
-but name. (`plan-finish`'s repo-only audit, below, is not an exception: it needs no plan, so it
-previews none.)
+but name. (The two offers below are not exceptions: `plan-finish`'s repo-only audit and `plan-add`'s
+new-plan option name no candidate, so neither previews nor ranks one.)
 
-**The last rung picks a plan only for the read-only skills**, `plan-status` and `plan-summary`. The
-four that edit or execute — `plan-review`, `plan-build`, `plan-continue`, `plan-finish` — list the
-candidates from rung 4 and stop there instead: executing or editing the wrong plan is not a mistake
-you can take back. `plan-finish` then offers a repo-only audit, which needs no plan.
+**The last rung picks a plan only for the read-only skills**, `plan-status` and `plan-summary`.
+The five that edit or execute — `plan-add`, `plan-review`, `plan-build`, `plan-continue`,
+`plan-finish` — list the candidates from rung 4 and stop there instead: executing or editing the
+wrong plan is not a mistake you can take back. `plan-finish` then offers a repo-only audit, which
+needs no plan. `plan-add` can also create, so every list it stops on — last rung or two plausible at
+any rung — carries **or start a new plan** as one more option. It is the user's to take: the skill
+creates on its own only when the invocation names a path that does not exist.
 
 Read the whole file once resolved. The body is where the steps are actually specified.
 

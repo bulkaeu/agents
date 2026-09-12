@@ -17,7 +17,7 @@ if [[ "${1:-}" == "--root" ]]; then
 fi
 cd "$ROOT" || exit 2
 
-SKILLS=(plan-build plan-continue plan-finish plan-review plan-status plan-summary)
+SKILLS=(plan-add plan-build plan-continue plan-finish plan-review plan-status plan-summary)
 checks=0
 # Failures go to a report file, not a counter: a counter bumped inside a pipeline lives in a
 # subshell and is lost (bash 3.2, the macOS default, has no lastpipe).
@@ -29,7 +29,7 @@ fail() { echo "FAIL [$1] $2 — $3" | tee -a "$REPORT"; }
 # Every markdown file in the family, repo-relative.
 FILES=()
 while IFS= read -r f; do FILES+=("$f"); done < <(
-  find skills/plan-build skills/plan-continue skills/plan-finish skills/plan-review \
+  find skills/plan-add skills/plan-build skills/plan-continue skills/plan-finish skills/plan-review \
     skills/plan-status skills/plan-summary skills/plan-shared -name '*.md' -type f 2>/dev/null | sort)
 [[ ${#FILES[@]} -gt 0 ]] || { echo "FAIL [K0] $ROOT — no plan-skill files found"; exit 1; }
 
@@ -69,6 +69,7 @@ for s in "${SKILLS[@]}"; do
   frontmatter "$f" | grep -qx "name: $s" || fail K2 "$f:1" "name is not $s"
   frontmatter "$f" | grep -qx 'disable-model-invocation: true' || fail K2 "$f:1" "disable-model-invocation is not true"
   case "$s" in
+    plan-add) want='argument-hint: "<what to add> [optional plan path]"' ;;
     plan-build|plan-continue) want='argument-hint: "[optional plan path] [--dry-run]"' ;;
     *) want='argument-hint: "[optional plan path]"' ;;
   esac
@@ -86,7 +87,7 @@ for s in "${SKILLS[@]}"; do
   [[ "$d" == *"Use when "* ]] || fail K3 "$f:3" "description lost its 'Use when …' trigger"
 done
 
-# K4 — the ladder's rung phrases live only in CONVENTIONS.md; all six skills cite it
+# K4 — the ladder's rung phrases live only in CONVENTIONS.md; all seven skills cite it
 checks=$((checks + 1))
 hits_except K4 skills/plan-shared/CONVENTIONS.md 'settings\*\.json|ecently modified (plan )?in `~/\.claude/plans/`' \
   "plan ladder restated; cite plan-shared/CONVENTIONS.md" | record

@@ -68,13 +68,14 @@ they run when asked for and not on a guess.
 | `plan-continue` | Resumes a part-done plan: reconciles its Progress table against the repositories and disk (`table-claims.sh`), repairs what drifted, hands partial work to a fresh implementer, then runs the rest as `plan-build` does. Reads `RULES.md`, `EXECUTION.md` and `DISPATCH.md` from the sibling `plan-build` directory — it needs that skill installed. |
 | `plan-summary` | Summary of a plan: its own plain-language Summary in full, a technical twin, and its recent + upcoming Progress steps (windowed only past 10 rows). Read-only. |
 | `plan-finish` | Finishes a plan: audits the check suite, the plan's own Verification items, commit state, docs, and cleanup — then fixes what it found and reports what it did, stopping only for work that is destructive, gated, ambiguous, or not its own to delete. It reports a plan's open rows rather than running them, pointing at `/plan-continue`; a Verification area reports each item's recorded result or runs it live, reporting a FAIL rather than fixing it. The verdict separates open, parked, and stop-list items; commits carry the plan's ticket id; and work no reviewer saw is named. Its checklist (`CHECKLIST.md`) holds the per-area commands, including a claims audit with `table-claims.sh`. |
+| `plan-add` | Adds new scope to the plan that already exists, instead of starting a second file for the same topic: resolves the plan — creating one when the invocation names a path that is not there, or when the user takes the new-plan offer on a list it stops at — grounds an addition that touches code in an `Explore` run first, and writes the new steps as atomic rows placed where they will actually run rather than appended at the end. A closed row is reopened only on one of three evidence tests (`MATCHING.md`), keeping its original result in the Notes beside the reason and the id of the row that caused it; if the plan looks mid-run, it prints the intended reopens and waits for a yes. It authors and never executes, ending at `/plan-build` or `/plan-continue` — and applies `plan-review`'s cycle inline, because a skill cannot invoke a sibling that sets `disable-model-invocation: true`. |
 | `plan-review` | Reviews and refines a plan until nothing above Very Low remains, then fixes the remaining nits in a closing pass — only deliberate tradeoffs stay, with reasons. Round 1 is run by a reviewer subagent it dispatches, which did not write the plan (`reviewer-prompt.md`); later rounds are scoped re-checks in-thread against the same checklist (`checklist.md`), which also checks whether a plan can be executed unattended: its markers, done-states, failable Verification and scope cuts. Every finding is CONFIRMED with a quote or marked UNVERIFIED, and a stall rule stops the loop if findings stop moving. `/code-review` is an optional extra pass whose mode is logged, never the source of independence. |
 | `verify-changes` | Stages conversation-related changes, runs code review per repo, summarizes. |
 | `migrate` | Ports HTTP endpoints or cron jobs between two codebases, driven by a per-project profile. |
 | `update-js-libs` | Updates npm/yarn/pnpm dependencies, classifies the bumps, runs the project's checks. |
 | `12factor` | Audits a project against the Twelve-Factor App methodology: grades all 12 factors with file-level evidence and fixes, report in chat. |
 
-`skills/plan-shared/` is not a command. It holds what the six `plan-*` skills share, each in one
+`skills/plan-shared/` is not a command. It holds what the seven `plan-*` skills share, each in one
 place: `STOPS.md` (the stop-list), `CONVENTIONS.md` (how a plan is found and read, the severity
 scale) and `scripts/table-claims.sh` (checks a Progress table's shas and paths against git and
 disk). `install.sh` links it beside the skills, which is what lets them reach it.
@@ -101,9 +102,17 @@ short and each one owns exactly one thing.
 ## Contributing to this repo
 
 - **Keep `SKILL.md` under ~200 lines.** Detail goes in a sibling `.md` linked from it —
-  `plan-finish/CHECKLIST.md`, `migrate/RULES.md`. One level of references, no deeper — with two
-  named exceptions: the `plan-*` skills read `plan-shared/`, and `plan-build`'s close-out reads
-  `plan-finish`'s files. Both are one hop to a sibling directory, never a chain.
+  `plan-finish/CHECKLIST.md`, `migrate/RULES.md`. One level of references, no deeper. The
+  exceptions are named here rather than left for a contributor to rediscover and mistake for drift,
+  and each is a single hop into a sibling directory, never a chain. The `plan-*` skills read
+  `plan-shared/`, where the conventions, the stop-list and the claims script each live once, and
+  they read `plan-build`'s contract files — `RULES.md`, `EXECUTION.md`, `DISPATCH.md`,
+  `scripts/row-snapshot.sh` and, for the concurrency check `plan-continue` defers to, `plan-build`'s
+  own `SKILL.md` §2 — because the execution contract, the dispatch tiers and the run
+  directory are written once for the whole family instead of copied into every skill that runs a
+  plan. The close-outs reach sideways too: `plan-build`'s reads `plan-finish`'s files, and
+  `plan-add`'s reads `plan-review`'s, because a skill cannot invoke a sibling that sets
+  `disable-model-invocation: true`.
 - **Run `bash check-plan-skills.sh` after touching any `plan-*` skill, `plan-shared/`, or the plan
   rules.** It checks line counts, frontmatter, that the ladder and stop-list live in one place,
   links, time-sensitive wording, the severity scale, `RULES.md`'s pinned headings, the dispatch

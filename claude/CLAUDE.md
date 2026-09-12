@@ -36,3 +36,7 @@ Writing a plan also means asking whether the work should be tracked in an issue 
 which project — one ticket by default, split only with explicit approval.
 `rules/plan-ticket-tracking.md` owns that, including the `**Ticket:**` line the answer is
 recorded on.
+
+New work for a plan that already exists goes in through `/plan-add`, never a second plan file
+for the same topic: it writes the new rows where they will run, reopens the closed steps the
+addition invalidates, and reviews the whole plan afterwards.
