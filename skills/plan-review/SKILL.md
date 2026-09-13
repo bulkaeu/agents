@@ -13,8 +13,6 @@ argument-hint: "[optional plan path]"
 ---
 # Plan Review
 
-Iteratively review and refine an implementation plan until only **Very Low** findings remain.
-
 **The loop** is the Step headings below, one numbering: Steps 1–3 (review, fix, decide) repeat, one
 **round** per pass, until nothing above Very Low remains; then Step 4 (closing pass) and Step 5.
 
@@ -36,6 +34,9 @@ Do not invoke Bugbot, security review, or project MR/local code-review skills �
 
 Independence comes from a reviewer that did not write the plan, dispatched by this skill. In order:
 
+- **Both writes below are made, in plan mode too**: attempt each; a prompt is the harness answering,
+  so answer it. Never skip one or let the checksum or `git status` stand in: they restore nothing,
+  and an unsaved review cannot be cited. Log either write denied for any cause by its path (Step 5).
 - **Note `git status --short`** in each repository in scope (`CONVENTIONS.md`, *Terms*), a listing —
   path, size, mtime — of the files under any directory the plan names as its base that lie outside every
   repository, and the plan's checksum (`shasum -a 256 <plan>`); save a **write-check snapshot** of the
@@ -49,7 +50,8 @@ Independence comes from a reviewer that did not write the plan, dispatched by th
   the next free number — outside every repository, and never over an earlier cycle's review.
 - **Run the write check** (`DISPATCH.md` §6): every note against the present, plus the scratchpad
   and the review's directory — anything the controller did not write. Any write is a finding; stray
-  files are removed; a changed plan is restored from the snapshot, then re-checked against the checksum.
+  files are removed; a changed plan is restored from the snapshot if one was saved, then re-checked
+  against the checksum — with no snapshot, the change is reported, not restored.
 - **Build the round output** below from the reply — findings, labels, locations, severities as given.
 
 **Host without subagents** — not Cursor, which dispatches: run round 1 in-thread with the same
@@ -110,8 +112,6 @@ the quoted words, or the command and its output. Then a compact table with exact
 - Do **not** fix Very Low items during the loop — churning nits every round blocks convergence. The
   closing pass (Step 4) fixes them once, after the loop stops
 
-In **plan mode**, still edit the **plan file** directly (plan markdown is in-scope). Do not ask for confirmation before plan edits. Only skip writes when the environment truly cannot edit files.
-
 ## Step 3 — Loop decision
 
 After fixes, re-read the **updated** plan and run Step 1 again (new round) — a scoped re-check.
@@ -144,7 +144,7 @@ Append or update a `### Plan review cycle` section in the plan:
 | 1     | …          | …      |
 | 2     | None       | Stopped — very low only |
 
-**Round 1 reviewer:** dispatched subagent, <tier> tier — `<review file>`
+**Round 1 reviewer:** dispatched subagent, <tier> tier — `<review file>` · `denied: <path>` if any
 **Very low (fixed at close):** …
 **Very low (accepted):** … — each with its reason
 ```
@@ -156,8 +156,8 @@ Append or update a `### Plan review cycle` section in the plan:
   never hid Lows behind `None` knowingly), and mixing the two semantics under one header recreates
   the ambiguity the rename removed
 - **Action** — what was fixed that round, or `Stopped — very low only` / `Stop review cycle`
-- **Round 1 reviewer** — `dispatched subagent`, the tier it ran on and the saved review's path; or
-  `same-agent` on a host without subagents. A later cycle adds its own line
+- **Round 1 reviewer** — `dispatched subagent`, the tier it ran on, the review's path if saved, any
+  `denied: <path>`; or `same-agent` on a host without subagents. A later cycle adds its own line
 - **`/code-review`** — only when one ran: a `**/code-review:**` line naming the round and the mode it
   actually ran in
 - **Very low (fixed at close)** — what the closing pass fixed; **(accepted)** — only deliberate
@@ -178,7 +178,7 @@ Final message to the user:
   same Low-or-above finding appears unchanged in two consecutive rounds. Low findings block
   completion too; a stuck Low must not burn rounds silently until the cap. A round the closing pass
   reopens is exempt from the count test — the round before it found none
-- **Plan mode** — edit the plan file freely; do not block on user confirmation for plan markdown updates
+- **Plan mode** — plan markdown is in scope: edit it unasked
 
 ## Examples
 
