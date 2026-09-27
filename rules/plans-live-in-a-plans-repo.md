@@ -40,9 +40,13 @@ is overwritten. These documents outlive the work they describe, so they get a re
   plan in its project directory, commit, and push. No second checkout, no publish step:
 
   ```bash
-  git -C <clone> pull --rebase
   git -C <clone> push
+  git -C <clone> pull --no-rebase   # only if the push was rejected; then push again
   ```
+
+  Prefer a merge pull to `pull --rebase` when more than one session shares the clone: a rebase pull
+  refuses to run while the tree holds someone else's uncommitted edits, and `--autostash` would
+  stash that work.
 
   Record those commands, with the clone's path, at the top of each project directory's
   `README.md`, so the next session does not have to rediscover them.
