@@ -36,19 +36,26 @@ is overwritten. These documents outlive the work they describe, so they get a re
   If a snapshot is worth keeping, it belongs in the repo's `archive/`. That includes plans about
   agent tooling itself (rules, skills, harness settings) — they get a project directory in the
   private plans repo like any other project, not only a Cursor/Claude session file.
-- **The working copy stays where the paths point.** Docs, tickets and agent config reference plan
-  files by their existing path; moving them under a per-project prefix locally breaks all of it.
-  The prefix exists **only on the remote**, so the two differ by design.
-- **Publish with `git subtree`, not a copy.** A flat copy discards the history that motivated
-  having a repo at all.
+- **Work in a plain clone of the plans repo — one checkout, same layout as the remote.** Edit a
+  plan in its project directory, commit, and push. No second checkout, no publish step:
 
   ```bash
-  git -C <clone> subtree pull --prefix=<project> <working-copy> <branch> -m "Sync <project> plans"
+  git -C <clone> pull --rebase
   git -C <clone> push
   ```
 
-  Record those two commands at the top of the project's plan `README.md`, with the clone's path, so
-  the next session does not have to rediscover them.
+  Record those commands, with the clone's path, at the top of each project directory's
+  `README.md`, so the next session does not have to rediscover them.
+- **Push in the same session as the commit.** A plans repo committed but never pushed is a plan
+  that exists on one disk — the failure this rule exists to prevent.
+- **Do not keep a flat local working copy that syncs into the remote's per-project prefix.** It
+  looks attractive, because existing references to plan paths keep working, but it costs more than
+  it saves: the local copy has no remote of its own, so its commits sit unpublished until someone
+  remembers the sync step. The two copies also drift in both directions, so each sync is a merge,
+  and plans for a second project — or for the agent tooling — end up filed under the wrong prefix.
+  If you are moving off that layout, publish every local commit first and confirm the merged
+  remote holds the working copy's whole tree before removing anything. Then update the references
+  to the new paths.
 
 ## Why private
 
