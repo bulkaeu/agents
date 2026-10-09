@@ -142,9 +142,10 @@ the whole change: if it stopped you, these reopens were in what you printed.
 
 - **A scope change that leaves the `## Summary` untrue gets the Summary edit in the same change.**
   It is the first thing anyone reads, and the text a ticket carries whole.
-- **A plan with no ticket line has never been asked the question** — so ask it now
-  (`plan-ticket-tracking.md`) and record the answer on the `**Ticket:**` line, a `none` included.
-  A missing field is not an answer; the next session reads it as an unasked question and asks again.
+- **A plan with no ticket line has never had the question settled** — so settle it now
+  (`plan-ticket-tracking.md`: file to the one destination on record, ask only when it is ambiguous)
+  and record the answer on the `**Ticket:**` line, a `none` included. A missing field is not an
+  answer; the next session reads it as an open question and raises it again.
 - **A ticket this plan filed** gets its description refreshed from the new Summary, no gate: that
   description is this plan's own text. **A ticket the plan adopted** carries someone else's words —
   propose the new description and get a yes, the same courtesy as any destructive edit.

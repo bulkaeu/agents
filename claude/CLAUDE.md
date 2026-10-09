@@ -32,8 +32,9 @@ Every plan opens with a plain-language `## Summary` and a `## Progress` table of
 `rules/plan-progress-section.md` owns both formats. `/plan-summary` renders the Summary in full plus
 a technical twin and the recent + upcoming steps (windowed only when the table outgrows ten rows).
 
-Writing a plan also means asking whether the work should be tracked in an issue tracker and in
-which project — one ticket by default, split only with explicit approval.
+Writing a plan also means settling whether the work is tracked in an issue tracker and in which
+project — filed straight to the one destination on record, asked only when that is ambiguous; one
+ticket by default, split only with explicit approval.
 `rules/plan-ticket-tracking.md` owns that, including the `**Ticket:**` line the answer is
 recorded on.
 

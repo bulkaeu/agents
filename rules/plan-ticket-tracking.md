@@ -1,5 +1,5 @@
 ---
-description: When writing a plan, ask whether it should be tracked in Linear/Jira and in which project — one ticket by default, split only with approval
+description: When writing a plan, settle whether it is tracked in Linear/Jira and in which project — use the one recorded destination, ask only when ambiguous; one ticket by default, split only with approval
 alwaysApply: true
 ---
 
@@ -13,13 +13,28 @@ rule makes it part of writing the plan.
 
 ## The rule
 
-- **Ask, on every plan.** One question, two parts: *should this work be tracked in the issue tracker,
-  and in which project?* Ask even when the project configures no tracker — one can exist outside
-  `.mcp.json`.
-- **Pre-fill, never skip.** Read the project's `.mcp.json` and any memory naming a filing destination,
-  and offer the likely answer. That shortens the question; it does not replace it.
-- **Ask once per plan, not once per turn**, and record the answer (below). Re-asking on every
-  iteration is the nagging this rule must not become.
+- **Settle it on every plan.** One question, two parts: *should this work be tracked in the issue
+  tracker, and in which project?* Every plan gets an answer on its `**Ticket:**` line; not every
+  plan needs the user to give it.
+- **Read before asking.** Check the project's `.mcp.json`, its `AGENTS.md` / `CLAUDE.md`, and any
+  memory naming a filing destination.
+- **Exactly one destination on record → that is the answer. File there and proceed.** A standing
+  instruction naming where this project's work is filed was given so the question need not be
+  repeated. Record the line, and say in one sentence what was filed and where, so a wrong
+  destination is corrected in seconds. Do not stop to ask — an unattended run has nobody to answer,
+  and a question whose answer is already written down is the nagging this rule must not become.
+- **Ask only when it is ambiguous**, offering the likely answer:
+  - nothing on record — ask even when the project configures no tracker, because one can exist
+    outside `.mcp.json`;
+  - more than one recorded destination could fit, or the work spans projects;
+  - the record does not clearly cover this kind of work.
+
+  If nobody is there to answer, do not guess: record `**Ticket:** pending — destination ambiguous`
+  with its `⛔` row and carry on with the plan.
+- **A recorded destination answers *where*, nothing else.** It never approves a split, and it never
+  produces a "no" — `none — not tracked` comes only from the user.
+- **Settle it once per plan, not once per turn**, and record the answer (below). Re-asking on every
+  iteration is the same nagging.
 - **One ticket by default.** A plan maps to one ticket. This rule files one ticket for one plan — it
   is *not* the tool for slicing work into many dependency-linked tickets. If that is what is wanted,
   say so and use a skill built for it.
@@ -32,7 +47,8 @@ rule makes it part of writing the plan.
 - **Update before create.** If a ticket already covers this work, update it. A second ticket for the
   same feature splits the history the user tracks against, which is worse than having none.
 - **File once the answer is yes** — while the plan is being written, not after it is approved. The
-  user naming the project is the authorization to file.
+  user naming the project is the authorization to file, whether they name it in this conversation
+  or named it in advance in the project's instructions or memory.
 - **The ticket's description is the plan's `## Summary`** (plus a pointer to the plan file) — not
   words improvised at filing time. The Summary was written in plain language for exactly the reader
   a ticket has; one text, two homes, no second story. If the Summary changes materially while the
