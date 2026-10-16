@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Link this repo's skills and rules into every agent directory on this machine.
+# Link this repo's skills (including vendored ones) and rules into every agent directory on this machine
+# (Claude, Cursor, and the shared ~/.agents/skills that Codex reads; Codex's instructions file too).
 #
 # The repo is the single source of truth. Each agent dir gets a symlink pointing here,
 # so editing a file in this checkout changes what every agent loads. Idempotent and
@@ -100,6 +101,15 @@ for dir in "$REPO"/skills/*/; do
   link "$REPO/skills/$name" "$HOME/.agents/skills/$name"
 done
 
+# Vendored third-party skills (vendor/ponytail) go to the same three places; names must not
+# shadow skills/* (check-ponytail.sh guards that).
+for dir in "$REPO"/vendor/ponytail/skills/*/; do
+  name="$(basename "$dir")"
+  link "$REPO/vendor/ponytail/skills/$name" "$HOME/.claude/skills/$name"
+  link "$REPO/vendor/ponytail/skills/$name" "$HOME/.cursor/skills/$name"
+  link "$REPO/vendor/ponytail/skills/$name" "$HOME/.agents/skills/$name"
+done
+
 say ""
 say "rules"
 mkdir -p "$HOME/.claude/rules" "$HOME/.cursor/rules"
@@ -112,6 +122,9 @@ done
 say ""
 say "global instructions"
 link "$REPO/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+# Codex reads ~/.codex/AGENTS.md; CLAUDE.md points it at ~/.claude/rules/, so one file covers the rules.
+# (Never link into ~/.codex/rules: that is Codex's command-approval policy, not instructions.)
+link "$REPO/claude/CLAUDE.md" "$HOME/.codex/AGENTS.md"
 
 # every link must resolve, or the skill/rule silently stops loading
 say ""
