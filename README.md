@@ -39,6 +39,7 @@ What it creates:
 | `~/.claude/rules/<name>.md` | `rules/<name>.md` |
 | `~/.cursor/rules/<name>.mdc` | `rules/<name>.md` |
 | `~/.claude/CLAUDE.md` | `claude/CLAUDE.md` |
+| `~/.codex/AGENTS.md` | `claude/CLAUDE.md` |
 
 Cursor requires the `.mdc` extension for rules; a `.mdc` symlink pointing at a `.md` file works
 fine, which is what lets one file serve both agents.
@@ -98,6 +99,47 @@ short and each one owns exactly one thing.
 | `file-links-must-resolve.md` | How a file reference is written so the link resolves from the UI's project root |
 | `shared-state-between-agents.md` | Concurrency between agent sessions sharing one checkout, branch, or pull request |
 | `migration-apply-confirmation.md` | Database migrations are never applied without an explicit yes |
+
+## Vendored: ponytail
+
+`vendor/ponytail/` is a pinned copy of the upstream
+[ponytail](https://github.com/DietrichGebert/ponytail) hooks and skills (`UPSTREAM` records the
+repo, the ref and the resolved sha). It is vendored rather than installed as a plugin so that every
+upgrade is a reviewed diff, and because a plugin plus these hooks would inject the ruleset twice.
+**Never install the marketplace plugin.** `install.sh` links the vendored skills the same way as
+`skills/*`; `check-ponytail.sh` fails if a vendored name would shadow one of ours.
+
+| Command | What it does |
+| --- | --- |
+| `bash update-ponytail.sh [<ref>]` | Copies an allow-listed set of files from the newest upstream `v*` tag (or `<ref>`) into `vendor/ponytail/`, rewrites `UPSTREAM`, then runs the two checks. Never commits. Exit 0 ok, 1 check failed or copy failed, 2 refused or bad usage, 3 only `sanitize-check.sh` failed |
+| `bash check-ponytail.sh [--root <dir>]` | Read-only conflict checks P1–P5: skill-name collisions, hook events, the mode tracker's gate, the subagent matcher variable, a pinned sha |
+| `bash wire-ponytail-hooks.sh [--dry-run \| --uninstall]` | Adds (or refreshes) ponytail's entries in the Claude Code, Cursor and Codex hook files, leaving every other entry alone. Each target is copied to `<file>.bak-ponytail-<YYYYMMDD>` before its first write |
+
+**Subagents.** On Claude Code the `SubagentStart` hook runs with
+`PONYTAIL_SUBAGENT_MATCHER='^general-purpose$'`, so only implementer-type subagents get the
+ruleset. Reviewers (`Explore`) must not: its "end your reply with one or two lines" instruction
+would land after the `Verdict:` line the reviewer contract treats as the reply's last element, and
+inside saved review files. Codex gets no `SubagentStart` hook at all: the hook fails open on an
+unknown payload and Codex's agent-type names are not Claude's, so the matcher could not be trusted
+there. Cursor has no subagent injection upstream.
+
+**Upgrading.** Do it in this order:
+
+1. Create a worktree on a new branch. `update-ponytail.sh` refuses to run on `main` or in the main
+   worktree, because the hooks execute from the main checkout and an update run there would go live
+   before anyone reviewed it.
+2. `bash update-ponytail.sh <tag>`.
+3. Read the diff. It is the review.
+4. If `sanitize-check.sh` flags a new, harmless string (exit 3), add it to `.sanitize-allow`.
+5. Commit, open a PR, merge.
+6. In the main checkout, re-run `bash install.sh` only if a skill was added or removed upstream.
+
+**Re-wiring.** Every hook command starts with the absolute `node` found at wiring time, because
+GUI-launched hosts do not see a shell's `PATH`. If `node` moves, re-run `wire-ponytail-hooks.sh`
+from the main checkout. Codex records trust against each hook's hash: after wiring, and after any
+upgrade that changes a hook command, review and trust the hooks with `/hooks` in the Codex CLI
+(the ChatGPT app bundles one at `/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex`),
+and restart Codex.
 
 ## Contributing to this repo
 
