@@ -61,7 +61,7 @@ below are the disagreements that actually exist; each names the failure mode and
   `127.0.0.1` by default, and that is where it stays: its `visual-companion.md` instructs
   `--host 0.0.0.0` whenever the URL is unreachable from the browser, which exposes the server on
   every interface, guarded only by a per-session key the agent prints into the chat. **Binding it to
-  any other host needs the user's yes in this session.** Separately, every page it serves embeds a
+  any other host needs the user's yes in this session.** Separately, its branding block embeds a
   logo fetched from a third-party host, and that fetch happens unless the environment opts out of it
   — so a session that minds the call either sets one of the opt-out variables the catalogue names,
   or does not start the companion.
@@ -75,10 +75,12 @@ Six skills — all of them vendored — must not start on the model's own initia
 `using-superpowers`. They commit and push, drive a real browser, or pre-approve unrestricted
 `Bash` — and `using-superpowers` asks to be loaded at the start of every conversation.
 
-**What gates them today is this rule and nothing else.** A host-side trigger override is the
-intended mechanism but is configured nowhere yet, so all six still fire on their own descriptions;
-`iterate-pr` even sets `disable-model-invocation: false`, opting itself in. Do not write or act as
-if the gate were in place.
+**In Claude Code the host-side override is configured; everywhere else this rule is the gate.** The
+settings file sets all six user-invocable-only through `skillOverrides`, and that entry governs each
+of them from the moment `install.sh` links it — which has not happened yet for these six. It reaches
+Claude Code only: a host that loads `~/.agents/skills` still sees all six with their triggers
+intact, the gap the catalogue records as accepted. `iterate-pr` even sets
+`disable-model-invocation: false`, opting itself in.
 
 **Gating the trigger is not gating the grant.** Invoking one consents to its declared
 `allowed-tools` for that invocation — unrestricted `Bash` for `skill-scanner`,

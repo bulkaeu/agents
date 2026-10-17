@@ -120,9 +120,10 @@ vendored rather than installed as plugins so that every upgrade is a reviewed di
 upstream hook or marketplace wiring arrives with them. Four skills ship an upstream
 `agents/openai.yaml` — OpenAI/Codex metadata rather than an agent definition, though `iterate-pr`'s
 also carries a `policy:` block opting into implicit invocation. The files sit *inside* the linked
-directories, so they do arrive at `~/.agents/skills/<dir>/agents/`; what keeps them inert is that no
-host used here reads an OpenAI interface file out of a skill directory — whether one that did would
-honour that `policy` key is unverified. No upstream agent arrives at all: the
+directories, so they do arrive at `~/.agents/skills/<dir>/agents/`, and Codex is a host that reads
+them from there: that is the accepted `~/.agents` gap the catalogue records, where the on-demand
+gate does not reach. `iterate-pr`'s `policy:` block grants nothing on top of it, because implicit
+invocation is already that host's default. No upstream agent arrives at all: the
 two that `differential-review` and `sharp-edges` dispatch are parts of an upstream *plugin*, so
 those dispatches fail at runtime (the catalogue has the detail). Ponytail's hooks are the one set
 that is wired, explicitly, by `wire-ponytail-hooks.sh`. `install.sh` links each

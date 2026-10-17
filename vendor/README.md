@@ -95,18 +95,18 @@ evidence and a concrete fix; it is explicitly told to report and change nothing.
 `allowed-tools`. It overlaps our own `/code-review` and `ponytail-review`, so pick one per task
 rather than running all three. No rule of ours modifies it: it writes nothing and pushes nothing.
 
-### `iterate-pr` — to be on demand only (gate pending; see the on-demand set)
+### `iterate-pr` — on demand only (`skillOverrides`; see the on-demand set)
 
 Drives an existing pull request to green: fetch the checks, fetch and bucket the review feedback,
 fix everything high and medium, ask which low-priority items to take, fix CI failures at the root
 cause, verify locally, then commit, push, and poll every thirty seconds until the actionable checks
 pass. Its own frontmatter sets `disable-model-invocation: false` — upstream opts **into** model
 invocation — and its description says not to wait for human approval, draft status or merge gates.
-Its `agents/openai.yaml` opts in a second time for OpenAI-style hosts: its `interface:` block holds
+Its `agents/openai.yaml` says the same thing to OpenAI-style hosts: its `interface:` block holds
 a `default_prompt` telling the agent to drive the current PR until the checks pass, and a top-level
 `policy:` sets `allow_implicit_invocation: true`. It is the only one of the four vendored
-`openai.yaml` files that holds anything beyond interface metadata; whether any host honours that
-`policy` key is unverified from here.
+`openai.yaml` files that holds anything beyond interface metadata, and that `policy` line grants
+nothing Codex would not already do: `allow_implicit_invocation` defaults to true there.
 Four bundled Python scripts run through `uv`: `fetch_pr_checks.py`, `fetch_pr_feedback.py`,
 `monitor_pr_checks.py` and `reply_to_thread.py`, the last of which posts replies to review threads.
 It needs authenticated `gh`, `uv`, and the repository root as the working directory. It declares no
@@ -130,7 +130,7 @@ upstream's own test fixtures. **Our rules modify it at the gate:** creating or e
 user asking in this session. Nothing of ours governs the title format, so upstream's
 `<type>(<scope>): <subject>` stands.
 
-### `skill-scanner` — to be on demand only (gate pending; see the on-demand set)
+### `skill-scanner` — on demand only (`skillOverrides`; see the on-demand set)
 
 Audits a skill directory before adoption, in eight phases: run the bundled static scanner, validate
 the frontmatter, triage prompt-injection hits (a security skill that *documents* injection patterns
@@ -210,7 +210,7 @@ exactly as a migration apply does.
 
 ## playwright-cli
 
-### `playwright-cli` — to be on demand only (gate pending; see the on-demand set)
+### `playwright-cli` — on demand only (`skillOverrides`; see the on-demand set)
 
 Drives a real browser from the shell. The primary interface is the accessibility snapshot with `eN`
 element refs, not screenshots: `open`, `goto`, `snapshot`, `find`, `click`, `type`, `fill`, `select`,
@@ -430,7 +430,7 @@ into it, and finally installs dependencies by detected ecosystem and runs a base
 that later failures are unambiguous. **Our rules:** this project's declared worktree convention wins
 over the `.worktrees/` default the skill falls back to.
 
-### `using-superpowers` — to be on demand only (gate pending; see the on-demand set)
+### `using-superpowers` — on demand only (`skillOverrides`; see the on-demand set)
 
 This is the dispatcher the upstream hook injects, and the reason we do not inject it: its
 description is "Use when starting any conversation", and its body instructs the agent to invoke any
@@ -500,7 +500,7 @@ directories only, so nothing registers those agents and a dispatch of either one
 Run the phase inline instead. `supply-chain-risk-auditor` names no agent; its `agents/openai.yaml`
 is interface metadata, not a dispatch.
 
-### `differential-review` — to be on demand only (gate pending; see the on-demand set)
+### `differential-review` — on demand only (`skillOverrides`; see the on-demand set)
 
 Its description fires on reviewing a PR, a commit or a diff for security problems, on asking
 whether a change re-introduces a fixed bug, on asking what else a change could break, and on
@@ -534,7 +534,7 @@ crypto APIs, configuration and auth patterns, real case studies, and footguns in
 **It pre-approves `Read Grep Glob` only** — it writes nothing and runs nothing. No rule of ours
 modifies it.
 
-### `supply-chain-risk-auditor` — to be on demand only (gate pending; see the on-demand set)
+### `supply-chain-risk-auditor` — on demand only (`skillOverrides`; see the on-demand set)
 
 Its description fires on auditing dependencies or assessing third-party package risk. The measuring
 is done by two Python scripts rather than by the agent, because hand-collected figures were
@@ -605,8 +605,8 @@ actually wanted.
 
 ## The on-demand set and its pre-approvals
 
-Six of the thirty should never start on the model's own initiative. All six currently do, on their
-own descriptions, because the gate below is not yet in place.
+Six of the thirty should never start on the model's own initiative, and the gate below names all
+six by the directory `install.sh` links them under.
 
 | Skill | Why it should be on demand |
 | --- | --- |
@@ -617,12 +617,12 @@ own descriptions, because the gate below is not yet in place.
 | `differential-review` | It pre-approves `Read Write Bash` — unrestricted `Bash` — and its methodology includes a `git checkout` of a baseline commit. |
 | `supply-chain-risk-auditor` | It pre-approves `Read Write Bash` — unrestricted `Bash` — and fires on any dependency question. |
 
-**How (pending).** In Claude Code each **is to be** set user-invocable-only through `skillOverrides`
-in the settings file, edited with `jq -a` so the file's existing escapes survive. **That entry is
-not in place yet**, so read this section as the standard rather than a description of the installed
-state: today all six fire on their own descriptions like any other skill. **Once you call one of
-them, its pre-approvals apply to that invocation anyway** — gating the trigger is not gating the
-grant, and invoking `skill-scanner` is consenting to its `Bash`.
+**How.** In Claude Code each is set user-invocable-only through `skillOverrides` in the settings
+file, edited with `jq -a` so the file's existing escapes survive. **That entry is in place**, and it
+matches by skill name, so it governs each of the six from the moment `install.sh` links it — which
+has not happened yet for these, so the entry currently names six skills the host cannot see at all.
+**Once you call one of them, its pre-approvals apply to that invocation anyway** — gating the
+trigger is not gating the grant, and invoking `skill-scanner` is consenting to its `Bash`.
 
 **How far that reaches, and the gap we accept.** `skillOverrides` is Claude Code only. The rule
 reaches Claude Code and Cursor directly, because `install.sh` links `rules/` into both, and it
@@ -651,8 +651,8 @@ Three of the five grant unrestricted `Bash` — `skill-scanner`, `differential-r
 `supply-chain-risk-auditor` — and all three are in the on-demand set above. `sharp-edges` is the one
 Trail of Bits skill that stays on its own trigger, because `Read Grep Glob` writes and runs nothing.
 One more frontmatter field is worth recording: `iterate-pr` sets `disable-model-invocation: false`,
-so upstream deliberately opts it into model invocation — the pending `skillOverrides` entry is what
-would reverse that here.
+so upstream deliberately opts it into model invocation — the `skillOverrides` entry is what reverses
+that here.
 
 ## How our rules modify these skills
 
@@ -667,13 +667,25 @@ above say where each clause lands.
   without the user asking in this session. That bites `iterate-pr`, `pr-writer`,
   `finishing-a-development-branch`, `receiving-code-review` and `diagnosing-superpowers`.
 - **Worktrees:** the project's declared worktree convention wins over `.worktrees/`.
-- **Migrations:** `migration-apply-confirmation.md` wins over any skill. That reaches the three
-  HashiCorp skills that touch real infrastructure and the Supabase skill that fires on migration
-  work.
+- **Migrations:** `migration-apply-confirmation.md` wins over any skill. That is a database stop,
+  and it reaches the Supabase skill that fires on migration work.
+- **Infrastructure:** `terraform apply`, `apply <planfile>`, `state mv`, `init -upgrade` and
+  `terraform test` need the user's yes in this session. That is a second stop, carried by
+  `rules/third-party-skills.md` itself rather than by the database rule, and it bites three of
+  HashiCorp's four skills — `terraform-search-import`, `refactor-module` and `terraform-test`.
+- **Dependency installs:** `npm install`, `cargo build`, `pip install -r`, `poetry install`,
+  `go mod download` and any `npx` that fetches a package to run it need the user's yes. That bites
+  `using-git-worktrees`, which runs the five installs from its project-setup step with no approval
+  step.
+- **The visual companion stays on loopback:** `brainstorming`'s mockup server keeps its `127.0.0.1`
+  bind, so the `--host 0.0.0.0` that `visual-companion.md` instructs needs the user's yes first.
 - **Close-out:** when a plan exists, `/plan-finish` is the close-out, not
   `finishing-a-development-branch`'s menu.
 - **Vetting and editing:** vendored copies are never edited in place; every bump is read and scanned
   before `install.sh` links it.
+- **A vendored `evals/` or test directory is read, not run:** running one needs the user to ask for
+  that run by name. That bites `pr-writer`'s `EVAL.md`, whose harness is an unpinned fetch plus an
+  unsupervised full-auto agent.
 
 ## Deliberately not adopted
 
