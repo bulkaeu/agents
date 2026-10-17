@@ -1,11 +1,12 @@
 ---
-description: Third-party vendored skills defer to the rules here — plans go to the plans repo with a Progress table, nothing is pushed or merged unasked, and six skills are on demand only
+description: Third-party skills defer to the rules here however they arrived, vendored or plugin or marketplace — plans go to the plans repo with a Progress table, nothing is pushed or merged unasked, and six skills are on demand only
 alwaysApply: true
 ---
 
 # Third-party skills defer to these rules
 
-Applies whenever a vendored third-party skill is loaded or invoked, in any host.
+Applies whenever a third-party skill is loaded or invoked, in any host, however it arrived —
+vendored, installed as a plugin, or pulled from a marketplace.
 
 A vendored skill was written for somebody else's workflow, and it states its conventions as
 confidently as these rules state theirs. **Where the two disagree, the rules here win.** The clauses
@@ -49,7 +50,8 @@ if the gate were in place.
 **Gating the trigger is not gating the grant.** Invoking one consents to its declared
 `allowed-tools` for that invocation — unrestricted `Bash` for `skill-scanner`,
 `differential-review` and `supply-chain-risk-auditor`; for `playwright-cli`, Playwright-scoped
-`Bash` only (the `playwright-cli` and `npx playwright` prefixes, not `npx` at large).
+`Bash` only (three prefixes — `playwright-cli`, `npx playwright` and `npx --no-install playwright`
+— never `npx` at large).
 
 ## Vetting and editing
 
@@ -70,7 +72,8 @@ This rule owns **how third-party skills interact with the rules here**. Siblings
 - `ui-rendered-files-use-write-tool.md` — which tool writes a file a skill tells you to edit.
 
 The vendored catalogue — what each skill is, what it runs, and where each clause above lands — is
-`vendor/README.md` in this repo. This rule owns the ordering; the catalogue owns the inventory.
+`vendor/README.md` in `bulkaeu/agents`. This rule owns the ordering; the catalogue owns the
+inventory.
 
 <!-- Canonical copy: bulkaeu/agents → rules/third-party-skills.md. install.sh links it to
      ~/.claude/rules/third-party-skills.md and ~/.cursor/rules/third-party-skills.mdc. Edit the repo copy,

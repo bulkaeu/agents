@@ -12,6 +12,7 @@ skills/            one directory per skill, each with a SKILL.md
 skills/plan-shared/  files the plan-* skills share — not a skill, so no SKILL.md
 rules/             always-apply rules, one .md each
 claude/            CLAUDE.md — global instructions for Claude Code
+vendor/<name>/     pinned copies of other people's skill sets — see Vendored skills
 install.sh         links all of the above into ~/.claude, ~/.cursor and ~/.agents
 sanitize-check.sh  refuses to publish private identifiers — see Sanitization
 check-plan-skills.sh  static checks for the plan-* skills — see Contributing
@@ -36,6 +37,9 @@ What it creates:
 | `~/.claude/skills/<name>` | `skills/<name>` |
 | `~/.cursor/skills/<name>` | `skills/<name>` |
 | `~/.agents/skills/<name>` | `skills/<name>` |
+| `~/.claude/skills/<dir>` | `vendor/<set>/skills/<dir>` |
+| `~/.cursor/skills/<dir>` | `vendor/<set>/skills/<dir>` |
+| `~/.agents/skills/<dir>` | `vendor/<set>/skills/<dir>` |
 | `~/.claude/rules/<name>.md` | `rules/<name>.md` |
 | `~/.cursor/rules/<name>.mdc` | `rules/<name>.md` |
 | `~/.claude/CLAUDE.md` | `claude/CLAUDE.md` |
@@ -81,6 +85,10 @@ place: `STOPS.md` (the stop-list), `CONVENTIONS.md` (how a plan is found and rea
 scale) and `scripts/table-claims.sh` (checks a Progress table's shas and paths against git and
 disk). `install.sh` links it beside the skills, which is what lets them reach it.
 
+Thirty-six vendored third-party skills are linked beside these and are not listed above;
+[`vendor/README.md`](vendor/README.md) is the catalogue for the thirty in the skills-only sets, and
+ponytail's six have their own section. See Vendored skills.
+
 ## Rules
 
 Every `.md` in `rules/` is loaded automatically by both agents, always-apply. They are deliberately
@@ -99,20 +107,54 @@ short and each one owns exactly one thing.
 | `file-links-must-resolve.md` | How a file reference is written so the link resolves from the UI's project root |
 | `shared-state-between-agents.md` | Concurrency between agent sessions sharing one checkout, branch, or pull request |
 | `migration-apply-confirmation.md` | Database migrations are never applied without an explicit yes |
+| `third-party-skills.md` | How a third-party skill interacts with the rules here — which side wins on each disagreement, and the six skills that are meant to be on demand only |
+
+## Vendored skills
+
+`vendor/` holds nine pinned copies of other people's skill sets — 36 skills in all. Each set's
+`vendor/<name>/UPSTREAM` records the upstream repo, the ref asked for and the resolved 40-hex sha;
+re-pinning **that sha** reproduces the tree byte for byte, while re-pinning a ref only does so when
+the ref is immutable — three sets record `ref: main`, so a bare re-pin takes whatever `main` points
+at then and writes a new sha. They are vendored rather than installed as plugins so that every
+upgrade is a reviewed diff, and so that no upstream hook, agent or marketplace wiring arrives with
+them — except ponytail's hooks, which are vendored too and wired explicitly by
+`wire-ponytail-hooks.sh`. `install.sh` links each `vendor/*/skills/<dir>` into the same three places
+as `skills/*`, by **directory** name.
+
+- `vendor/ponytail/` — 6 skills **and hooks**, the only set with any; it has its own scripts and
+  its own section below.
+- Eight skills-only sets, 30 skills: superpowers (15), getsentry (4), hashicorp (4), trailofbits
+  (3), anthropics (1), playwright-cli (1), supabase (1), vercel (1).
+
+**[`vendor/README.md`](vendor/README.md) is the catalogue** — one entry per skill in the eight
+skills-only sets (what it fires on, what it writes or runs, what it pre-approves, which of our rules
+modify it), the six skills that are meant to be on demand only, what was deliberately not adopted,
+and the per-source bump, per-skill removal and whole-set rollback procedures. It deliberately does
+not cover ponytail, which has its own section below. `rules/third-party-skills.md` is the
+always-apply rule those skills defer to.
+
+| Command | What it does |
+| --- | --- |
+| `bash update-vendor.sh <name> [<ref>]` | Re-pins one of the eight skills-only sets: copies exactly the `path:` lines in `vendor/<name>/SOURCE` and nothing else, replaces `skills/` and `LICENSE` wholesale so a file deleted upstream goes too, rewrites `UPSTREAM`, then runs `check-vendor.sh` and `sanitize-check.sh`. With no `<ref>` it re-pins the ref recorded in `SOURCE`; with one it uses that tag or branch and leaves `SOURCE` alone |
+| `bash check-vendor.sh [--root <dir>]` | Read-only checks across every set: P1, no vendored directory name or frontmatter `name:` shadows one of our skills, another vendored skill, or a skill Claude Code ships itself; P5, every populated set's `UPSTREAM` names a 40-hex sha. A `vendor/<name>/` with no `skills/` yet is skipped by name, not failed |
+
+Neither update script ever commits, and **both refuse to run on `main` or in the main worktree** —
+the installed symlinks point at the main checkout, so an update run there would go live before
+anyone read the diff. Upgrade on a branch in a worktree, review the diff, then merge. Both share
+the same exit codes: 0 updated and checks passed, 1 a structural check or the clone/copy failed,
+2 refused or bad usage, 3 only `sanitize-check.sh` failed. `--help` prints their own header text.
 
 ## Vendored: ponytail
 
 `vendor/ponytail/` is a pinned copy of the upstream
-[ponytail](https://github.com/DietrichGebert/ponytail) hooks and skills (`UPSTREAM` records the
-repo, the ref and the resolved sha). It is vendored rather than installed as a plugin so that every
-upgrade is a reviewed diff, and because a plugin plus these hooks would inject the ruleset twice.
-**Never install the marketplace plugin.** `install.sh` links the vendored skills the same way as
-`skills/*`; `check-ponytail.sh` fails if a vendored name would shadow one of ours.
+[ponytail](https://github.com/DietrichGebert/ponytail) hooks and six skills, and the hooks are why
+it has its own scripts rather than going through `update-vendor.sh`. A plugin plus these hooks would
+inject the ruleset twice: **never install the marketplace plugin.**
 
 | Command | What it does |
 | --- | --- |
-| `bash update-ponytail.sh [<ref>]` | Copies an allow-listed set of files from the newest upstream `v*` tag (or `<ref>`) into `vendor/ponytail/`, rewrites `UPSTREAM`, then runs the two checks. Never commits. Exit 0 ok, 1 check failed or copy failed, 2 refused or bad usage, 3 only `sanitize-check.sh` failed |
-| `bash check-ponytail.sh [--root <dir>]` | Read-only conflict checks P1–P5: skill-name collisions, hook events, the mode tracker's gate, the subagent matcher variable, a pinned sha |
+| `bash update-ponytail.sh [<ref>]` | Copies an allow-listed set of files from the newest upstream `v*` tag (or `<ref>`) into `vendor/ponytail/`, rewrites `UPSTREAM`, then runs three checks — `check-ponytail.sh`, `check-vendor.sh` and `sanitize-check.sh`. Never commits. Exit 0 ok, 1 a structural check or the copy failed, 2 refused or bad usage, 3 only `sanitize-check.sh` failed |
+| `bash check-ponytail.sh [--root <dir>]` | Read-only conflict checks P1–P5, ponytail-specific: its skills' names against ours, hook events, the mode tracker's gate, the subagent matcher variable, a pinned sha. It compares ponytail against `skills/*` only — `check-vendor.sh` is the script that sees every set, so that is what catches a collision between ponytail and another vendored set, or with a name Claude Code ships |
 | `bash wire-ponytail-hooks.sh [--dry-run \| --uninstall]` | Adds (or refreshes) ponytail's entries in the Claude Code, Cursor and Codex hook files, leaving every other entry alone. Each target is copied to `<file>.bak-ponytail-<YYYYMMDD>` before its first write |
 
 **Subagents.** On Claude Code the `SubagentStart` hook runs with
