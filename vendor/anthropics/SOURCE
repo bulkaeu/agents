@@ -1,3 +1,4 @@
 repo: https://github.com/anthropics/skills
 ref: main
+license: skills/frontend-design/LICENSE.txt
 path: skills/frontend-design
