@@ -8,7 +8,7 @@ alwaysApply: true
 Applies whenever a third-party skill is loaded or invoked, in any host, however it arrived —
 vendored, installed as a plugin, or pulled from a marketplace.
 
-A vendored skill was written for somebody else's workflow, and it states its conventions as
+A third-party skill was written for somebody else's workflow, and it states its conventions as
 confidently as these rules state theirs. **Where the two disagree, the rules here win.** The clauses
 below are the disagreements that actually exist; each names the failure mode and which side wins.
 
@@ -37,10 +37,10 @@ below are the disagreements that actually exist; each names the failure mode and
 
 ## On demand only
 
-Six vendored skills must not start on the model's own initiative: `iterate-pr`, `playwright-cli`,
-`skill-scanner`, `differential-review`, `supply-chain-risk-auditor`, `using-superpowers`. They
-commit and push, drive a real browser, or pre-approve unrestricted `Bash` — and `using-superpowers`
-asks to be loaded at the start of every conversation.
+Six skills — all of them vendored — must not start on the model's own initiative: `iterate-pr`,
+`playwright-cli`, `skill-scanner`, `differential-review`, `supply-chain-risk-auditor`,
+`using-superpowers`. They commit and push, drive a real browser, or pre-approve unrestricted
+`Bash` — and `using-superpowers` asks to be loaded at the start of every conversation.
 
 **What gates them today is this rule and nothing else.** A host-side trigger override is the
 intended mechanism but is configured nowhere yet, so all six still fire on their own descriptions;
@@ -57,8 +57,8 @@ if the gate were in place.
 
 - **Never edit a vendored copy in place** — a fix goes upstream or into one of our own skills; the
   next re-pin silently reverts an in-place edit, so the work is lost rather than merged.
-- **Never install a vendored skill twice**, as a plugin or marketplace entry beside the vendored
-  copy: two live copies at different versions is a skill nobody can reason about.
+- **Never install a third-party skill twice** — a plugin or marketplace entry beside the vendored
+  copy, or the reverse: two live copies at different versions is a skill nobody can reason about.
 - **Read and scan every new source and every bump before it is linked.** The diff is the review.
 
 ## Ownership

@@ -113,13 +113,17 @@ short and each one owns exactly one thing.
 
 `vendor/` holds nine pinned copies of other people's skill sets — 36 skills in all. Each set's
 `vendor/<name>/UPSTREAM` records the upstream repo, the ref asked for and the resolved 40-hex sha;
-re-pinning **that sha** reproduces the tree byte for byte, while re-pinning a ref only does so when
-the ref is immutable — three sets record `ref: main`, so a bare re-pin takes whatever `main` points
-at then and writes a new sha. They are vendored rather than installed as plugins so that every
-upgrade is a reviewed diff, and so that no upstream hook, agent or marketplace wiring arrives with
-them — except ponytail's hooks, which are vendored too and wired explicitly by
-`wire-ponytail-hooks.sh`. `install.sh` links each `vendor/*/skills/<dir>` into the same three places
-as `skills/*`, by **directory** name.
+that sha identifies the tree exactly (check it out upstream to see what was vendored), but
+`update-vendor.sh <name> [<ref>]` takes a branch or tag, never a sha — three sets record
+`ref: main`, so a bare re-pin takes whatever `main` points at then and writes a new sha. They are
+vendored rather than installed as plugins so that every upgrade is a reviewed diff, and so that no
+upstream hook or marketplace wiring arrives with them. Four skills ship an upstream
+`agents/openai.yaml` — OpenAI/Codex interface metadata, not an agent definition — and nothing
+reads it, because `install.sh` links skill directories only. No upstream agent arrives at all: the
+two that `differential-review` and `sharp-edges` dispatch are parts of an upstream *plugin*, so
+those dispatches fail at runtime (the catalogue has the detail). Ponytail's hooks are the one set
+that is wired, explicitly, by `wire-ponytail-hooks.sh`. `install.sh` links each
+`vendor/*/skills/<dir>` into the same three places as `skills/*`, by **directory** name.
 
 - `vendor/ponytail/` — 6 skills **and hooks**, the only set with any; it has its own scripts and
   its own section below.
