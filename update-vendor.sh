@@ -75,7 +75,7 @@ fi
 # --- 1. shallow-clone the ref ------------------------------------------------------
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-git clone --quiet --depth 1 --branch "$REF" "$UPSTREAM_URL" "$TMP/src" \
+git clone --quiet --depth 1 --branch "$REF" -- "$UPSTREAM_URL" "$TMP/src" \
   || { echo "clone of $UPSTREAM_URL at $REF failed" >&2; exit 1; }
 SRC="$TMP/src"
 SHA="$(git -C "$SRC" rev-parse HEAD)"
@@ -121,7 +121,7 @@ fi
 
 # --- 4. report, never commit -------------------------------------------------------
 echo
-git -C "$REPO" diff --stat -- "vendor/$NAME"
+git -C "$REPO" status --short -- "vendor/$NAME"
 echo
 if [[ -n "$OLD_SHA" && "$OLD_SHA" != "$SHA" ]]; then
   echo "upstream range: $OLD_SHA..$SHA"
@@ -131,4 +131,4 @@ elif [[ "$OLD_SHA" == "$SHA" ]]; then
 else
   echo "first vendoring at $SHA"
 fi
-echo "Nothing is committed. Review the diff above, then commit on this branch."
+echo "Nothing is committed. Review the changes above, then commit on this branch."
