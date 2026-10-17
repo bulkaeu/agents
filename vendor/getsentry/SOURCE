@@ -1,0 +1,7 @@
+repo: https://github.com/getsentry/skills
+ref: main
+license: LICENSE
+path: skills/iterate-pr
+path: skills/pr-writer
+path: skills/find-bugs
+path: skills/skill-scanner

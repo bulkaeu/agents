@@ -1,0 +1,4 @@
+repo: https://github.com/microsoft/playwright-cli
+ref: v0.1.22
+license: LICENSE
+path: skills/playwright-cli
