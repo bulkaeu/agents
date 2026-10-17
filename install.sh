@@ -105,7 +105,7 @@ done
 # guards that names do not shadow skills/*, another vendor set or a bundled Claude Code name
 # (check-ponytail.sh still covers ponytail's hooks).
 for dir in "$REPO"/vendor/*/skills/*/; do
-  [[ -d "$dir" ]] || continue   # no nullglob: a vendor/<name>/ without skills/ leaves the glob literal
+  [[ -d "$dir" ]] || continue   # no nullglob: if nothing matches at all the glob stays literal; a partial match lists only real dirs
   src="${dir%/}"; name="$(basename "$src")"
   link "$src" "$HOME/.claude/skills/$name"
   link "$src" "$HOME/.cursor/skills/$name"
