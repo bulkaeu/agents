@@ -118,8 +118,11 @@ that sha identifies the tree exactly (check it out upstream to see what was vend
 `ref: main`, so a bare re-pin takes whatever `main` points at then and writes a new sha. They are
 vendored rather than installed as plugins so that every upgrade is a reviewed diff, and so that no
 upstream hook or marketplace wiring arrives with them. Four skills ship an upstream
-`agents/openai.yaml` — OpenAI/Codex interface metadata, not an agent definition — and nothing
-reads it, because `install.sh` links skill directories only. No upstream agent arrives at all: the
+`agents/openai.yaml` — OpenAI/Codex metadata rather than an agent definition, though `iterate-pr`'s
+also carries a `policy:` block opting into implicit invocation. The files sit *inside* the linked
+directories, so they do arrive at `~/.agents/skills/<dir>/agents/`; what keeps them inert is that no
+host used here reads an OpenAI interface file out of a skill directory — whether one that did would
+honour that `policy` key is unverified. No upstream agent arrives at all: the
 two that `differential-review` and `sharp-edges` dispatch are parts of an upstream *plugin*, so
 those dispatches fail at runtime (the catalogue has the detail). Ponytail's hooks are the one set
 that is wired, explicitly, by `wire-ponytail-hooks.sh`. `install.sh` links each

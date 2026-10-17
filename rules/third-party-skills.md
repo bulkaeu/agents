@@ -41,13 +41,13 @@ below are the disagreements that actually exist; each names the failure mode and
   `migration-apply-confirmation.md` puts on a database migration, for the same reason: real
   resources change, or the recorded state does. `terraform test` is on that list because it runs in
   apply mode unless told otherwise, creating and destroying real infrastructure; `terraform-test`
-  and `refactor-module` both say so, then show the bare command. Of the others,
-  `terraform-search-import` instructs a bare `apply`, and `refactor-module` a `state mv` and an
-  `apply <planfile>`. The `init -upgrade` no skill's prose instructs: it is inside
+  and `refactor-module` both say so, and `terraform-test` then shows the bare command. Of the
+  others, `terraform-search-import` instructs a bare `apply`, and `refactor-module` a `state mv`
+  and an `apply <planfile>`. The `init -upgrade` no skill's prose instructs: it is inside
   `terraform-search-import/scripts/list_resources.sh`, which runs it whenever `.terraform` is
   absent and discards the output, so the provider download and the rewritten `.terraform.lock.hcl`
   — pinned versions moved — are invisible to both agent and user. **That helper therefore needs the
-  same yes as the command it hides** — a gate on four command strings that a wrapper walks straight
+  same yes as the command it hides** — a gate on five command strings that a wrapper walks straight
   through is not a gate. **Do not lean on Terraform's own prompt:** a bare `apply` asks
   interactively, but an apply of a saved plan file is non-interactive by design, and `state mv` and
   `terraform test` never ask at all. That is why this rule has to.
@@ -57,6 +57,14 @@ below are the disagreements that actually exist; each names the failure mode and
   skill's initiative. `using-git-worktrees` runs all five from its "project setup" step, each one
   guarded on the matching manifest file being present and on nothing else — no approval step
   anywhere. Setting up a worktree is not consent to run third-party install hooks.
+- **The brainstorming visual companion stays on loopback.** `brainstorming`'s mockup server binds
+  `127.0.0.1` by default, and that is where it stays: its `visual-companion.md` instructs
+  `--host 0.0.0.0` whenever the URL is unreachable from the browser, which exposes the server on
+  every interface, guarded only by a per-session key the agent prints into the chat. **Binding it to
+  any other host needs the user's yes in this session.** Separately, every page it serves embeds a
+  logo fetched from a third-party host, and that fetch happens unless the environment opts out of it
+  — so a session that minds the call either sets one of the opt-out variables the catalogue names,
+  or does not start the companion.
 - **Close-out.** When a plan exists, `/plan-finish` is the close-out. A skill's merge/PR menu is at
   most the integration step inside it, run with the user's explicit yes.
 

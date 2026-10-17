@@ -30,8 +30,11 @@ fi
 [[ -d "$ROOT/vendor" && -d "$ROOT/skills" ]] \
   || { echo "not a copy of this repo (needs vendor/ and skills/): $ROOT" >&2; exit 2; }
 
-# Skills Claude Code ships itself. Taken from a session's own skill listing; extended by hand.
-RESERVED=" code-review simplify security-review init loop schedule run "
+# Skills Claude Code ships itself. Taken from sessions' own skill listings; extended by hand.
+# Single space between every name and at both ends: P1 matches on *" $nm "*.
+RESERVED=" code-review simplify security-review init loop schedule run update-config \
+keybindings-help fewer-permission-prompts plugin-authoring workflow-authoring claude-api \
+dataviz artifact-design "
 
 checks=0
 failed=0

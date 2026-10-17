@@ -4,7 +4,9 @@
 `SOURCE` (the repo, the ref, the licence path and one `path:` line per adopted skill directory),
 `UPSTREAM` (the repo, the ref and the resolved 40-hex sha), a `LICENSE` where upstream ships one,
 and `skills/<skill>/` per adopted skill. `update-vendor.sh` copies exactly what `SOURCE` lists and
-nothing else, so a re-pin of the same ref reproduces the tree byte for byte.
+nothing else, and the recorded **sha** is what identifies the tree: a re-pin at a tag or a commit
+ref reproduces it byte for byte, while a re-pin at a branch ref takes whatever the branch points at
+then and writes a new sha.
 
 They are vendored rather than installed as plugins so that every upgrade is a reviewed diff, and so
 that no upstream hook, agent or marketplace wiring arrives with them. `install.sh` links each
@@ -100,6 +102,11 @@ fix everything high and medium, ask which low-priority items to take, fix CI fai
 cause, verify locally, then commit, push, and poll every thirty seconds until the actionable checks
 pass. Its own frontmatter sets `disable-model-invocation: false` — upstream opts **into** model
 invocation — and its description says not to wait for human approval, draft status or merge gates.
+Its `agents/openai.yaml` opts in a second time for OpenAI-style hosts: its `interface:` block holds
+a `default_prompt` telling the agent to drive the current PR until the checks pass, and a top-level
+`policy:` sets `allow_implicit_invocation: true`. It is the only one of the four vendored
+`openai.yaml` files that holds anything beyond interface metadata; whether any host honours that
+`policy` key is unverified from here.
 Four bundled Python scripts run through `uv`: `fetch_pr_checks.py`, `fetch_pr_feedback.py`,
 `monitor_pr_checks.py` and `reply_to_thread.py`, the last of which posts replies to review threads.
 It needs authenticated `gh`, `uv`, and the repository root as the working directory. It declares no
@@ -268,9 +275,21 @@ design document, has a fresh subagent read it as the builder would (`builder-che
 sorts the questions that come back into answered, minor and theirs. A `HARD-GATE` blocks all
 building, scaffolding, dependency installs and implementation skills until the human approves the
 description. It can start a local Node server for a visual companion
-(`scripts/start-server.sh`, `server.cjs`, a random high port bound to loopback by default). It hands
-off to `writing-plans`. **Our rules modify where its output goes:** designs and specs go to the
-plans repo, not `docs/superpowers/specs/`, and they open with a Summary and a Progress table.
+(`scripts/start-server.sh`, `server.cjs`, a random high port bound to loopback by default, reached
+through a per-session key in the served URL). **Two things that server does are worth knowing before
+the next bump.** Its branding block embeds an `<img>` pointing at a hardcoded logo on
+`primeradiant.com`, with the installed superpowers version as a query parameter
+(`server.cjs:106`, `:242-249`) — so opening the companion calls out to the skill author's host and
+tells it which version is running. The fetch is suppressed only if one of
+`SUPERPOWERS_DISABLE_TELEMETRY`, `DISABLE_TELEMETRY` or
+`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is truthy in the environment (`:107-112`), and nothing
+in this repo sets them. And `visual-companion.md:95-101` instructs
+`--host 0.0.0.0` whenever the URL is unreachable from the browser, which drops the loopback bind and
+exposes the server — the mockups and the key the agent prints into the chat — to every host that
+can route to the machine. `rules/third-party-skills.md` keeps the bind on loopback unless the user
+says otherwise; the fetch is the session's to opt out of. It hands off to `writing-plans`.
+**Our rules modify where its output goes:** designs and specs go to the plans repo, not
+`docs/superpowers/specs/`, and they open with a Summary and a Progress table.
 
 ### `writing-plans` — fires automatically by description
 
@@ -557,9 +576,10 @@ while the frontmatter name is `vercel-react-best-practices`. No rule of ours mod
 hooks, its subagent matcher, its upgrade order and its three helper scripts. It is kept there rather
 than duplicated here so that each vendored set is described in exactly one place. Note that it is
 the only vendored source with hooks. `install.sh` does not treat it specially: its six skills are
-linked by the same `vendor/*/skills/*/` loop as every other set, and the name check that covers
-ponytail's own collisions is `check-ponytail.sh`, which `update-ponytail.sh` runs and `install.sh`
-does not.
+linked by the same `vendor/*/skills/*/` loop as every other set, and `check-vendor.sh`'s name sweep
+includes it like any other `vendor/*/` with a `skills/`. `check-ponytail.sh` adds the checks that
+are specific to it — its hook events, its mode tracker, its subagent matcher, its pinned sha —
+comparing names against `skills/*` only. `update-ponytail.sh` runs both; `install.sh` runs neither.
 
 ---
 
@@ -688,6 +708,14 @@ checkout and an update there would go live before anyone read it.
 6. Commit, open a PR, merge.
 7. From the main checkout, `bash install.sh` — needed when a skill directory was added or removed
    upstream, harmless otherwise.
+
+**A branch-pinned set cannot be re-pinned to its recorded sha through this script.**
+`update-vendor.sh` passes `<ref>` to `git clone --branch`, which takes a tag or a branch and never a
+sha, and `anthropics`, `getsentry` and `trailofbits` all record `ref: main` — so for those three a
+bare re-pin takes whatever `main` points at that day. Their recorded sha is for verification (check
+it out upstream to see exactly what was vendored), not for reproducing the tree. Pinning them to an
+immutable ref would mean putting a sha or a tag in `SOURCE` and teaching the script to fetch it,
+which is a change nobody has asked for yet.
 
 ## Removing one skill
 

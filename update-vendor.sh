@@ -23,8 +23,11 @@
 #
 # skills/ and LICENSE are replaced wholesale, so a file deleted upstream goes too. Each
 # `path:` lands at vendor/<name>/skills/<its last component>. vendor/<name>/UPSTREAM records
-# the repo URL, the ref used and the resolved 40-hex sha, with no timestamp, so re-pinning
-# the same ref reproduces the tree byte for byte.
+# the repo URL, the ref used and the resolved 40-hex sha, with no timestamp. The sha is what
+# identifies the tree: re-pinning an immutable ref — a tag or a commit — reproduces it byte
+# for byte, while re-pinning a branch ref takes whatever the branch points at then and writes
+# a new sha. `git clone --branch` takes no sha, so a branch-pinned set cannot be re-pinned to
+# its recorded one through this script; there the sha is for verification only.
 #
 set -euo pipefail
 
@@ -52,6 +55,18 @@ LICENSE_PATH="$(src_key license)"
 PATHS=()
 while IFS= read -r line; do PATHS+=("$line"); done < <(sed -n 's/^path: //p' "$DEST/SOURCE")
 (( ${#PATHS[@]} > 0 )) || { echo "vendor/$NAME/SOURCE lists no path: lines" >&2; exit 2; }
+
+# Every path: and license: value is joined onto the clone directory below, and tested only
+# with -d/-f — so an absolute value, or one with a `..` segment, would resolve outside the
+# clone and be copied in from the machine. SOURCE is reviewed input, so this is a guard
+# against a typo or a bad bump, not a live hole.
+for p in "${PATHS[@]}" "$LICENSE_PATH"; do
+  [[ -n "$p" ]] || continue
+  [[ "$p" != /* ]] \
+    || { echo "vendor/$NAME/SOURCE: path must be relative to the clone, got: $p" >&2; exit 2; }
+  [[ "/$p/" != */../* ]] \
+    || { echo "vendor/$NAME/SOURCE: path must not contain a .. segment, got: $p" >&2; exit 2; }
+done
 
 # --- 0. refuse on main or in the main worktree -------------------------------------
 branch="$(git -C "$REPO" symbolic-ref --short -q HEAD || true)"
