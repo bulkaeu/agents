@@ -22,7 +22,7 @@
 # --repo  a repository in scope; repeatable. Default: the cwd's repository.
 # The plan file itself is excluded from every diff. A diff over ROW_SNAPSHOT_MAX_LINES (default
 # 4000) lines is truncated with a note. Exit 0 on success, 2 on a usage error, 3 when a base cannot
-# be recorded (mid-rebase, no commits): the row then runs inline, labelled.
+# be recorded (mid-rebase, no commits) or used (unrelated to HEAD, nothing differs): run inline.
 set -euo pipefail
 
 usage() { sed -n '3,25p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
@@ -89,6 +89,38 @@ record_base() { # <toplevel>
   echo "base $row · $top · ${sha:0:12} · $(tr -cd '\0' <"$row_dir/untracked-$key.list" | wc -c | tr -d ' ') untracked copied"
 }
 
+# Reject a base that cannot yield a meaningful range. A wrong-branch or wrong-checkout HEAD gives a
+# range that is unrelated to the base or empty, and either diffs plausibly but wrongly.
+check_base() { # <toplevel> <sha> <key>
+  local top="$1" sha="$2" key="$3" list="$row_dir/untracked-$3.list" f
+  # A `git stash create` base has two parents and its first is the HEAD it was taken from, so it is
+  # still usable once HEAD has moved on; a real commit has one parent and must be an ancestor itself.
+  if ! git -C "$top" merge-base --is-ancestor "$sha" HEAD 2>/dev/null; then
+    # Stash-shaped is >1 parent, so `rev-list --parents -n1` prints >2 fields (the sha, then each).
+    # Parent count alone cannot tell a stash from a merge commit, and `base` records either — a clean
+    # tree makes the base whatever HEAD is — so the subject `git stash create` writes is required too.
+    if (( $(git -C "$top" rev-list --parents -n1 "$sha" 2>/dev/null | wc -w) < 3 )) \
+      || [[ "$(git -C "$top" log -1 --format=%s "$sha")" != 'WIP on '* ]] \
+      || ! git -C "$top" merge-base --is-ancestor "$sha^1" HEAD 2>/dev/null; then
+      die 3 "base ${sha:0:12} is not an ancestor of HEAD in $top (wrong branch or checkout?) — run inline"
+    fi
+  fi
+  (( $(git -C "$top" rev-list --count "$sha..HEAD") == 0 )) || return 0   # commits since the base
+  git -C "$top" diff --quiet "$sha" || return 0                           # tracked work in the tree
+  # Untracked work `git diff` cannot see. A file untracked at base counts once it stops matching its
+  # base copy — edited, or gone; one still identical to its copy is noise, not work.
+  if [[ -n "$key" && -f "$list" ]]; then
+    while IFS= read -r -d '' f; do
+      cmp -s "$row_dir/untracked/$key/$f" "$top/$f" || return 0
+    done <"$list"
+  fi
+  while IFS= read -r -d '' f; do          # a path untracked now and not at base is new work
+    if [[ -n "$key" && -f "$list" ]] && tr '\0' '\n' <"$list" | grep -qxF -- "$f"; then continue; fi
+    return 0
+  done < <(git -C "$top" ls-files -o --exclude-standard -z)
+  die 3 "nothing differs from base ${sha:0:12} in $top (wrong branch or checkout?) — run inline"
+}
+
 # Diff one repo against <sha>. <key> names its base copies; empty means none recorded.
 diff_repo() { # <toplevel> <sha> <key> <label>
   local top="$1" sha="$2" key="$3" label="$4" skip f copy_root copy_esc
@@ -133,14 +165,17 @@ fi
 mkdir -p "$row_dir"
 n=1; while [[ -e "$row_dir/diff-$n.patch" ]]; do n=$((n + 1)); done
 out="$row_dir/diff-$n.patch"
+trap 'rm -f "$out.full"' EXIT   # check_base can exit 3 part-way through the write below
 {
   for r in "${repos[@]}"; do
     top="$(toplevel "$r")"
     if [[ -n "$ref" ]]; then
       sha="$(git -C "$top" rev-parse --verify -q "$ref^{commit}")" || die 2 "ref '$ref' does not resolve in $top"
+      check_base "$top" "$sha" ""
       diff_repo "$top" "$sha" "" "$ref (${sha:0:12})"
     elif line="$(grep -F "$top"$'\t' "$row_dir/base.tsv" 2>/dev/null | head -1)" && [[ -n "$line" ]]; then
       IFS=$'\t' read -r _ sha key <<<"$line"
+      check_base "$top" "$sha" "$key"
       diff_repo "$top" "$sha" "$key" "recorded base ${sha:0:12}"
     else
       sha="$(git -C "$top" rev-parse HEAD)"

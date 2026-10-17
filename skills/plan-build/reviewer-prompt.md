@@ -81,6 +81,12 @@ can escape its intended place.
 - Missing tests, unless the brief requires them.
 - "Could be a problem" with no failure you can describe.
 
+Dropping an observation under this list is not the end of it. Anything you set aside that a reader
+might expect you to have judged goes in `Declined to judge` in your reply, one line with the reason,
+so the controller gets a ruling instead of silence. That section is **not** a place for findings you
+could not prove: a declined item is explicitly not a finding, carries no severity, and never
+affects the verdict. `none` is a normal answer.
+
 ## Reading the implementer's status
 
 **Status tokens:** `DONE` · `DONE_WITH_CONCERNS` · `BLOCKED` · `NEEDS_CONTEXT`
@@ -98,6 +104,9 @@ Spec:
   F<n>: ADDRESSED | NOT ADDRESSED — <evidence>   (rereview mode)
 Findings:
   F<n> · <severity> · CONFIRMED | UNVERIFIED · <file:line> — <what fails, and how you know>
+  (or: none)
+Declined to judge:
+  <what you considered> — <why you set it aside>
   (or: none)
 Verdict: PASS | FAIL
 ```
