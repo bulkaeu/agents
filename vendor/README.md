@@ -623,9 +623,9 @@ six by the frontmatter `name:` Claude Code matches on — which is not always th
 
 **How.** In Claude Code each is set user-invocable-only through `skillOverrides` in the settings
 file, edited with `jq -a` so the file's existing escapes survive. **That entry is in place**, and it
-matches the frontmatter `name:`, so it governs each of the six from the moment `install.sh` links it
-— which has not happened yet: none of the thirty is linked, pending the install, so the entry
-currently names six skills the host cannot see at all.
+matches the frontmatter `name:`, so it has governed each of the six since `install.sh` linked them
+— observed in a live session, whose skill listing omits exactly these six while their files sit on
+disk: they are linked, and merely invisible to the model.
 **Once you call one of them, its pre-approvals apply to that invocation anyway** — gating the
 trigger is not gating the grant, and invoking `skill-scanner` is consenting to its `Bash`.
 
