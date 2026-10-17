@@ -54,9 +54,9 @@ below are the disagreements that actually exist; each names the failure mode and
 - **Dependency installs.** `npm install`, `cargo build`, `pip install -r`, `poetry install`,
   `go mod download` — and any `npx <package>` that fetches a package in order to run it — execute
   whatever lifecycle scripts the resolved dependencies carry. They need the user's yes, not a
-  skill's initiative. `using-git-worktrees` runs all five from its "project setup" step, each one
-  guarded on the matching manifest file being present and on nothing else — no approval step
-  anywhere. Setting up a worktree is not consent to run third-party install hooks.
+  skill's initiative. `using-git-worktrees` runs the five installs from its "project setup" step,
+  each one guarded on the matching manifest file being present and on nothing else — no approval
+  step anywhere. Setting up a worktree is not consent to run third-party install hooks.
 - **The brainstorming visual companion stays on loopback.** `brainstorming`'s mockup server binds
   `127.0.0.1` by default, and that is where it stays: its `visual-companion.md` instructs
   `--host 0.0.0.0` whenever the URL is unreachable from the browser, which exposes the server on
@@ -77,9 +77,10 @@ Six skills — all of them vendored — must not start on the model's own initia
 
 **In Claude Code the host-side override is configured; everywhere else this rule is the gate.** The
 settings file sets all six user-invocable-only through `skillOverrides`, and that entry governs each
-of them from the moment `install.sh` links it — which has not happened yet for these six. It reaches
-Claude Code only: a host that loads `~/.agents/skills` still sees all six with their triggers
-intact, the gap the catalogue records as accepted. `iterate-pr` even sets
+of them from the moment `install.sh` links it — which has not happened yet, as none of the
+catalogue's thirty is linked until the install runs. It reaches Claude Code only: a host that loads
+`~/.agents/skills` still sees all six with their triggers intact, the gap the catalogue records as
+accepted. `iterate-pr` even sets
 `disable-model-invocation: false`, opting itself in.
 
 **Gating the trigger is not gating the grant.** Invoking one consents to its declared

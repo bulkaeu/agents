@@ -283,7 +283,10 @@ the next bump.** Its branding block embeds an `<img>` pointing at a hardcoded lo
 tells it which version is running. The fetch is suppressed only if one of
 `SUPERPOWERS_DISABLE_TELEMETRY`, `DISABLE_TELEMETRY` or
 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is truthy in the environment (`:107-112`), and nothing
-in this repo sets them. And `visual-companion.md:95-101` instructs
+in this repo sets them. The server reads them once as it starts, so the variable has to be in the
+environment of whatever launches the companion — Claude Code's `env` object in its settings file, or
+a shell profile, which also covers hosts that do not read that file. And
+`visual-companion.md:95-101` instructs
 `--host 0.0.0.0` whenever the URL is unreachable from the browser, which drops the loopback bind and
 exposes the server — the mockups and the key the agent prints into the chat — to every host that
 can route to the machine. `rules/third-party-skills.md` keeps the bind on loopback unless the user
@@ -606,7 +609,8 @@ actually wanted.
 ## The on-demand set and its pre-approvals
 
 Six of the thirty should never start on the model's own initiative, and the gate below names all
-six by the directory `install.sh` links them under.
+six by the frontmatter `name:` Claude Code matches on — which is not always the directory
+`install.sh` links them under.
 
 | Skill | Why it should be on demand |
 | --- | --- |
@@ -619,8 +623,9 @@ six by the directory `install.sh` links them under.
 
 **How.** In Claude Code each is set user-invocable-only through `skillOverrides` in the settings
 file, edited with `jq -a` so the file's existing escapes survive. **That entry is in place**, and it
-matches by skill name, so it governs each of the six from the moment `install.sh` links it — which
-has not happened yet for these, so the entry currently names six skills the host cannot see at all.
+matches the frontmatter `name:`, so it governs each of the six from the moment `install.sh` links it
+— which has not happened yet: none of the thirty is linked, pending the install, so the entry
+currently names six skills the host cannot see at all.
 **Once you call one of them, its pre-approvals apply to that invocation anyway** — gating the
 trigger is not gating the grant, and invoking `skill-scanner` is consenting to its `Bash`.
 
