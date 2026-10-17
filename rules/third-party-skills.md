@@ -75,12 +75,12 @@ Six skills — all of them vendored — must not start on the model's own initia
 `using-superpowers`. They commit and push, drive a real browser, or pre-approve unrestricted
 `Bash` — and `using-superpowers` asks to be loaded at the start of every conversation.
 
-**In Claude Code the host-side override is configured; everywhere else this rule is the gate.** The
+**In Claude Code the host-side override is in force; everywhere else this rule is the gate.** The
 settings file sets all six user-invocable-only through `skillOverrides`, and that entry governs each
-of them from the moment `install.sh` links it — which has not happened yet, as none of the
-catalogue's thirty is linked until the install runs. It reaches Claude Code only: a host that loads
-`~/.agents/skills` still sees all six with their triggers intact, the gap the catalogue records as
-accepted. `iterate-pr` even sets
+of them from the moment `install.sh` links it — which it has: all six are linked, and the override
+has been observed holding, in a live session whose skill listing omits exactly those six while their
+files sit on disk. It reaches Claude Code only: a host that loads `~/.agents/skills` still sees all
+six with their triggers intact, the gap the catalogue records as accepted. `iterate-pr` even sets
 `disable-model-invocation: false`, opting itself in.
 
 **Gating the trigger is not gating the grant.** Invoking one consents to its declared
