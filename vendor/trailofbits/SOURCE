@@ -1,0 +1,6 @@
+repo: https://github.com/trailofbits/skills
+ref: main
+license: LICENSE
+path: plugins/differential-review/skills/differential-review
+path: plugins/sharp-edges/skills/sharp-edges
+path: plugins/supply-chain-risk-auditor/skills/supply-chain-risk-auditor

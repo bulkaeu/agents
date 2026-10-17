@@ -1,0 +1,7 @@
+repo: https://github.com/hashicorp/agent-skills
+ref: v1.0.0
+license: LICENSE
+path: terraform/code-generation/skills/terraform-style-guide
+path: terraform/code-generation/skills/terraform-test
+path: terraform/module-generation/skills/refactor-module
+path: terraform/code-generation/skills/terraform-search-import

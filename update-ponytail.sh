@@ -13,7 +13,7 @@
 #
 # Exit codes:
 #   0  updated, checks passed
-#   1  check-ponytail.sh failed (or is missing), or the clone/copy failed
+#   1  check-ponytail.sh or the vendor-set check failed (or is missing), or the clone/copy failed
 #   2  refused (main branch or main worktree) or bad usage
 #   3  only sanitize-check.sh failed: a new false positive, not a structural problem
 #
@@ -123,11 +123,11 @@ echo "vendored $UPSTREAM_URL at $REF ($SHA)"
 if [[ ! -f "$REPO/check-ponytail.sh" ]]; then
   echo "check-ponytail.sh is missing" >&2; exit 1
 fi
-if ! bash "$REPO/check-ponytail.sh"; then
-  echo "check-ponytail.sh FAILED" >&2; exit 1
+if ! bash "$REPO/check-ponytail.sh" || ! bash "$REPO/check-vendor.sh"; then
+  echo "check-ponytail.sh or the vendor-set check FAILED" >&2; exit 1
 fi
 if ! bash "$REPO/sanitize-check.sh"; then
-  echo "sanitize-check.sh FAILED (check-ponytail.sh passed): likely a new false positive" >&2
+  echo "sanitize-check.sh FAILED (the structural checks passed): likely a new false positive" >&2
   exit 3
 fi
 

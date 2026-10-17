@@ -101,13 +101,15 @@ for dir in "$REPO"/skills/*/; do
   link "$REPO/skills/$name" "$HOME/.agents/skills/$name"
 done
 
-# Vendored third-party skills (vendor/ponytail) go to the same three places; names must not
-# shadow skills/* (check-ponytail.sh guards that).
-for dir in "$REPO"/vendor/ponytail/skills/*/; do
-  name="$(basename "$dir")"
-  link "$REPO/vendor/ponytail/skills/$name" "$HOME/.claude/skills/$name"
-  link "$REPO/vendor/ponytail/skills/$name" "$HOME/.cursor/skills/$name"
-  link "$REPO/vendor/ponytail/skills/$name" "$HOME/.agents/skills/$name"
+# Vendored third-party skills (vendor/*/skills/*) go to the same three places; check-vendor.sh
+# guards that names do not shadow skills/*, another vendor set or a bundled Claude Code name
+# (check-ponytail.sh still covers ponytail's hooks).
+for dir in "$REPO"/vendor/*/skills/*/; do
+  [[ -d "$dir" ]] || continue   # no nullglob: if nothing matches at all the glob stays literal; a partial match lists only real dirs
+  src="${dir%/}"; name="$(basename "$src")"
+  link "$src" "$HOME/.claude/skills/$name"
+  link "$src" "$HOME/.cursor/skills/$name"
+  link "$src" "$HOME/.agents/skills/$name"
 done
 
 say ""

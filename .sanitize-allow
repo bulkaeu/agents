@@ -2,3 +2,73 @@ ABC-123
 LICENSE-2.0
 Strip UTF-8 BOM
 /c/Users/... is absolute to Node
+# Entries below come from the vendored third-party text under vendor/. Each one is a false
+# positive of the generic tracker-id pattern (encodings, cloud regions, placeholder ids, CVE and
+# licence ids, example filenames), never a private term. A line containing an entry is excused whole,
+# so each entry is the longest string that still kills its hit.
+[SKILL-SEC-001]
+# encodings, in code
+encoding="utf-8"
+decode("utf-8"
+encode("utf-8")
+decode("latin-1"
+encode("utf-16")
+, 'utf-8')
+encoding: 'utf-8'
+charset=utf-8'
+<meta charset="utf-8">
+# encodings, in prose
+not UTF-8
+invalid UTF-8
+as UTF-8, refusing
+UTF-8 by RFC 8259
+UTF-8, or regenerate
+UTF-16LE
+is UTF-16
+(UTF-16)
+(UTF-16 code units)
+// UTF-16 range
+# AWS regions and placeholder ids in terraform examples
+"us-east-1a"
+"us-east-1b"
+"us-east-1"
+"us-west-2"
+"us-west-2a"
+region=us-west-2
+should be in us-east-1 region
+Should include us-west-2a in mocked
+arn:aws:ec2:us-west-2:123456789012:
+"ami-0c55b159cbfafe1f0"
+"ami-12345678"
+"vpc-12345678"
+"sg-12345678"
+ubuntu-focal-20.04-amd64
+["web-1", "web-2", "web-3"]
+Pre-1.1
+SPDX-License-Identifier: MPL-2.0
+# example filenames and version labels
+page-2026-02-14T19-22-42-679Z.yml
+login-flow-2024-01-15.webm
+checkout-test-run-42.webm
+or drop pre-13 support?
+(pre-1.22)
+animate-pulse h-20 bg-gray-200
+# placeholder tokens
+<EMAIL-1>
+<REPO-5>
+# a comment line that quotes a home path, matched by its leading words so no path fragment is allowed
+Bash, rev-parse prints C:
+# advisory, CVE and crypto names
+CVE-2024-1234
+CVE-2018-16152
+CVE-2013-0156
+CVE-2019-15548
+"GHSA-1"
+| GHSA-1 |
+"GO-2026-1"
+'aes-256-gcm'
+internally uses AES-256-GCM
+"SHA-256 is secure"
+# gitlab host as a string in code and its test
+("github.com/", "gitlab.com/")
+"gitlab.com/a/b"
