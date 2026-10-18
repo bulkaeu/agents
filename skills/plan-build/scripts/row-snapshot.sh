@@ -110,7 +110,7 @@ check_base() { # <toplevel> <sha> <key>
       die 3 "base ${sha:0:12} is not an ancestor of HEAD in $top (wrong branch or checkout?) — run inline"
     fi
   fi
-  (( $(git -C "$top" rev-list --count "$sha..HEAD") == 0 )) || return 0   # commits since the base
+  (( $(git -C "$top" rev-list --count "$sha..HEAD" -- . ${excl[@]+"${excl[@]}"}) == 0 )) || return 0  # commits since base
   git -C "$top" diff --quiet "$sha" -- . ${excl[@]+"${excl[@]}"} || return 0   # tracked work in tree
   # Untracked work `git diff` cannot see. A file untracked at base counts once it stops matching its
   # base copy — edited, or gone; one still identical to its copy is noise, not work.
