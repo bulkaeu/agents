@@ -125,17 +125,21 @@ Subagents are dispatched by tier — **standard**, **strong**, **strongest** —
 a version or an id: the newest model of that family the host offers is the one meant, so a new
 release needs no edit here.
 
-| Tier | Claude Code | Cursor |
-| --- | --- | --- |
-| standard | Sonnet | Composer |
-| strong | Opus | Grok, at high effort where the host offers a choice |
-| strongest | Fable | Grok, as for strong — Cursor has two tiers |
+| Tier | Claude Code | Cursor | Codex |
+| --- | --- | --- | --- |
+| standard | Sonnet | Composer | Luna, at high effort |
+| strong | Opus | Grok, at high effort where the host offers a choice | Sol, at medium effort |
+| strongest | Fable | Grok, as for strong — Cursor has two tiers | Sol, at high effort |
 
 - **On Cursor, pick from the host's own list of subagent models** — the family's newest entry. A
   family the list does not offer means `inherit`, logged once per run in the Run log. **Never pass
   a Claude model on Cursor**: it bills a separate, costlier quota, so a dispatch naming one is a
   defect even when it works.
-- **On any other host**, dispatch with `inherit` for every tier, logged once per run.
+- **On Codex, pass the model and the effort on each spawn** — Codex lets a spawn set both. The
+  model is the family's newest entry in the host's own model list; a family the list does not offer
+  means `inherit`, logged once per run in the Run log. **Never name a Claude model on Codex.**
+- **On any other host** than these three, dispatch with `inherit` for every tier, logged once per
+  run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
 
 ## On Codex
