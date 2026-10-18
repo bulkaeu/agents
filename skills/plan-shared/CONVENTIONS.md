@@ -149,9 +149,11 @@ The skills name Claude Code mechanisms. On Codex, read each one as follows:
 - **Subagents:** an `Explore` dispatch uses the `explorer` agent, a `general-purpose` one the
   `worker` agent; *Model tiers* gives the model. Where subagents are unavailable, use the
   `review: same-agent` fallback (`DISPATCH.md`, *Fallback — a host without subagents*).
-- **Plan mode, `ExitPlanMode` and `PreToolUse` prompts:** Codex has none of these. A stop that
-  depends on one of them does not apply there; **every other stop in `STOPS.md` still binds**,
-  unchanged.
+- **Plan mode and `ExitPlanMode`:** Codex has no equivalent. A stop that depends on one of them
+  does not apply there; **every other stop in `STOPS.md` still binds**, unchanged.
+- **`PreToolUse` prompts:** Codex's approval prompt is the equivalent gate, raised whenever a
+  command needs to leave the sandbox. `STOPS.md`'s *A harness prompt is not a stop-list item*
+  carries over: answer the prompt, and never rephrase, chain or wrap a command to get past it.
 - **`bypassPermissions`:** the ban carries over. On Codex it is a ban on
   `--dangerously-bypass-approvals-and-sandbox`, `approval_policy = "never"` and
   `danger-full-access` — a skill never switches any of them on.
