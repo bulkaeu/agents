@@ -1,5 +1,5 @@
 ---
-description: Third-party skills defer to the rules here however they arrived, vendored or plugin or marketplace — plans go to the plans repo with a Progress table, nothing is pushed or merged unasked, and six skills are on demand only
+description: Third-party skills defer to the rules here however they arrived, vendored or plugin or marketplace — plans go to the plans repo with a Progress table, nothing is pushed or merged unasked, and five skills are on demand only
 alwaysApply: true
 ---
 
@@ -17,8 +17,8 @@ below are the disagreements that actually exist; each names the failure mode and
 - **Plans and specs.** A brainstorming or plan-writing skill that files its output into a docs
   directory inside the project is wrong here: the document goes to the plans repo
   (`plans-live-in-a-plans-repo.md`) and opens with a Summary and a Progress table
-  (`plan-progress-section.md`). Keep the skill's own `### Task N:` headings below that opening —
-  downstream task extraction parses them.
+  (`plan-progress-section.md`). Keep the skill's own task headings below that opening, if anything
+  that skill ships parses them.
 - **Progress ticking.** A plan-executing skill ticks the Progress table as it goes, at every
   boundary. Tracking only in its todo list or its own ledger leaves the table stale, which is the
   one defect `plan-progress-section.md` exists to prevent.
@@ -26,9 +26,9 @@ below are the disagreements that actually exist; each names the failure mode and
   unless the user asked in this session. A skill that says not to wait for human approval
   (`iterate-pr`), or that offers a push/PR step when a branch is finished, does not override that:
   commit or push only when asked. **That includes a commit made as a by-product of something else** —
-  `using-git-worktrees` commits a `.gitignore` edit as a precondition of a setup step. Say what the
-  commit would contain before making it; a commit nobody was told about is the same unasked write
-  whether it was the point of the step or incidental to it.
+  a `.gitignore` edit committed as a precondition of a setup step, say. Say what the commit would
+  contain before making it; a commit nobody was told about is the same unasked write whether it was
+  the point of the step or incidental to it.
 - **Worktrees.** The project's declared worktree convention — in its own `AGENTS.md` / `CLAUDE.md` —
   wins over a skill's `.worktrees/` default; if the project declares none, ask before creating one.
   Sessions may share the checkout, so `shared-state-between-agents.md` governs the branch, the index
@@ -54,35 +54,24 @@ below are the disagreements that actually exist; each names the failure mode and
 - **Dependency installs.** `npm install`, `cargo build`, `pip install -r`, `poetry install`,
   `go mod download` — and any `npx <package>` that fetches a package in order to run it — execute
   whatever lifecycle scripts the resolved dependencies carry. They need the user's yes, not a
-  skill's initiative. `using-git-worktrees` runs the five installs from its "project setup" step,
-  each one guarded on the matching manifest file being present and on nothing else — no approval
-  step anywhere. Setting up a worktree is not consent to run third-party install hooks.
-- **The brainstorming visual companion stays on loopback.** `brainstorming`'s mockup server binds
-  `127.0.0.1` by default, and that is where it stays: its `visual-companion.md` instructs
-  `--host 0.0.0.0` whenever the URL is unreachable from the browser, which exposes the server on
-  every interface, guarded only by a per-session key the agent prints into the chat. **Binding it to
-  any other host needs the user's yes in this session.** Separately, its branding block embeds a
-  logo fetched from a third-party host, and that fetch happens unless the environment opts out of it
-  — so a session that minds the call either sets one of the opt-out variables the catalogue names,
-  or does not start the companion.
+  skill's initiative — including an install run from a setup step only because a manifest file is
+  present. Setting up a worktree is not consent to run third-party install hooks.
 - **Close-out.** When a plan exists, `/plan-finish` is the close-out. A skill's merge/PR menu is at
   most the integration step inside it, run with the user's explicit yes.
 
 ## On demand only
 
-Six skills — all of them vendored — must not start on the model's own initiative: `iterate-pr`,
-`playwright-cli`, `skill-scanner`, `differential-review`, `supply-chain-risk-auditor`,
-`using-superpowers`. They commit and push, drive a real browser, or pre-approve unrestricted
-`Bash` — and `using-superpowers` asks to be loaded at the start of every conversation.
+Five skills — all of them vendored — must not start on the model's own initiative: `iterate-pr`,
+`playwright-cli`, `skill-scanner`, `differential-review`, `supply-chain-risk-auditor`. They commit
+and push, drive a real browser, or pre-approve unrestricted `Bash`.
 
 **In Claude Code the host-side override is in force; everywhere else this rule is the gate.** The
-settings file sets all six user-invocable-only through `skillOverrides`, and that entry governs each
-of them from the moment `install.sh` links it — which it has: all six are linked, and the override
-has been observed holding, in a live session whose skill listing omits exactly those six while their
-files sit on disk. It reaches Claude Code only, so `install.sh` keeps `using-superpowers` out of
-`~/.cursor/skills` and `~/.agents/skills` entirely — on Codex it fired on every prompt. A host that
-loads those directories still sees the other five with their triggers intact, the gap the catalogue
-records as accepted. `iterate-pr` even sets `disable-model-invocation: false`, opting itself in.
+settings file sets all five user-invocable-only through `skillOverrides`, and that entry governs each
+of them from the moment `install.sh` links it — which it has: all five are linked, and the override
+has been observed holding, in a live session whose skill listing omits exactly those five while their
+files sit on disk. It reaches Claude Code only: a host that loads `~/.cursor/skills` or
+`~/.agents/skills` still sees all five with their triggers intact, the gap the catalogue records as
+accepted. `iterate-pr` even sets `disable-model-invocation: false`, opting itself in.
 
 **Gating the trigger is not gating the grant.** Invoking one consents to its declared
 `allowed-tools` for that invocation — unrestricted `Bash` for `skill-scanner`,

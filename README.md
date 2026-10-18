@@ -39,7 +39,7 @@ What it creates:
 | `~/.agents/skills/<name>` | `skills/<name>` |
 | `~/.claude/skills/<dir>` | `vendor/<set>/skills/<dir>` |
 | `~/.cursor/skills/<dir>` | `vendor/<set>/skills/<dir>` |
-| `~/.agents/skills/<dir>` | `vendor/<set>/skills/<dir>` (all but `using-superpowers`, which is Claude Code only) |
+| `~/.agents/skills/<dir>` | `vendor/<set>/skills/<dir>` |
 | `~/.claude/rules/<name>.md` | `rules/<name>.md` |
 | `~/.cursor/rules/<name>.mdc` | `rules/<name>.md` |
 | `~/.claude/CLAUDE.md` | `claude/CLAUDE.md` |
@@ -93,8 +93,8 @@ ignores `disable-model-invocation`, so each `plan-*` skill carries an `agents/op
 file. Claude Code mechanisms the skills name map to Codex equivalents, or have none, as listed in
 [`CONVENTIONS.md` § On Codex](skills/plan-shared/CONVENTIONS.md#on-codex).
 
-Thirty-six vendored third-party skills are linked beside these and are not listed above;
-[`vendor/README.md`](vendor/README.md) is the catalogue for the thirty in the skills-only sets, and
+Twenty-one vendored third-party skills are linked beside these and are not listed above;
+[`vendor/README.md`](vendor/README.md) is the catalogue for the fifteen in the skills-only sets, and
 ponytail's six have their own section. See Vendored skills.
 
 ## Rules
@@ -115,11 +115,11 @@ short and each one owns exactly one thing.
 | `file-links-must-resolve.md` | How a file reference is written so the link resolves from the UI's project root |
 | `shared-state-between-agents.md` | Concurrency between agent sessions sharing one checkout, branch, or pull request |
 | `migration-apply-confirmation.md` | Database migrations are never applied without an explicit yes |
-| `third-party-skills.md` | How a third-party skill interacts with the rules here — which side wins on each disagreement, and the six skills that are meant to be on demand only |
+| `third-party-skills.md` | How a third-party skill interacts with the rules here — which side wins on each disagreement, and the five skills that are meant to be on demand only |
 
 ## Vendored skills
 
-`vendor/` holds nine pinned copies of other people's skill sets — 36 skills in all. Each set's
+`vendor/` holds eight pinned copies of other people's skill sets — 21 skills in all. Each set's
 `vendor/<name>/UPSTREAM` records the upstream repo, the ref asked for and the resolved 40-hex sha;
 that sha identifies the tree exactly (check it out upstream to see what was vendored), but
 `update-vendor.sh <name> [<ref>]` takes a branch or tag, never a sha — three sets record
@@ -139,19 +139,19 @@ that is wired, explicitly, by `wire-ponytail-hooks.sh`. `install.sh` links each
 
 - `vendor/ponytail/` — 6 skills **and hooks**, the only set with any; it has its own scripts and
   its own section below.
-- Eight skills-only sets, 30 skills: superpowers (15), getsentry (4), hashicorp (4), trailofbits
-  (3), anthropics (1), playwright-cli (1), supabase (1), vercel (1).
+- Seven skills-only sets, 15 skills: getsentry (4), hashicorp (4), trailofbits (3), anthropics (1),
+  playwright-cli (1), supabase (1), vercel (1).
 
-**[`vendor/README.md`](vendor/README.md) is the catalogue** — one entry per skill in the eight
+**[`vendor/README.md`](vendor/README.md) is the catalogue** — one entry per skill in the seven
 skills-only sets (what it fires on, what it writes or runs, what it pre-approves, which of our rules
-modify it), the six skills that are meant to be on demand only, what was deliberately not adopted,
+modify it), the five skills that are meant to be on demand only, what was deliberately not adopted,
 and the per-source bump, per-skill removal and whole-set rollback procedures. It deliberately does
 not cover ponytail, which has its own section below. `rules/third-party-skills.md` is the
 always-apply rule those skills defer to.
 
 | Command | What it does |
 | --- | --- |
-| `bash update-vendor.sh <name> [<ref>]` | Re-pins one of the eight skills-only sets: copies exactly the `path:` lines in `vendor/<name>/SOURCE` and nothing else, replaces `skills/` and `LICENSE` wholesale so a file deleted upstream goes too, rewrites `UPSTREAM`, then runs `check-vendor.sh` and `sanitize-check.sh`. With no `<ref>` it re-pins the ref recorded in `SOURCE`; with one it uses that tag or branch and leaves `SOURCE` alone |
+| `bash update-vendor.sh <name> [<ref>]` | Re-pins one of the seven skills-only sets: copies exactly the `path:` lines in `vendor/<name>/SOURCE` and nothing else, replaces `skills/` and `LICENSE` wholesale so a file deleted upstream goes too, rewrites `UPSTREAM`, then runs `check-vendor.sh` and `sanitize-check.sh`. With no `<ref>` it re-pins the ref recorded in `SOURCE`; with one it uses that tag or branch and leaves `SOURCE` alone |
 | `bash check-vendor.sh [--root <dir>]` | Read-only checks across every set: P1, no vendored directory name or frontmatter `name:` shadows one of our skills, another vendored skill, or a skill Claude Code ships itself; P5, every populated set's `UPSTREAM` names a 40-hex sha. A `vendor/<name>/` with no `skills/` yet is skipped by name, not failed |
 
 Neither update script ever commits, and **both refuse to run on `main` or in the main worktree** —

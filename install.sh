@@ -108,10 +108,6 @@ for dir in "$REPO"/vendor/*/skills/*/; do
   [[ -d "$dir" ]] || continue   # no nullglob: if nothing matches at all the glob stays literal; a partial match lists only real dirs
   src="${dir%/}"; name="$(basename "$src")"
   link "$src" "$HOME/.claude/skills/$name"
-  # using-superpowers says "use when starting any conversation"; only Claude Code can hold it to
-  # on-demand (skillOverrides), so Cursor and Codex never get it. Its references/ stay reachable:
-  # siblings read ../using-superpowers/ through their own symlink's target, not this directory.
-  [[ "$name" == using-superpowers ]] && continue
   link "$src" "$HOME/.cursor/skills/$name"
   link "$src" "$HOME/.agents/skills/$name"
 done

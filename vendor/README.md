@@ -11,8 +11,7 @@ then and writes a new sha.
 They are vendored rather than installed as plugins so that every upgrade is a reviewed diff, and so
 that no upstream hook, agent or marketplace wiring arrives with them. `install.sh` links each
 `vendor/*/skills/<dir>` into `~/.claude/skills/<dir>`, `~/.cursor/skills/<dir>` and
-`~/.agents/skills/<dir>` — the same three places as our own `skills/*`, by **directory** name —
-except `using-superpowers`, which goes to `~/.claude/skills/` only (see its section).
+`~/.agents/skills/<dir>` — the same three places as our own `skills/*`, by **directory** name.
 `check-vendor.sh` fails if a vendored directory name or frontmatter `name:` would shadow one of
 ours, another vendored skill, or a skill Claude Code ships itself.
 
@@ -23,7 +22,7 @@ pre-approves, which siblings it hands off to, and how our rules modify it. `vend
 
 ## Sources
 
-Thirty skills from eight sources. Attribution is to the upstream repository; the licence column
+Fifteen skills from seven sources. Attribution is to the upstream repository; the licence column
 records what the vendored `LICENSE` file actually says.
 
 | Source | Upstream repo | Ref · sha | Licence | Skills |
@@ -33,12 +32,16 @@ records what the vendored `LICENSE` file actually says.
 | `hashicorp` | github.com/hashicorp/agent-skills | `v1.0.0` · `146815e` | MPL 2.0 (`LICENSE`); skill metadata says Copyright IBM Corp. 2026 | 4 |
 | `playwright-cli` | github.com/microsoft/playwright-cli | `v0.1.22` · `b85c7a7` | Apache 2.0 (`LICENSE`, Copyright (c) Microsoft Corporation) | 1 |
 | `supabase` | github.com/supabase/agent-skills | `v0.1.9` · `544bfc5` | MIT (`LICENSE`, Copyright (c) 2026 Supabase) | 1 |
-| `superpowers` | github.com/obra/superpowers | `v7.0.0` · `bb92a77` | MIT (`LICENSE`, Copyright (c) 2025 Jesse Vincent) | 15 |
 | `trailofbits` | github.com/trailofbits/skills | `main` · `5c99c03` | CC BY-SA 4.0 (`LICENSE`) — attribution and share-alike required | 3 |
 | `vercel` | github.com/vercel-labs/agent-skills | `agent-skills-063bee94c3f4df8453406c830b0a7df0f2860278` · `063bee9` | MIT — **no licence file**, see below | 1 |
 
 Refs are written in full, because `update-vendor.sh` passes a `<ref>` straight to
 `git clone --branch`; only the sha column abbreviates.
+
+**Removed: superpowers.** `obra/superpowers` `v7.0.0` (15 skills, MIT) was vendored on 2026-10-17
+and removed on 2026-10-18. No agent invoked one of its skills by name, while its `using-superpowers`
+dispatcher loaded unasked on Codex and pulled the others in after it, at real token cost. The last
+copy, catalogue text included, is readable in git at `4461b00`.
 
 **Two facts a reader cannot see from the tree.**
 
@@ -250,254 +253,6 @@ never runs SQL.
 
 ---
 
-## superpowers
-
-Fifteen skills, MIT, from `obra/superpowers` v7.0.0. They are a connected set: they refer to each
-other as `superpowers:<name>`, and some reach sideways by relative path —
-`../using-superpowers/references/<harness>-tools.md`, and
-`../subagent-driven-development/scripts/<script>` from `executing-plans`. Those paths resolve
-because `install.sh` links every skill directory side by side in one directory, and they resolve in
-this checkout too. **Dropping one superpowers skill can break another's references**, so check the
-relative paths before removing one.
-
-The upstream `SessionStart` hook is **not** adopted; see "The superpowers hook we skip" below.
-
-### `brainstorming` — fires automatically by description
-
-Its description is the most forceful in the set: use it before any creative work, in software or
-out of it. It replaces proposing with asking — the first message offers an opt-out and then asks one
-open question; every later message ends with exactly one question, and understanding is played back
-in 200 to 300 word chunks that alternate with the questions. It covers ground rather than a script
-(what the thing is, why now, goals and anti-goals, prior art, current state), marks guesses as
-guesses, thinks wide privately before proposing, offers to go and look at code or the web, and
-offers a throwaway spike when building something is the cheapest way to learn. It then sizes the
-work — quick task, small change, or a project with a written design — and for a project writes a
-design document, has a fresh subagent read it as the builder would (`builder-check-prompt.md`), and
-sorts the questions that come back into answered, minor and theirs. A `HARD-GATE` blocks all
-building, scaffolding, dependency installs and implementation skills until the human approves the
-description. It can start a local Node server for a visual companion
-(`scripts/start-server.sh`, `server.cjs`, a random high port bound to loopback by default, reached
-through a per-session key in the served URL). **Two things that server does are worth knowing before
-the next bump.** Its branding block embeds an `<img>` pointing at a hardcoded logo on
-`primeradiant.com`, with the installed superpowers version as a query parameter
-(`server.cjs:106`, `:242-249`) — so opening the companion calls out to the skill author's host and
-tells it which version is running. The fetch is suppressed only if one of
-`SUPERPOWERS_DISABLE_TELEMETRY`, `DISABLE_TELEMETRY` or
-`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is truthy in the environment (`:107-112`), and nothing
-in this repo sets them. The server reads them once as it starts, so the variable has to be in the
-environment of whatever launches the companion — Claude Code's `env` object in its settings file, or
-a shell profile, which also covers hosts that do not read that file. And
-`visual-companion.md:95-101` instructs
-`--host 0.0.0.0` whenever the URL is unreachable from the browser, which drops the loopback bind and
-exposes the server — the mockups and the key the agent prints into the chat — to every host that
-can route to the machine. `rules/third-party-skills.md` keeps the bind on loopback unless the user
-says otherwise; the fetch is the session's to opt out of. It hands off to `writing-plans`.
-**Our rules modify where its output goes:** designs and specs go to the plans repo, not
-`docs/superpowers/specs/`, and they open with a Summary and a Progress table.
-
-### `writing-plans` — fires automatically by description
-
-Fires once a spec or a set of requirements exists, before code. It writes the plan for an engineer
-who has seen neither the codebase nor the spec: map the files first, right-size tasks so each one
-carries its own test cycle and is worth a fresh reviewer's gate, and cut steps so each is one action
-with a checkable result. It mandates a plan header — Goal, Architecture, Tech Stack, the Spec's
-path, Global Constraints copied verbatim, and a Review Focus section naming the five uncovered
-failure modes most likely to bite — and a per-task block with exact Files, an Interfaces block
-naming what the task consumes and produces, and TDD steps ending in a commit. A five-point
-self-review closes it: spec coverage, a step scan for steps that decide nothing or transcribe code,
-type and signature consistency across tasks, Review Focus coverage, and proportion against the
-spec's own length. Default output is `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`, and it
-ends by asking the human to choose subagent-driven or inline execution. **Our rules modify it in
-three ways:** the plan lives in the plans repo, it opens with a Summary and a Progress table, and it
-keeps superpowers' `### Task N:` headings below those, because the `task-brief` script extracts a
-task by matching that heading.
-
-### `executing-plans` — fires automatically by description
-
-Fires when the human chose inline execution at the plan handoff, or when the harness has no subagent
-tool. It executes the plan itself, task by task, without pausing between tasks, with TDD as the
-per-task gate and a single fresh-context review of the whole branch at the end. Because a compacted
-context re-implements tasks whose commits already exist, it keeps a ledger at
-`<repo-root>/.superpowers/sdd/<plan-basename>/progress.md` whose first line names the plan, and it
-trusts that ledger and `git log` over its own recollection. Deviations are decided, not escalated,
-and recorded as `Ruling: <what you decided> — <why> — <what it costs if wrong>`; only four things
-stop it — an irreversible or destructive operation, a security-sensitive action, a side effect
-outside the worktree such as a merge, a push or a publish, and a plan too broken to guess at. It
-runs two bash scripts, `scripts/task-start` and `scripts/task-done`, which call
-`subagent-driven-development`'s `task-brief` and `sdd-workspace`, and it requires
-`test-driven-development` before Task 1. It hands off to `systematic-debugging` on an unexpected
-failure and to `finishing-a-development-branch` at the end. **Our rules:** it ticks the plan's
-Progress table as it goes, `/plan-finish` is the close-out when a plan exists, and its pushes and
-merges wait for the user.
-
-### `subagent-driven-development` — fires automatically by description
-
-Fires on a plan whose tasks are mostly independent. It dispatches a fresh implementer subagent per
-task (`implementer-prompt.md`), builds a review package, dispatches a task reviewer for spec
-compliance and code quality (`task-reviewer-prompt.md`), and runs up to five scoped fix rounds
-(`re-review-prompt.md`), escalating to a fresh implementer on a more capable model at round four;
-then one broad whole-branch review using `requesting-code-review`'s `code-reviewer.md`. It shares
-the workspace, the ledger and the "rulings, not stalls" discipline with `executing-plans`, so a plan
-can change executors mid-flight. Three bash scripts: `sdd-workspace` (one git-ignored directory per
-plan, with a marker naming its owning plan so two plans cannot read each other's artifacts),
-`task-brief` (extracts one `### Task N:` section to a file), and `review-package` (commit list, stat
-summary and the net diff for a recorded BASE..HEAD range). A model-selection section tiers the roles
-— cheap for mechanical tasks, the most capable model for the final review. Before Task 1 it scans
-the plan for conflicts and writes the scan out as a table of rows, not a verdict. **Our rules:** it
-ticks the Progress table; our own `/plan-build` covers the same ground, so run one or the other per
-plan rather than nesting them; pushes and merges stay gated.
-
-### `test-driven-development` — fires automatically by description
-
-Fires before any implementation code, for features, bug fixes, refactors and behaviour changes, with
-throwaway prototypes, generated code and configuration as the only exceptions, and those only after
-asking. The iron law is that no production code exists without a failing test first, and code
-written before its test is deleted rather than adapted or kept for reference. It spells out
-red-green-refactor step by step, what makes a test worth having, a verification checklist, and a
-rationalization table for the usual excuses. It writes tests and runs the project's own test
-command; no scripts, no pre-approvals. `executing-plans` loads it as a required sub-skill before
-Task 1; `subagent-driven-development` leaves it to the task ("write tests following TDD if the task
-says to"). It names no sibling of its own — its own debugging advice is one line, "write a failing
-test reproducing the bug" — and the handoff to `systematic-debugging` on an unexplained failure
-is `executing-plans`', not this skill's. No rule of ours modifies it.
-
-### `systematic-debugging` — fires automatically by description
-
-Fires on any bug, test failure or unexpected behaviour, before any fix is proposed. Its iron law is
-no fix without root-cause investigation, and it is emphatic that the rule matters most under time
-pressure. Four phases must complete in order, starting with reading the error text and stack trace
-properly, reproducing consistently, checking what changed recently, and — in a multi-component
-system — adding instrumentation at each component boundary before proposing anything. Sibling
-documents cover root-cause tracing, condition-based waiting instead of arbitrary timeouts (with a
-TypeScript example), and defence in depth; `find-polluter.sh` (bash) bisects a test suite to find
-the test that pollutes shared state. It also says what to do when the process finds no root cause.
-No pre-approvals. No rule of ours modifies it.
-
-### `requesting-code-review` — fires automatically by description
-
-Fires on finishing a task, completing a major feature, or before a merge. It dispatches a
-`general-purpose` reviewer subagent built from the `code-reviewer.md` template with a BASE and HEAD
-sha and a precisely constructed context — never the session's history, because the coordinator's
-context is what the delegation is protecting. Findings come back graded, and the skill says to fix
-Critical immediately, fix Important before proceeding, note Minor, and push back with technical
-reasoning where the reviewer is wrong. It writes nothing itself and runs only `git rev-parse`. Both
-plan executors use it for the final whole-branch review. **Our rules:** `/plan-build` already runs a
-reviewer that did not write the code, so this is the mechanism for work outside a plan.
-
-### `receiving-code-review` — fires automatically by description
-
-Fires when review feedback arrives, before any of it is implemented. Six steps: read it all without
-reacting, restate the requirement in your own words or ask, verify it against what the codebase
-actually does, evaluate whether it is sound *for this* codebase, respond with a technical
-acknowledgement or reasoned pushback, and implement one item at a time with a test each. It forbids
-performative agreement — "You're absolutely right!", "Great point!", "Let me implement that now"
-before verification — requires a stop-and-ask when any item is unclear, handles feedback differently
-by source, applies a YAGNI check to "professional-sounding" suggestions, and covers how to correct
-your own pushback gracefully. It includes guidance on replying to GitHub review threads. **Our
-rules:** a reply posted on a PR is a publish-class action and waits for the user asking in this
-session.
-
-### `verification-before-completion` — fires automatically by description
-
-Fires when work is about to be called complete, fixed or passing, and before any commit or PR. One
-rule: no completion claim without fresh verification evidence, run in the same message as the claim.
-A gate function names the steps — identify the command that would prove the claim, run it in full,
-read the whole output and the exit code, check that it actually confirms the claim, and only then
-say so — and a table pairs each claim with what proves it and what does not ("linter passed" does
-not prove the build compiles, an agent's success report does not prove the diff exists). The red
-flags are the words themselves: "should", "probably", "seems to", and any satisfaction expressed
-before a command was run. It writes and runs nothing of its own. No rule of ours modifies it; it
-restates the standard our own reports are held to.
-
-### `finishing-a-development-branch` — fires automatically by description
-
-Fires when implementation is complete and the tests pass. It verifies the full suite first and stops
-if anything fails, detects whether it is in a linked worktree or on a detached HEAD, confirms the
-base branch before merging, then presents a fixed menu and waits: three options in a normal repo or
-a named-branch worktree — merge back to the base locally, push and open a pull request, or keep the
-branch as it is — and a reduced two on a detached HEAD, where merging is dropped. On a merge it
-re-runs the tests on the merged result before deleting anything; on a PR it keeps the worktree for
-iteration; cleanup of the worktree is by provenance, and a request to discard work requires the
-literal word `discard` typed back. **Our rules modify it in three places:** the merge and the push
-wait for the user asking in this session, this project's declared worktree convention wins over the
-skill's defaults, and when a plan exists `/plan-finish` is the close-out rather than this menu.
-
-### `using-git-worktrees` — fires automatically by description
-
-Fires before isolated feature work or plan execution. It checks for existing isolation first,
-comparing `git rev-parse --git-dir` against `--git-common-dir`, with a guard for submodules — which
-look identical to a worktree by that test — and does not create a second worktree when it is already
-in one. It then prefers the harness's own worktree tool (`EnterWorktree` and the like) over
-`git worktree add`, on the grounds that a manual worktree creates state the harness cannot see,
-asks consent before creating anything, verifies the chosen directory is git-ignored before writing
-into it, and finally installs dependencies by detected ecosystem and runs a baseline test suite so
-that later failures are unambiguous. **Our rules:** this project's declared worktree convention wins
-over the `.worktrees/` default the skill falls back to.
-
-### `using-superpowers` — on demand only (`skillOverrides`; see the on-demand set)
-
-This is the dispatcher the upstream hook injects, and the reason we do not inject it: its
-description is "Use when starting any conversation", and its body instructs the agent to invoke any
-skill with as little as a 1% chance of applying, before any response at all — including clarifying
-questions and before looking at the codebase. It also sets a priority order (process skills first,
-then implementation skills), requires announcing "Using [skill] to [purpose]", turns a skill's
-checklist into a todo per item, and carries a red-flag table against the usual ways of rationalizing
-out of it. Its `references/` directory holds seven per-harness files — Claude Code, Codex,
-Gemini, Pi, Antigravity, Hermes Agent and Muse — that tell the other skills which tools exist on
-the current platform; the skill's own "Platform Adaptation" section lists only six, omitting Gemini,
-which `writing-skills` nonetheless links. Those files are why the directory stays even though we
-gate the skill. It writes and runs nothing, and declares no pre-approvals. Its closing
-section already says user instructions outrank skills, which is the ordering our rules rely on.
-
-**Linked into Claude Code only.** `install.sh` gives it to `~/.claude/skills/`, where
-`skillOverrides` holds it to on-demand, and to neither `~/.cursor/skills/` nor `~/.agents/skills/`,
-where nothing can. On Codex it loaded unasked on every prompt — five of five `codex exec` runs on
-2026-10-18 read it before doing anything else. The `references/` files stay reachable from the
-other superpowers skills on every host: `../using-superpowers/` resolves through each sibling's
-symlink to its target in this vendored directory, not through the agent directory.
-
-### `writing-skills` — fires automatically by description
-
-Fires on creating, editing or verifying a skill. It treats skill authoring as test-driven
-development: run a pressure scenario against a subagent **without** the skill and record the exact
-rationalizations it produces, write the skill to address those, verify compliance, then close
-loopholes and re-verify. Around that it covers skill types, directory structure, the expected
-SKILL.md shape, writing a description for discovery (triggering conditions only, no workflow
-summary, no first person), flowchart and code-example conventions, when detail belongs in a sibling
-file, and a long anti-pattern list. It bundles `render-graphs.js` (Node, needs graphviz's `dot`) to
-render `dot` blocks from a SKILL.md into SVG, plus sibling documents on testing with subagents,
-persuasion principles, and Anthropic's own authoring guidance. It requires
-`test-driven-development`. **Our rules:** this repo's own contributing section owns SKILL.md length
-and the one-hop reference convention, and a vendored skill is never edited in place.
-
-### `dispatching-parallel-agents` — fires automatically by description
-
-Fires when there are two or more genuinely independent tasks with no shared state. One agent per
-problem domain, all dispatched in the same response so they run concurrently, each with a specific
-scope, a clear goal, explicit constraints and a named expected output; then read each summary, check
-whether the agents touched the same code, run the full suite, and spot-check, because agents make
-systematic errors. It is equally clear about when not to use it — related failures, work needing
-whole-system context, exploratory debugging, or shared state. It writes and runs nothing. No rule of
-ours modifies it; `/plan-build` does its own dispatching.
-
-### `diagnosing-superpowers` — fires automatically by description
-
-Fires when a session went wrong and the human wants to know why — repeated work, a skill that did
-not fire, "it took too long", "why is it so expensive" — or wants a bug report for the superpowers
-maintainers. Every finding must cite `path:line` and every number must come from the transcript or
-from a command that was run; findings without a citation are discarded. The workflow is intake one
-question at a time until the problem is stated in observable terms, locate and verify the session
-transcripts on disk (quoting the first prompt to confirm, and listing the candidates rejected),
-create a case directory under the home directory at `~/.superpowers/diagnosing-superpowers/<session
-id>/`, dispatch one analyst subagent per dimension in parallel — skill timeline, plan adherence,
-repeated work, stumbles, quality evidence, request conflicts, cost and time — then fill a report
-template, with a redaction and scrub pass for anything that becomes a bug-report bundle. It reads
-whole session transcripts and writes outside the repository. **Our rules:** filing anything upstream
-is publishing, so it waits for the user asking; and this repo's sanitization standard applies to
-anything that leaves the machine.
-
----
-
 ## trailofbits
 
 Three security skills, **CC BY-SA 4.0** — attribution and share-alike. Attribution: Trail of Bits,
@@ -594,31 +349,10 @@ comparing names against `skills/*` only. `update-ponytail.sh` runs both; `instal
 
 ---
 
-## The superpowers hook we skip
-
-Upstream superpowers ships a `SessionStart` hook that injects the `using-superpowers` skill into
-every session — at start, after `/clear` and after every compaction — carrying its "if there is even
-a 1% chance a skill might apply, you ABSOLUTELY MUST invoke the skill" instruction. **We do not
-install it.** Three reasons: it would put superpowers' process ladder in front of every
-conversation regardless of task; we already inject a ruleset through ponytail's hooks, and two
-injected rulesets compound rather than cooperate; and vendoring skills without hooks is the whole
-reason these sets are copied here instead of installed as plugins — a hook is upstream code
-executing on our machine between reviews.
-
-What the skills still do without it: **everything except the nudge.** Each skill is linked into the
-three agent directories (`using-superpowers` into Claude Code's alone) and still fires on its own
-description, which is how the other fourteen
-superpowers skills were meant to be found in the first place. The per-harness reference files under
-`using-superpowers/references/` are still on disk for the skills that read them. What is lost is the
-reflex — "check for a skill before replying at all" — and our own always-apply rules already carry
-the parts of that worth having: process before code, a plan before implementation, evidence before
-claims. `using-superpowers` itself remains invocable by name when its dispatcher behaviour is
-actually wanted.
-
 ## The on-demand set and its pre-approvals
 
-Six of the thirty should never start on the model's own initiative, and the gate below names all
-six by the frontmatter `name:` Claude Code matches on — which is not always the directory
+Five of the fifteen should never start on the model's own initiative, and the gate below names all
+five by the frontmatter `name:` Claude Code matches on — which is not always the directory
 `install.sh` links them under.
 
 | Skill | Why it should be on demand |
@@ -626,14 +360,13 @@ six by the frontmatter `name:` Claude Code matches on — which is not always th
 | `iterate-pr` | It commits, pushes and replies to review threads as part of its loop, and its own description says not to wait for human approval. |
 | `playwright-cli` | While active it pre-approves `Bash(playwright-cli:*)` and `Bash(npx playwright:*)`, and it drives a real browser that can be pointed anywhere with any saved profile. |
 | `skill-scanner` | It pre-approves unrestricted `Bash`. |
-| `using-superpowers` | Its description — "Use when starting any conversation" — recreates the hook above. |
 | `differential-review` | It pre-approves `Read Write Bash` — unrestricted `Bash` — and its methodology includes a `git checkout` of a baseline commit. |
 | `supply-chain-risk-auditor` | It pre-approves `Read Write Bash` — unrestricted `Bash` — and fires on any dependency question. |
 
 **How.** In Claude Code each is set user-invocable-only through `skillOverrides` in the settings
 file, edited with `jq -a` so the file's existing escapes survive. **That entry is in place**, and it
-matches the frontmatter `name:`, so it has governed each of the six since `install.sh` linked them
-— observed in a live session, whose skill listing omits exactly these six while their files sit on
+matches the frontmatter `name:`, so it has governed each of the five since `install.sh` linked them
+— observed in a live session, whose skill listing omits exactly these five while their files sit on
 disk: they are linked, and merely invisible to the model.
 **Once you call one of them, its pre-approvals apply to that invocation anyway** — gating the
 trigger is not gating the grant, and invoking `skill-scanner` is consenting to its `Bash`.
@@ -642,17 +375,15 @@ trigger is not gating the grant, and invoking `skill-scanner` is consenting to i
 reaches Claude Code and Cursor directly, because `install.sh` links `rules/` into both, and it
 reaches Codex indirectly: `install.sh` links `claude/CLAUDE.md` to `~/.codex/AGENTS.md`, and that
 file tells the agent that every `.md` in `~/.claude/rules/` is part of its instructions. **What no
-host but Claude Code gets is the gate** — an agent that loads only `~/.agents/skills` sees five of
-these six with their triggers intact. `using-superpowers` is the exception: it fired on every Codex
-prompt, so `install.sh` no longer links it into `~/.cursor/skills/` or `~/.agents/skills/` at all
-(its own section). The other five are accepted, with reasons: they fire on narrower descriptions;
+host but Claude Code gets is the gate** — an agent that loads only `~/.agents/skills` sees all five
+with their triggers intact. That gap is accepted, with reasons: they fire on narrower descriptions;
 the pre-approvals are advisory metadata those hosts may not honour anyway; and the alternative is
 more per-agent exclusion logic in `install.sh`. Revisit them if one is seen firing unasked.
 
-### Every pre-approval in the thirty
+### Every pre-approval in the fifteen
 
-All thirty `SKILL.md` frontmatters were checked. Five declare `allowed-tools`; the other
-twenty-five declare none, which means they inherit whatever the session already permits.
+All fifteen `SKILL.md` frontmatters were checked. Five declare `allowed-tools`; the other
+ten declare none, which means they inherit whatever the session already permits.
 
 | Skill | `allowed-tools` |
 | --- | --- |
@@ -674,13 +405,10 @@ that here.
 The rule file is `rules/third-party-skills.md`; this is the short form, and the per-skill entries
 above say where each clause lands.
 
-- **Plans and specs** from `brainstorming` and `writing-plans` go to the plans repo, not
-  `docs/superpowers/`. They open with a Summary and a Progress table, and keep superpowers'
-  `### Task N:` headings below so `task-brief`'s extraction still works.
-- **`executing-plans` and `subagent-driven-development`** tick the Progress table as they go.
+- **Plans and specs** a skill writes go to the plans repo, opening with a Summary and a Progress
+  table, and a plan-executing skill ticks that table at every boundary.
 - **Pushes, PRs, merges, review replies and publishing:** no third-party skill does any of these
-  without the user asking in this session. That bites `iterate-pr`, `pr-writer`,
-  `finishing-a-development-branch`, `receiving-code-review` and `diagnosing-superpowers`.
+  without the user asking in this session. That bites `iterate-pr` and `pr-writer`.
 - **Worktrees:** the project's declared worktree convention wins over `.worktrees/`.
 - **Migrations:** `migration-apply-confirmation.md` wins over any skill. That is a database stop,
   and it reaches the Supabase skill that fires on migration work.
@@ -689,13 +417,8 @@ above say where each clause lands.
   `rules/third-party-skills.md` itself rather than by the database rule, and it bites three of
   HashiCorp's four skills — `terraform-search-import`, `refactor-module` and `terraform-test`.
 - **Dependency installs:** `npm install`, `cargo build`, `pip install -r`, `poetry install`,
-  `go mod download` and any `npx` that fetches a package to run it need the user's yes. That bites
-  `using-git-worktrees`, which runs the five installs from its project-setup step with no approval
-  step.
-- **The visual companion stays on loopback:** `brainstorming`'s mockup server keeps its `127.0.0.1`
-  bind, so the `--host 0.0.0.0` that `visual-companion.md` instructs needs the user's yes first.
-- **Close-out:** when a plan exists, `/plan-finish` is the close-out, not
-  `finishing-a-development-branch`'s menu.
+  `go mod download` and any `npx` that fetches a package to run it need the user's yes.
+- **Close-out:** when a plan exists, `/plan-finish` is the close-out, not a skill's merge/PR menu.
 - **Vetting and editing:** vendored copies are never edited in place; every bump is read and scanned
   before `install.sh` links it.
 - **A vendored `evals/` or test directory is read, not run:** running one needs the user to ask for
@@ -706,13 +429,13 @@ above say where each clause lands.
 
 | Not adopted | Reason |
 | --- | --- |
-| The superpowers `SessionStart` hook | It injects `using-superpowers` at every start, clear and compaction, with the "invoke a skill if 1% likely" instruction. See the section above. |
+| `obra/superpowers` (removed 2026-10-18) | Vendored for a day; see the note under Sources. |
 | Every Medusa skill | The repo ships no licence file, so it cannot be vendored into a public repo. |
 | Trail of Bits `insecure-defaults` | It is now a command and workflow plugin with no `SKILL.md`, so there is nothing to link. A possible plugin follow-up. |
 | Anthropic document skills and `skill-creator` | Already available in this environment, and the document skills are proprietary. |
 | Anthropic `webapp-testing` | Python-based; `playwright-cli` suits our Node stack. |
 | `web-design-guidelines` | It downloads its rules at runtime, so pinning cannot freeze it. |
-| mattpocock, addyosmani and wshobson bundles | They overlap superpowers and our own `plan-*` skills. |
+| mattpocock, addyosmani and wshobson bundles | They overlap our own `plan-*` skills. |
 | Bulk "awesome" collections (ComposioHQ, ECC and similar) | Noisy, and some of them ship hooks. |
 
 ## Bumping one source
@@ -756,10 +479,6 @@ Four steps, and the second is the one that gets forgotten:
    `~/.agents/skills/<dir>`, where `<dir>` is the **directory** name, which for the Vercel skill is
    not its frontmatter name. `install.sh` creates links and never removes them, so a stale symlink
    survives a re-run and points at nothing.
-
-Check the relative references before removing a superpowers skill: `executing-plans` reaches into
-`subagent-driven-development/scripts/`, and several skills read
-`using-superpowers/references/<harness>-tools.md`.
 
 ## Rolling everything back
 
