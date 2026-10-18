@@ -79,9 +79,10 @@ Six skills — all of them vendored — must not start on the model's own initia
 settings file sets all six user-invocable-only through `skillOverrides`, and that entry governs each
 of them from the moment `install.sh` links it — which it has: all six are linked, and the override
 has been observed holding, in a live session whose skill listing omits exactly those six while their
-files sit on disk. It reaches Claude Code only: a host that loads `~/.agents/skills` still sees all
-six with their triggers intact, the gap the catalogue records as accepted. `iterate-pr` even sets
-`disable-model-invocation: false`, opting itself in.
+files sit on disk. It reaches Claude Code only, so `install.sh` keeps `using-superpowers` out of
+`~/.cursor/skills` and `~/.agents/skills` entirely — on Codex it fired on every prompt. A host that
+loads those directories still sees the other five with their triggers intact, the gap the catalogue
+records as accepted. `iterate-pr` even sets `disable-model-invocation: false`, opting itself in.
 
 **Gating the trigger is not gating the grant.** Invoking one consents to its declared
 `allowed-tools` for that invocation — unrestricted `Bash` for `skill-scanner`,

@@ -11,7 +11,8 @@ then and writes a new sha.
 They are vendored rather than installed as plugins so that every upgrade is a reviewed diff, and so
 that no upstream hook, agent or marketplace wiring arrives with them. `install.sh` links each
 `vendor/*/skills/<dir>` into `~/.claude/skills/<dir>`, `~/.cursor/skills/<dir>` and
-`~/.agents/skills/<dir>` — the same three places as our own `skills/*`, by **directory** name.
+`~/.agents/skills/<dir>` — the same three places as our own `skills/*`, by **directory** name —
+except `using-superpowers`, which goes to `~/.claude/skills/` only (see its section).
 `check-vendor.sh` fails if a vendored directory name or frontmatter `name:` would shadow one of
 ours, another vendored skill, or a skill Claude Code ships itself.
 
@@ -448,6 +449,13 @@ which `writing-skills` nonetheless links. Those files are why the directory stay
 gate the skill. It writes and runs nothing, and declares no pre-approvals. Its closing
 section already says user instructions outrank skills, which is the ordering our rules rely on.
 
+**Linked into Claude Code only.** `install.sh` gives it to `~/.claude/skills/`, where
+`skillOverrides` holds it to on-demand, and to neither `~/.cursor/skills/` nor `~/.agents/skills/`,
+where nothing can. On Codex it loaded unasked on every prompt — five of five `codex exec` runs on
+2026-10-18 read it before doing anything else. The `references/` files stay reachable from the
+other superpowers skills on every host: `../using-superpowers/` resolves through each sibling's
+symlink to its target in this vendored directory, not through the agent directory.
+
 ### `writing-skills` — fires automatically by description
 
 Fires on creating, editing or verifying a skill. It treats skill authoring as test-driven
@@ -598,7 +606,8 @@ reason these sets are copied here instead of installed as plugins — a hook is 
 executing on our machine between reviews.
 
 What the skills still do without it: **everything except the nudge.** Each skill is linked into the
-three agent directories and still fires on its own description, which is how the other fourteen
+three agent directories (`using-superpowers` into Claude Code's alone) and still fires on its own
+description, which is how the other fourteen
 superpowers skills were meant to be found in the first place. The per-harness reference files under
 `using-superpowers/references/` are still on disk for the skills that read them. What is lost is the
 reflex — "check for a skill before replying at all" — and our own always-apply rules already carry
@@ -633,11 +642,12 @@ trigger is not gating the grant, and invoking `skill-scanner` is consenting to i
 reaches Claude Code and Cursor directly, because `install.sh` links `rules/` into both, and it
 reaches Codex indirectly: `install.sh` links `claude/CLAUDE.md` to `~/.codex/AGENTS.md`, and that
 file tells the agent that every `.md` in `~/.claude/rules/` is part of its instructions. **What no
-host but Claude Code gets is the gate** — an agent that loads only `~/.agents/skills` sees these six
-with their triggers intact. That is accepted, with reasons: no such agent is in daily use here; the
-pre-approvals are advisory metadata those hosts may not honour anyway; and the alternative is
-per-agent exclusion logic in `install.sh` for a host we barely use. Revisit it if Codex becomes a
-daily driver.
+host but Claude Code gets is the gate** — an agent that loads only `~/.agents/skills` sees five of
+these six with their triggers intact. `using-superpowers` is the exception: it fired on every Codex
+prompt, so `install.sh` no longer links it into `~/.cursor/skills/` or `~/.agents/skills/` at all
+(its own section). The other five are accepted, with reasons: they fire on narrower descriptions;
+the pre-approvals are advisory metadata those hosts may not honour anyway; and the alternative is
+more per-agent exclusion logic in `install.sh`. Revisit them if one is seen firing unasked.
 
 ### Every pre-approval in the thirty
 
