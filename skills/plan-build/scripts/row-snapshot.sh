@@ -92,7 +92,12 @@ record_base() { # <toplevel>
 # Reject a base that cannot yield a meaningful range. A wrong-branch or wrong-checkout HEAD gives a
 # range that is unrelated to the base or empty, and either diffs plausibly but wrongly.
 check_base() { # <toplevel> <sha> <key>
-  local top="$1" sha="$2" key="$3" list="$row_dir/untracked-$3.list" f
+  local top="$1" sha="$2" key="$3" list="$row_dir/untracked-$3.list" f skip
+  local excl=()
+  # The plan file is excluded from the patch, so it must not count as work here either, or a run
+  # whose plan lives in this repo passes the guard on the controller's own tick and emits no hunks.
+  skip="$(plan_in "$top")"
+  [[ -n "$skip" ]] && excl+=(":(exclude)$skip")
   # A `git stash create` base has two parents and its first is the HEAD it was taken from, so it is
   # still usable once HEAD has moved on; a real commit has one parent and must be an ancestor itself.
   if ! git -C "$top" merge-base --is-ancestor "$sha" HEAD 2>/dev/null; then
@@ -106,15 +111,17 @@ check_base() { # <toplevel> <sha> <key>
     fi
   fi
   (( $(git -C "$top" rev-list --count "$sha..HEAD") == 0 )) || return 0   # commits since the base
-  git -C "$top" diff --quiet "$sha" || return 0                           # tracked work in the tree
+  git -C "$top" diff --quiet "$sha" -- . ${excl[@]+"${excl[@]}"} || return 0   # tracked work in tree
   # Untracked work `git diff` cannot see. A file untracked at base counts once it stops matching its
   # base copy — edited, or gone; one still identical to its copy is noise, not work.
   if [[ -n "$key" && -f "$list" ]]; then
     while IFS= read -r -d '' f; do
+      [[ "$f" == "$skip" ]] && continue
       cmp -s "$row_dir/untracked/$key/$f" "$top/$f" || return 0
     done <"$list"
   fi
   while IFS= read -r -d '' f; do          # a path untracked now and not at base is new work
+    [[ "$f" == "$skip" ]] && continue
     if [[ -n "$key" && -f "$list" ]] && tr '\0' '\n' <"$list" | grep -qxF -- "$f"; then continue; fi
     return 0
   done < <(git -C "$top" ls-files -o --exclude-standard -z)
