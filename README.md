@@ -39,7 +39,7 @@ What it creates:
 | `~/.agents/skills/<name>` | `skills/<name>` |
 | `~/.claude/skills/<dir>` | `vendor/<set>/skills/<dir>` |
 | `~/.cursor/skills/<dir>` | `vendor/<set>/skills/<dir>` |
-| `~/.agents/skills/<dir>` | `vendor/<set>/skills/<dir>` |
+| `~/.agents/skills/<dir>` | `vendor/<set>/skills/<dir>` (all but `using-superpowers`, which is Claude Code only) |
 | `~/.claude/rules/<name>.md` | `rules/<name>.md` |
 | `~/.cursor/rules/<name>.mdc` | `rules/<name>.md` |
 | `~/.claude/CLAUDE.md` | `claude/CLAUDE.md` |
