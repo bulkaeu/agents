@@ -128,6 +128,8 @@ Two different questions, and the second is the one that finds things:
 
 ### Claims audit — what the table cites, against git and disk
 
+`${CLAUDE_SKILL_DIR}` is `plan-finish/`. On a host that does not set that variable, the same relative path from this file's own directory.
+
 ```bash
 run_dir="$(bash "${CLAUDE_SKILL_DIR}/../plan-build/scripts/row-snapshot.sh" dir "<plan-file>")"
 bash "${CLAUDE_SKILL_DIR}/../plan-shared/scripts/table-claims.sh" "<plan-file>" \

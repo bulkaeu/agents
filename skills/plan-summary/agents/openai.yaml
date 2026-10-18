@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Summary"
+  short_description: "Renders a summary of an implementation plan"
+policy:
+  allow_implicit_invocation: false

@@ -7,7 +7,7 @@
 #   bash check-plan-skills.sh --root <dir>    check a copy of the repo at <dir>
 #
 # Prints `FAIL [Kn] file:line — message` per failure and exits 1 on any; prints
-# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K16 (see README).
+# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K17 (see README).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -227,6 +227,15 @@ if [[ -f sanitize-check.sh ]]; then
 else
   fail K16 "sanitize-check.sh:1" "missing"
 fi
+
+# K17 — every family skill has the Codex gate file that keeps it from firing implicitly
+checks=$((checks + 1))
+for s in "${SKILLS[@]}"; do
+  f="skills/$s/agents/openai.yaml"
+  [[ -f "$f" ]] || { fail K17 "$f:1" "missing"; continue; }
+  grep -qxF '  allow_implicit_invocation: false' "$f" \
+    || fail K17 "$f:1" "no exact line '  allow_implicit_invocation: false'"
+done
 
 fails="$(grep -c '^FAIL' "$REPORT")"
 if (( fails > 0 )); then

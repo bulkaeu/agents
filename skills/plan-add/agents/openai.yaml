@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Add"
+  short_description: "Adds new work to an existing plan"
+policy:
+  allow_implicit_invocation: false

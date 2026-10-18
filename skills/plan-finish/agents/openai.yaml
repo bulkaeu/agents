@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Finish"
+  short_description: "Finishes a plan"
+policy:
+  allow_implicit_invocation: false
