@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Status"
+  short_description: "Answers what is going on about a plan"
+policy:
+  allow_implicit_invocation: false

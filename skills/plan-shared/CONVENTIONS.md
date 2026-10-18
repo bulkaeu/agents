@@ -14,6 +14,7 @@ read them.
 - Terms
 - Severity scale
 - Model tiers
+- On Codex
 
 ## Resolving the plan — the ladder
 
@@ -24,7 +25,8 @@ In order, stopping at the first hit:
 3. The project's plan directory: walk up from cwd to the nearest `.claude/settings*.json` that sets
    `plansDirectory`, and resolve that value against **the directory holding that settings file** —
    often not a git toplevel. If none sets one, `plans/` under the git toplevel, if it exists.
-4. The most recently modified plan in `~/.claude/plans/`, `~/.cursor/plans/`, `.cursor/plans/`.
+4. The most recently modified plan in `~/.claude/plans/`, `~/.cursor/plans/`, `.cursor/plans/`,
+   `~/.codex/plans/*/*/PLAN.md`.
 
 **Two or more plausible at any rung → list them with mtimes and stop.** A report on the wrong plan
 reads exactly like a report on the right one until it misleads.
@@ -123,15 +125,44 @@ Subagents are dispatched by tier — **standard**, **strong**, **strongest** —
 a version or an id: the newest model of that family the host offers is the one meant, so a new
 release needs no edit here.
 
-| Tier | Claude Code | Cursor |
-| --- | --- | --- |
-| standard | Sonnet | Composer |
-| strong | Opus | Grok, at high effort where the host offers a choice |
-| strongest | Fable | Grok, as for strong — Cursor has two tiers |
+| Tier | Claude Code | Cursor | Codex |
+| --- | --- | --- | --- |
+| standard | Sonnet | Composer | Luna, at high effort |
+| strong | Opus | Grok, at high effort where the host offers a choice | Sol, at medium effort |
+| strongest | Fable | Grok, as for strong — Cursor has two tiers | Sol, at high effort |
 
 - **On Cursor, pick from the host's own list of subagent models** — the family's newest entry. A
   family the list does not offer means `inherit`, logged once per run in the Run log. **Never pass
   a Claude model on Cursor**: it bills a separate, costlier quota, so a dispatch naming one is a
   defect even when it works.
-- **On any other host**, dispatch with `inherit` for every tier, logged once per run.
+- **On Codex, pass the model and the effort on each spawn** — Codex lets a spawn set both. The
+  model is the family's newest entry in the host's own model list; a family the list does not offer
+  means `inherit`, logged once per run in the Run log. **Never name a Claude model on Codex.**
+- **On any other host** than these three, dispatch with `inherit` for every tier, logged once per
+  run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
+
+## On Codex
+
+The skills name Claude Code mechanisms. On Codex, read each one as follows:
+
+- **Invocation:** each `/plan-x` means `$plan-x`, or picking it from `/skills`. Codex has no
+  slash-command form for a skill.
+- **Editing files:** `Edit`/`Write` means Codex's own patch tool. The rule behind the wording
+  still holds: a tracked write, never a shell redirect or `sed -i`.
+- **Subagents:** an `Explore` dispatch uses the `explorer` agent, a `general-purpose` one the
+  `worker` agent; *Model tiers* gives the model. Where subagents are unavailable, use the
+  `review: same-agent` fallback (`DISPATCH.md`, *Fallback — a host without subagents*).
+- **Plan mode and `ExitPlanMode`:** Codex has no equivalent. A stop that depends on one of them
+  does not apply there; **every other stop in `STOPS.md` still binds**, unchanged.
+- **`PreToolUse` prompts:** Codex's approval prompt is the equivalent gate, raised whenever a
+  command needs to leave the sandbox. `STOPS.md`'s *A harness prompt is not a stop-list item*
+  carries over: answer the prompt, and never rephrase, chain or wrap a command to get past it.
+- **`bypassPermissions`:** the ban carries over. On Codex it is a ban on
+  `--dangerously-bypass-approvals-and-sandbox`, `approval_policy = "never"` and
+  `danger-full-access` — a skill never switches any of them on.
+- **Run directory:** `workspace-write` cannot write `~/.claude/plan-runs/`. Set `ROW_SNAPSHOT_HOME`
+  to a writable temp dir outside every repository's tracked tree; every file the skills put in "the
+  run directory", plan-review's saved reviews included, goes under it instead of the literal path.
+- **Progress nag:** Codex has no Stop hook, so nothing nags about open rows. The executor's own
+  table updates, at every boundary, are the only guard.

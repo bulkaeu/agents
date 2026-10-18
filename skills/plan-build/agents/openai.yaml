@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Build"
+  short_description: "Runs a plan that has not started"
+policy:
+  allow_implicit_invocation: false

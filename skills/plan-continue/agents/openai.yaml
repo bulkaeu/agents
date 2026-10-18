@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Continue"
+  short_description: "Resumes a plan already part-way through"
+policy:
+  allow_implicit_invocation: false

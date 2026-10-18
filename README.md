@@ -85,6 +85,14 @@ place: `STOPS.md` (the stop-list), `CONVENTIONS.md` (how a plan is found and rea
 scale) and `scripts/table-claims.sh` (checks a Progress table's shas and paths against git and
 disk). `install.sh` links it beside the skills, which is what lets them reach it.
 
+**Plan skills on Codex.** Codex reads user skills from `~/.agents/skills`, which `install.sh`
+already links every skill into, so the `plan-*` family reaches it with no extra step. Invoke one
+there with a `$` mention (`$plan-build`) or pick it from `/skills`; there is no slash form. Codex
+ignores `disable-model-invocation`, so each `plan-*` skill carries an `agents/openai.yaml` setting
+`allow_implicit_invocation: false`, which keeps it on demand; `check-plan-skills.sh` requires that
+file. Claude Code mechanisms the skills name map to Codex equivalents, or have none, as listed in
+[`CONVENTIONS.md` § On Codex](skills/plan-shared/CONVENTIONS.md#on-codex).
+
 Thirty-six vendored third-party skills are linked beside these and are not listed above;
 [`vendor/README.md`](vendor/README.md) is the catalogue for the thirty in the skills-only sets, and
 ponytail's six have their own section. See Vendored skills.

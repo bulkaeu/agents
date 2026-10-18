@@ -1,0 +1,5 @@
+interface:
+  display_name: "Plan Review"
+  short_description: "Reviews and refines an implementation plan"
+policy:
+  allow_implicit_invocation: false
