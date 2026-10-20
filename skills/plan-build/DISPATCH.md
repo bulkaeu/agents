@@ -120,7 +120,8 @@ that diff, the brief (`Mode: row`), the report, `{checks}`, and `{findings}` = `
 **After every reviewer dispatch** — this one, a rereview in §7, and the final review below — compare
 `git status --short` in each repository in scope against its state before the dispatch, and check
 the scratchpad and the run directory for anything not saved there by the controller itself. Any
-write is a finding, recorded like any other finding; stray files are removed.
+write is a finding, including one inside a location a brief named: a brief
+grants the reviewer no write location. Record it like any other finding; stray files are removed.
 
 ## 7. Fix loop
 
