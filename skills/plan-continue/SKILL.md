@@ -74,7 +74,8 @@ For every row, compare what the table claims against what actually exists. Start
 the table itself cites:
 
 ```bash
-bash ${CLAUDE_SKILL_DIR}/../plan-shared/scripts/table-claims.sh <plan> --repo <repo>...
+bash ${CLAUDE_SKILL_DIR}/../plan-shared/scripts/table-claims.sh <plan> --repo <repo>... \
+  --root "$(bash "${CLAUDE_SKILL_DIR}/../plan-build/scripts/row-snapshot.sh" dir <plan>)"
 ```
 
 It lists, per row, each sha in Notes that resolves or is MISSING and each backticked path that

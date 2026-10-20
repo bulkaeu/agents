@@ -115,6 +115,10 @@ One scale for every review in the family — plan review, row review, final revi
 | Low | Should be fixed for clarity or maintainability |
 | Very Low | A nit, optional polish, or a safe-by-design tradeoff |
 
+A defect that breaks a done-state, a rule the brief or plan quotes, or the main user path is at
+least Medium, however small the fix.
+When unsure between Low and Medium, choose Medium and say what would make it Low.
+
 What each skill does with a severity — loop, fix, defer — is that skill's call, stated in its own
 file.
 

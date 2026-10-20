@@ -34,6 +34,11 @@ Rows run in **table order**. For each:
 A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it get
 `⛔` *"depends on N"* — then the loop **continues** with everything else (rule 2).
 
+**A dispatched row that parks leaves no edits behind.** Before the next row, the controller
+restores the files in the row's last diff to the row's base — tracked files from the base sha,
+files the row created removed — and says so in the row's Notes. The diff stays in the run
+directory as the record.
+
 **Scope changes go in the table as they happen.** A step you discover is needed becomes a row where
 it actually ran, never appended beside a thematically similar one — a table reading `E1 E2 E5 E3 E4`
 makes every later reader reconstruct the real order. Renumber rather than misplace. A step you are
@@ -56,7 +61,8 @@ done; trust them over a memory of intending to do it.
 
 Before any `✅`, fresh in the same turn as the tick:
 
-- the row's done-state check, run by the controller, with its output in Notes;
+- the row's done-state check, run by the controller, with its output in Notes — or cite the
+  latest `checks-<n>.txt` instead, when the tree's sha still equals the one recorded in it;
 - every file the row claims exists, every sha it cites resolves, and every review file the row's
   Notes cite — the `review:` token, and any other `review-<n>.md` a fix round added —
   `../plan-shared/scripts/table-claims.sh` checks all three across the repos in scope, run with
@@ -84,9 +90,16 @@ in the file, so it survives a context summary. It holds:
 
 - a header per run: the date, the starting commit per repo, and the run base (`DISPATCH.md`);
 - every ruling, `R<n> · <row id> · <what> — <why> — <cost if wrong>`;
-- every model step-up with its reason, and, on a row carrying a `review:` marker, the reviewer's
-  tier and reason for every review of that row, whether or not the marker changed anything — each
-  line naming the row and its `review-<n>.md` (`DISPATCH.md` §3);
+- every model step-up with its reason, and, on a row carrying a `review:` marker, `deep` or
+  `default`, the reviewer's tier and reason for every review of that row, whether or not the marker
+  changed anything — one line per review, naming the row and its `review-<n>.md` (`DISPATCH.md`
+  §3). It is also the step-up's line when there is one, so a fix loop whose tier changes (round 3,
+  a stall) still shows which review ran on which tier:
+  `<row id> · review-<n>.md — reviewer on the strongest tier: review: deep marker`,
+  `<row id> · review-<n>.md — reviewer on the default tier: review: default holds a step that
+  deletes data`, `<row id> · review-<n>.md — reviewer on the default tier: review: default marker,
+  step not risky`, `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
+  review: default does not cancel`;
 - deferred findings, the Low and Very Low ones, one line each with `file:line`;
 - the final review's file and verdict.
 

@@ -116,6 +116,10 @@ Exactly five levels — the family's one scale (`CONVENTIONS.md`, *Severity scal
 - **Low** — should be fixed for clarity or maintainability.
 - **Very Low** — a nit, optional polish, or a safe-by-design tradeoff.
 
+A defect that breaks a done-state, a rule the brief or plan quotes, or the main user path is at
+least Medium, however small the fix.
+When unsure between Low and Medium, choose Medium and say what would make it Low.
+
 ## Do not flag
 
 - A step that carries `BLOCKED — wait for user` for an action that needs the user's yes. That is the

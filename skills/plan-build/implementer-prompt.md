@@ -50,6 +50,12 @@ stop and return `BLOCKED` with the reason.
   `R<n> · <row> · <what> — <why> — <cost if wrong>`. Follow them over the text they amend.
 - **Verify before you claim.** Run the step's own done-state check if it names one, and report what
   the command printed. A check you did not run is not a check that passed.
+- Run the checks the brief names. A command that may take more than two minutes runs in the Bash
+  tool's background mode and is polled, within the limit the brief gives (3 minutes for a narrow
+  run and 10 for a full suite when it gives none); never wrap it in a homemade timeout. Before a
+  test run, check that none is already running (`pgrep -fl` with the runner the brief names). A run
+  that exceeds its limit is reported under Checks as TIMED OUT, with the command and its process
+  id, and never retried in a loop. In a fix round, run only the checks covering the findings' files.
 - **Stuck?** After five file reads in a row with no edit, stop and return `NEEDS_CONTEXT`, saying
   what you were looking for. Guessing past a gap produces work the controller has to undo.
 

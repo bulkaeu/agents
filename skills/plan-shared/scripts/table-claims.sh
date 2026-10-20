@@ -10,8 +10,8 @@
 #   --repo  a repository in scope; repeatable. Default: the plan's own repo and the cwd's, if any.
 #   --root  a directory relative paths may also resolve under — typically a workspace holding
 #           several checkouts; repeatable, for a plan whose Notes cite paths relative to more than
-#           one directory (a run directory, a skills directory). Default: the parent of the plan's
-#           repo toplevel.
+#           one directory (a run directory, a skills directory). The parent of the plan's repo
+#           toplevel (the plan's directory outside a repo) is always added after any given.
 #
 # A sha counts as present if `git cat-file` resolves it as a commit in ANY repo in scope. A path
 # counts as present if it exists as given (after ~ expansion), under any repo in scope, or under
@@ -43,9 +43,7 @@ if [[ ${#repos[@]} -eq 0 ]]; then
   cwd_top="$(git rev-parse --show-toplevel 2>/dev/null || true)"
   [[ -n "$cwd_top" && "$cwd_top" != "$plan_top" ]] && repos+=("$cwd_top")
 fi
-if [[ ${#roots[@]} -eq 0 ]]; then
-  if [[ -n "$plan_top" ]]; then roots+=("$(dirname "$plan_top")"); else roots+=("$plan_dir"); fi
-fi
+if [[ -n "$plan_top" ]]; then roots+=("$(dirname "$plan_top")"); else roots+=("$plan_dir"); fi
 
 sha_ok() {
   local r
