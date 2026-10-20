@@ -91,7 +91,7 @@ in the file, so it survives a context summary. It holds:
 
 - a header per run: the date, the starting commit per repo, and the run base (`DISPATCH.md`);
 - every ruling, `R<n> · <row id> · <what> — <why> — <cost if wrong>`;
-- every model step-up with its reason, and, on a row carrying a `review:` marker, `deep` or
+- every model or effort step-up with its reason, and, on a row carrying a `review:` marker, `deep` or
   `default`, the reviewer's tier and reason for every review of that row, whether or not the marker
   changed anything — one line per review, naming the row and its `review-<n>.md` (`DISPATCH.md`
   §3). It is also the step-up's line when there is one, so a fix loop whose tier changes (round 3,

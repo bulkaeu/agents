@@ -51,22 +51,23 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 ## 3. Agents and models
 
 Models are named by tier — **standard**, **strong**, **strongest**. The model a tier means on each
-host, never a Claude model on Cursor, is `CONVENTIONS.md`, *Model tiers*:
+host, never a Claude model on Cursor, is `CONVENTIONS.md`, *Model tiers*. An effort the table names
+is Claude Code's and replaces the tier's; every other cell, and every other host, uses the tier's:
 
 | Who | Default | Steps up |
 | --- | --- | --- |
-| Implementer | standard | strong for a risky step, an edit to instructions, rules or prompts, and fix round 2; strongest for fix round 3 only |
-| Reviewer — row and rereview | strong | strongest for a risky step, a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
+| Implementer | standard, at medium effort | strong, at medium effort, for a risky step, an edit to instructions, rules or prompts, and fix round 2; strongest, at medium effort, for fix round 3 only |
+| Reviewer — row and rereview | strong, at medium effort | strong at xhigh effort for a risky step; strongest at medium effort for a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
 | Final whole-run review | strong | strongest if any dispatch this run went to the strongest tier, or a Medium-or-worse defect turned up during the run |
 | Final review's fix subagent, and its re-review | strong | never — strong whatever tier the final review ran on |
 
 **Risky** means untrusted input reaching file paths or shell commands, auth, secrets, data deletion,
 or migrations. The controller judges it from the step text and the diff. A `review: default` marker
-cancels only the risk step-up: the row's reviewer stays on the default tier even when the step is
+cancels only the risk step-up: the row's reviewer keeps its default even when the step is
 risky, but fix round 3 and a stalled fix loop still step it up, and the implementer still steps up.
 A row carrying both `review: deep` and `review: default` gets the strongest-tier reviewer —
 `review: deep` wins (`CONVENTIONS.md`, *Row markers*). **Every step-up is logged in the Run log
-with its reason** — `reviewer on the strongest tier: step writes to a path built from an argument`.
+with its reason** — `reviewer at xhigh effort: step writes to a path built from an argument`.
 A `review:`-marked row logs its reviewer's tier on every review: `EXECUTION.md`, *The Run log*.
 
 - **Implementer:** a `general-purpose` subagent (`generalPurpose` on Cursor), model per the table.
