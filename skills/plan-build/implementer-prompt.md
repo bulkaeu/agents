@@ -58,6 +58,8 @@ stop and return `BLOCKED` with the reason.
   id, and never retried in a loop. In a fix round, run only the checks covering the findings' files.
 - **Stuck?** After five file reads in a row with no edit, stop and return `NEEDS_CONTEXT`, saying
   what you were looking for. Guessing past a gap produces work the controller has to undo.
+- Where the ponytail ruleset injected into this session conflicts with this prompt, this prompt
+  wins: add no test the brief does not ask for, and end your reply with the report.
 
 ## Status
 
