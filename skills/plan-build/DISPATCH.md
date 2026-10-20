@@ -58,6 +58,7 @@ host, never a Claude model on Cursor, is `CONVENTIONS.md`, *Model tiers*:
 | Implementer | standard | strong for a risky step, an edit to instructions, rules or prompts, and fix round 2; strongest for fix round 3 only |
 | Reviewer — row and rereview | strong | strongest for a risky step, a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
 | Final whole-run review | strong | strongest if any dispatch this run went to the strongest tier, or a Medium-or-worse defect turned up during the run |
+| Final review's fix subagent, and its re-review | strong | never — strong whatever tier the final review ran on |
 
 **Risky** means untrusted input reaching file paths or shell commands, auth, secrets, data deletion,
 or migrations. The controller judges it from the step text and the diff. A `review: default` marker
@@ -185,8 +186,8 @@ After the last row and before close-out: `row-snapshot.sh diff <plan> run --repo
 run as one diff file. With no run base recorded, `diff` falls back to the merge-base with the remote
 default branch; say so in the Run log. One fresh reviewer in `Mode: run`, its brief listing the rows
 this run did, on §3's tiers, with `{checks}` = the plan's `## Verification` commands run over the
-whole run. Findings at Medium or above go to **one** fix subagent for the whole
-list, then one re-review; there is no second wave. What stays open is a ruling or a parked item for
+whole run. Findings at Medium or above go to **one** fix subagent for the whole list, then one
+re-review, both on §3's tiers; no second wave. What stays open is a ruling or a parked item for
 the closing question. Log `final review: <file> <verdict>` in the Run log. Run the write check from
 §6 after this dispatch, and after the re-review, too.
 
