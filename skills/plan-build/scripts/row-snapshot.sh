@@ -17,9 +17,10 @@
 #       base is diffed against its copy; a file new since base is shown in full, which plain
 #       `git diff` omits. A fix round's diff is taken from the same base, so it shows the whole row.
 #       With <ref>, diff against that ref instead (a stage review uses @{upstream}); every
-#       untracked file is then shown in full, as it is with no recorded base. Then the row id `run`
-#       uses its merge-base with the remote default branch (origin/HEAD, else origin/main), and any
-#       other row uses HEAD, its partial work being uncommitted. The header names the base used.
+#       untracked file is then shown in full, as it is with no recorded base.
+#       With no recorded base, the row id `run` uses its merge-base with the remote default branch
+#       (origin/HEAD, else origin/main), and any other row uses HEAD, its partial work being
+#       uncommitted. The header names the base used.
 #       Each repo's header, and one stderr line, give its status: `changed` (it has hunks),
 #       `plan file only`, or `no changes since base`.
 #
@@ -27,10 +28,11 @@
 # The plan file itself is excluded from every diff. A diff over ROW_SNAPSHOT_MAX_LINES (default
 # 4000) lines is truncated with a note. Exit 0 on success, 2 on a usage error, 3 when a base cannot
 # be recorded (mid-rebase, no commits) or used (not an ancestor of HEAD), or when no repo is
-# `changed`, so no patch is written: run inline.
+# `changed`, so no patch is written: run inline. Exit 3 also when `run` has no recorded base and no
+# remote default branch to take a merge-base with: pass a ref.
 set -euo pipefail
 
-usage() { sed -n '3,30p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 die() { echo "row-snapshot: $2" >&2; exit "$1"; }
 
 [[ $# -ge 2 ]] || usage
@@ -122,7 +124,7 @@ repo_status() { # <toplevel> <sha> <key> <section file>
   plan_rel="$(plan_in "$top")"
   if [[ -n "$plan_rel" ]]; then
     if ! git -C "$top" diff --quiet "$sha" -- "$plan_rel"; then echo 'plan file only'; return; fi
-    if [[ -n "$(git -C "$top" ls-files -o -- "$plan_rel")" ]]; then
+    if [[ -n "$(git -C "$top" ls-files -o --exclude-standard -- "$plan_rel")" ]]; then
       copy="$row_dir/untracked/$key/$plan_rel"
       if [[ -z "$key" || ! -f "$copy" ]] || ! cmp -s "$copy" "$top/$plan_rel"; then
         echo 'plan file only'; return
@@ -150,19 +152,23 @@ diff_repo() { # <toplevel> <sha> <key> <label>
     while IFS= read -r -d '' f; do
       [[ "$f" == "$skip" ]] && continue
       if [[ -e "$top/$f" ]]; then
+        cmp -s "$copy_root/$f" "$top/$f" && continue   # unchanged: skip the git spawn
         (cd "$top" && git diff --no-index --no-color "$copy_root/$f" "$f") || true
       else
         (cd "$top" && git diff --no-index --no-color "$copy_root/$f" /dev/null) || true
       fi
     done <"$row_dir/untracked-$key.list" | sed "s/$copy_esc/\/(base)/g"
   fi
-  # Files untracked now and not at base: new, shown in full.
-  (cd "$top" && git ls-files -o --exclude-standard -z) | while IFS= read -r -d '' f; do
-    [[ "$f" == "$skip" ]] && continue
-    if [[ -n "$key" && -f "$row_dir/untracked-$key.list" ]] \
-      && tr '\0' '\n' <"$row_dir/untracked-$key.list" | grep -qxF -- "$f"; then continue; fi
-    (cd "$top" && git diff --no-index --no-color /dev/null "$f") || true
-  done
+  # Files untracked now and not at base: new, shown in full. One sorted pass (`comm` reads both
+  # lists whole, so no reader exits early on a list over the pipe buffer). Newline in a name: unsupported.
+  local now base_list=/dev/null
+  [[ -n "$key" && -f "$row_dir/untracked-$key.list" ]] && base_list="$row_dir/untracked-$key.list"
+  now="$(cd "$top" && git ls-files -o --exclude-standard -z | tr '\0' '\n' | LC_ALL=C sort)"
+  LC_ALL=C comm -23 <(printf '%s\n' "$now") <(tr '\0' '\n' <"$base_list" | LC_ALL=C sort) \
+    | while IFS= read -r f; do
+      [[ -z "$f" || "$f" == "$skip" ]] && continue
+      (cd "$top" && git diff --no-index --no-color /dev/null "$f") || true
+    done
 }
 
 if [[ "$cmd" == base ]]; then
@@ -192,7 +198,7 @@ trap 'rm -f "$out.full" "$out.sec"' EXIT   # check_base can exit 3 part-way thro
       d=origin/HEAD
       git -C "$top" rev-parse --verify -q "$d^{commit}" >/dev/null || d=origin/main
       sha="$(git -C "$top" merge-base HEAD "$d" 2>/dev/null)" \
-        || die 3 "no recorded base and no remote default branch — pass a ref"
+        || die 3 "no recorded base and no remote default branch in $top — pass a ref"
       check_base "$top" "$sha"
       label="merge-base ${sha:0:12} with $d — no recorded base; every untracked file counts as new"
     else
