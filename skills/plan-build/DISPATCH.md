@@ -65,15 +65,7 @@ risky, but fix round 3 and a stalled fix loop still step it up, and the implemen
 A row carrying both `review: deep` and `review: default` gets the strongest-tier reviewer —
 `review: deep` wins (`CONVENTIONS.md`, *Row markers*). **Every step-up is logged in the Run log
 with its reason** — `reviewer on the strongest tier: step writes to a path built from an argument`.
-**A row carrying a `review:` marker, `deep` or `default`, has its reviewer's tier logged for every
-review of that row, whether or not the marker changed anything** — one line per review, with its
-reason, naming the row and the review file it covers (it is also the step-up's line when there is
-one), so a fix loop whose tier changes (round 3, a stall) still shows which review ran on which
-tier: `<row id> · review-<n>.md — reviewer on the strongest tier: review: deep marker`,
-`<row id> · review-<n>.md — reviewer on the default tier: review: default holds a step that
-deletes data`, `<row id> · review-<n>.md — reviewer on the default tier: review: default marker,
-step not risky`, `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
-review: default does not cancel`.
+A `review:`-marked row logs its reviewer's tier on every review: `EXECUTION.md`, *The Run log*.
 
 - **Implementer:** a `general-purpose` subagent (`generalPurpose` on Cursor), model per the table.
   It returns its report as its reply. **Save that reply verbatim** as `report-<n>.md` — only the
@@ -179,11 +171,9 @@ overwrites it** — if the Run log already has one, it stands.
 
 After the last row and before close-out: `row-snapshot.sh diff <plan> run --repo …` gives the whole
 run as one diff file. With no run base recorded, diff against `@{upstream}` and say so in the Run
-log. One fresh reviewer in `Mode: run`, its brief listing the rows this run did, on the tier §3's
-last row gives: strongest if any dispatch this run went to the strongest tier or a Medium-or-worse
-defect turned up during the run, strong otherwise — the step-up logged like any other. Findings at
-Medium or above go to **one** fix subagent for the whole list, then one re-review; there is no
-second wave. What stays open is a ruling or a parked item for the closing question. Log
+log. One fresh reviewer in `Mode: run`, its brief listing the rows this run did, on §3's tiers.
+Findings at Medium or above go to **one** fix subagent for the whole list, then one re-review; there
+is no second wave. What stays open is a ruling or a parked item for the closing question. Log
 `final review: <file> <verdict>` in the Run log. Run the write check from §6 after this dispatch,
 and after the re-review, too.
 
