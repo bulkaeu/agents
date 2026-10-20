@@ -7,8 +7,8 @@
 #   row-snapshot.sh diff <plan.md> <row-id> [<ref>] [--repo <dir>]...
 #
 # dir   Print the run directory, ~/.claude/plan-runs/<plan stem>/, creating nothing: base and diff
-#       create what they write. Everything a row produces (base, brief, report, diff, review)
-#       lives there, outside every repository, so none of it can reach a commit.
+#       create what they write. Everything a row produces (base, brief, report, diff, checks,
+#       review) lives there, outside every repository, so none of it can reach a commit.
 # base  Per repo: record a commit holding the tree as it stands (`git stash create`, or HEAD when
 #       the tree is clean) and copy every untracked file, which no commit holds. Never HEAD~1: a
 #       row may make several commits. Use the row id `run` for the run base. Only the named repos'
@@ -69,8 +69,9 @@ if [[ ${#repos[@]} -eq 0 ]]; then
   repos=("$top")
 fi
 
-# A repo's key: its toplevel with / made safe, so two repos with one basename never collide.
-key_of() { printf '%s' "$1" | tr '/ ' '__'; }
+# A repo's key: its toplevel made filename-safe, one-to-one (`_` is escaped first), so no two
+# toplevels share a key — `/x/a b` and `/x/a_b` included.
+key_of() { printf '%s' "$1" | sed -e 's/_/_u/g' -e 's|/|_s|g' -e 's/ /_w/g'; }
 toplevel() { git -C "$1" rev-parse --show-toplevel 2>/dev/null || die 2 "not a repository: $1"; }
 # The plan's path relative to <top>, if the plan lives in that repo; empty otherwise.
 plan_in() { case "$plan_abs" in "$1"/*) printf '%s' "${plan_abs#"$1"/}" ;; esac; }
@@ -138,7 +139,7 @@ repo_status() { # <toplevel> <sha> <key> <section file>
 
 # Diff one repo against <sha>. <key> names its base copies; empty means none recorded.
 diff_repo() { # <toplevel> <sha> <key> <label>
-  local top="$1" sha="$2" key="$3" label="$4" skip f copy_root copy_esc
+  local top="$1" sha="$2" key="$3" label="$4" skip f copy_root copy_esc xa xb
   local excl=()
   skip="$(plan_in "$top")"
   [[ -n "$skip" ]] && excl+=(":(exclude)$skip")
@@ -154,7 +155,9 @@ diff_repo() { # <toplevel> <sha> <key> <label>
     while IFS= read -r -d '' f; do
       [[ "$f" == "$skip" ]] && continue
       if [[ -e "$top/$f" ]]; then
-        cmp -s "$copy_root/$f" "$top/$f" && continue   # unchanged: skip the git spawn
+        xa=0 xb=0; [[ -x "$copy_root/$f" ]] && xa=1; [[ -x "$top/$f" ]] && xb=1
+        # unchanged content and exec bit (all git records of a mode): skip the git spawn
+        cmp -s "$copy_root/$f" "$top/$f" && (( xa == xb )) && continue
         (cd "$top" && git diff --no-index --no-color "$copy_root/$f" "$f") || true
       else
         (cd "$top" && git diff --no-index --no-color "$copy_root/$f" /dev/null) || true
@@ -204,9 +207,12 @@ if [[ "$cmd" == base ]]; then
     rm -rf "${row_dir:?}/untracked/$key" "$row_dir/untracked-$key.list"
     mv "$new/untracked/$key" "$row_dir/untracked/$key"
     mv "$new/untracked-$key.list" "$row_dir/untracked-$key.list"
-    echo "base $row · ${tops[i]} · ${shas[i]:0:12} · $(tr -cd '\0' <"$row_dir/untracked-$key.list" | wc -c | tr -d ' ') untracked copied"
   done
   mv "$new/base.tsv" "$row_dir/base.tsv"
+  for i in "${!tops[@]}"; do   # report only once every record is in place
+    key="$(key_of "${tops[i]}")"
+    echo "base $row · ${tops[i]} · ${shas[i]:0:12} · $(LC_ALL=C tr -cd '\0' <"$row_dir/untracked-$key.list" | wc -c | tr -d ' ') untracked copied"
+  done
   exit 0
 fi
 
