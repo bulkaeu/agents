@@ -105,8 +105,10 @@ with `none`. Add nothing: no hints, no expected answers, no pre-judged findings.
 bash scripts/row-snapshot.sh diff <plan> <row id> --repo <repo>...
 ```
 
-`diff` can exit 3 too: the recorded base is not an ancestor of `HEAD`, or nothing differs from it.
-An exit 3 here takes §1's remedy: run the row inline, labelled `review: none — base unusable`.
+`diff` can exit 3 too: a recorded base is not an ancestor of `HEAD`, or no repository's status is
+`changed`. A repository the implementer's report lists under Changed, whose status is
+`no changes since base`, is exit 3 for the row: §1's remedy. An exit 3 here takes §1's remedy: run
+the row inline, labelled `review: none — base unusable`.
 
 Dispatch the reviewer with that diff, the brief (`Mode: row`), the report, and `{findings}` = `none`.
 

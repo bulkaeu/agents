@@ -18,14 +18,17 @@
 #       `git diff` omits. A fix round's diff is taken from the same base, so it shows the whole row.
 #       With <ref>, diff against that ref instead (a stage review uses @{upstream}); every
 #       untracked file is then shown in full. With no recorded base, HEAD is used and said so.
+#       Each repo's header, and one stderr line, give its status: `changed` (it has hunks),
+#       `plan file only`, or `no changes since base`.
 #
 # --repo  a repository in scope; repeatable. Default: the cwd's repository.
 # The plan file itself is excluded from every diff. A diff over ROW_SNAPSHOT_MAX_LINES (default
 # 4000) lines is truncated with a note. Exit 0 on success, 2 on a usage error, 3 when a base cannot
-# be recorded (mid-rebase, no commits) or used (unrelated to HEAD, nothing differs): run inline.
+# be recorded (mid-rebase, no commits) or used (not an ancestor of HEAD), or when no repo is
+# `changed`, so no patch is written: run inline.
 set -euo pipefail
 
-usage() { sed -n '3,25p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 die() { echo "row-snapshot: $2" >&2; exit "$1"; }
 
 [[ $# -ge 2 ]] || usage
@@ -90,14 +93,10 @@ record_base() { # <toplevel>
 }
 
 # Reject a base that cannot yield a meaningful range. A wrong-branch or wrong-checkout HEAD gives a
-# range that is unrelated to the base or empty, and either diffs plausibly but wrongly.
-check_base() { # <toplevel> <sha> <key>
-  local top="$1" sha="$2" key="$3" list="$row_dir/untracked-$3.list" f skip
-  local excl=()
-  # The plan file is excluded from the patch, so it must not count as work here either, or a run
-  # whose plan lives in this repo passes the guard on the controller's own tick and emits no hunks.
-  skip="$(plan_in "$top")"
-  [[ -n "$skip" ]] && excl+=(":(exclude)$skip")
+# range unrelated to the base, which diffs plausibly but wrongly. An empty range is not rejected
+# here: it is one repo's status, and only a package with no `changed` repo is refused.
+check_base() { # <toplevel> <sha>
+  local top="$1" sha="$2"
   # A `git stash create` base has two parents and its first is the HEAD it was taken from, so it is
   # still usable once HEAD has moved on; a real commit has one parent and must be an ancestor itself.
   if ! git -C "$top" merge-base --is-ancestor "$sha" HEAD 2>/dev/null; then
@@ -110,22 +109,25 @@ check_base() { # <toplevel> <sha> <key>
       die 3 "base ${sha:0:12} is not an ancestor of HEAD in $top (wrong branch or checkout?) — run inline"
     fi
   fi
-  (( $(git -C "$top" rev-list --count "$sha..HEAD" -- . ${excl[@]+"${excl[@]}"}) == 0 )) || return 0  # commits since base
-  git -C "$top" diff --quiet "$sha" -- . ${excl[@]+"${excl[@]}"} || return 0   # tracked work in tree
-  # Untracked work `git diff` cannot see. A file untracked at base counts once it stops matching its
-  # base copy — edited, or gone; one still identical to its copy is noise, not work.
-  if [[ -n "$key" && -f "$list" ]]; then
-    while IFS= read -r -d '' f; do
-      [[ "$f" == "$skip" ]] && continue
-      cmp -s "$row_dir/untracked/$key/$f" "$top/$f" || return 0
-    done <"$list"
+}
+
+# A repo's status. `changed`: its section has a hunk. `plan file only`: no hunk, but the plan file
+# (excluded from every diff) differs from base — tracked and changed, or untracked and either new
+# since base or no longer matching its base copy.
+repo_status() { # <toplevel> <sha> <key> <section file>
+  local top="$1" sha="$2" key="$3" plan_rel copy
+  if grep -q '^diff --git' "$4"; then echo changed; return; fi
+  plan_rel="$(plan_in "$top")"
+  if [[ -n "$plan_rel" ]]; then
+    if ! git -C "$top" diff --quiet "$sha" -- "$plan_rel"; then echo 'plan file only'; return; fi
+    if [[ -n "$(git -C "$top" ls-files -o -- "$plan_rel")" ]]; then
+      copy="$row_dir/untracked/$key/$plan_rel"
+      if [[ -z "$key" || ! -f "$copy" ]] || ! cmp -s "$copy" "$top/$plan_rel"; then
+        echo 'plan file only'; return
+      fi
+    fi
   fi
-  while IFS= read -r -d '' f; do          # a path untracked now and not at base is new work
-    [[ "$f" == "$skip" ]] && continue
-    if [[ -n "$key" && -f "$list" ]] && tr '\0' '\n' <"$list" | grep -qxF -- "$f"; then continue; fi
-    return 0
-  done < <(git -C "$top" ls-files -o --exclude-standard -z)
-  die 3 "nothing differs from base ${sha:0:12} in $top (wrong branch or checkout?) — run inline"
+  echo 'no changes since base'
 }
 
 # Diff one repo against <sha>. <key> names its base copies; empty means none recorded.
@@ -172,24 +174,32 @@ fi
 mkdir -p "$row_dir"
 n=1; while [[ -e "$row_dir/diff-$n.patch" ]]; do n=$((n + 1)); done
 out="$row_dir/diff-$n.patch"
-trap 'rm -f "$out.full"' EXIT   # check_base can exit 3 part-way through the write below
+trap 'rm -f "$out.full" "$out.sec"' EXIT   # check_base can exit 3 part-way through the write below
 {
   for r in "${repos[@]}"; do
-    top="$(toplevel "$r")"
+    top="$(toplevel "$r")" key=""
     if [[ -n "$ref" ]]; then
       sha="$(git -C "$top" rev-parse --verify -q "$ref^{commit}")" || die 2 "ref '$ref' does not resolve in $top"
-      check_base "$top" "$sha" ""
-      diff_repo "$top" "$sha" "" "$ref (${sha:0:12})"
+      check_base "$top" "$sha"
+      label="$ref (${sha:0:12})"
     elif line="$(grep -F "$top"$'\t' "$row_dir/base.tsv" 2>/dev/null | head -1)" && [[ -n "$line" ]]; then
       IFS=$'\t' read -r _ sha key <<<"$line"
-      check_base "$top" "$sha" "$key"
-      diff_repo "$top" "$sha" "$key" "recorded base ${sha:0:12}"
+      check_base "$top" "$sha"
+      label="recorded base ${sha:0:12}"
     else
       sha="$(git -C "$top" rev-parse HEAD)"
-      diff_repo "$top" "$sha" "" "HEAD ${sha:0:12} — no recorded base; every untracked file counts as new"
+      label="HEAD ${sha:0:12} — no recorded base; every untracked file counts as new"
     fi
+    diff_repo "$top" "$sha" "$key" "$label" >"$out.sec"
+    status="$(repo_status "$top" "$sha" "$key" "$out.sec")"
+    printf '%s · %s\n' "$(head -n 1 "$out.sec")" "$status"   # the `=== repo:` header, with status
+    tail -n +2 "$out.sec"
+    echo "row-snapshot: $top: $status" >&2
   done
 } >"$out.full"
+# Tested before truncation, on every branch above: the EXIT trap removes the hunk-less package.
+grep -q '^diff --git' "$out.full" \
+  || die 3 "no repository changed since its base (wrong branch or checkout?) — run inline"
 total="$(wc -l <"$out.full" | tr -d ' ')"
 if (( total > max_lines )); then
   head -n "$max_lines" "$out.full" >"$out"
