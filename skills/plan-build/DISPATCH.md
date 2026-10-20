@@ -172,12 +172,12 @@ overwrites it** — if the Run log already has one, it stands.
 ## The final review
 
 After the last row and before close-out: `row-snapshot.sh diff <plan> run --repo …` gives the whole
-run as one diff file. With no run base recorded, diff against `@{upstream}` and say so in the Run
-log. One fresh reviewer in `Mode: run`, its brief listing the rows this run did, on §3's tiers.
-Findings at Medium or above go to **one** fix subagent for the whole list, then one re-review; there
-is no second wave. What stays open is a ruling or a parked item for the closing question. Log
-`final review: <file> <verdict>` in the Run log. Run the write check from §6 after this dispatch,
-and after the re-review, too.
+run as one diff file. With no run base recorded, `diff` falls back to the merge-base with the remote
+default branch; say so in the Run log. One fresh reviewer in `Mode: run`, its brief listing the rows
+this run did, on §3's tiers. Findings at Medium or above go to **one** fix subagent for the whole
+list, then one re-review; there is no second wave. What stays open is a ruling or a parked item for
+the closing question. Log `final review: <file> <verdict>` in the Run log. Run the write check from
+§6 after this dispatch, and after the re-review, too.
 
 ## Fallback — a host without subagents
 

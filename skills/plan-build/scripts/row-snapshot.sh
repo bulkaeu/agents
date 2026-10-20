@@ -17,7 +17,9 @@
 #       base is diffed against its copy; a file new since base is shown in full, which plain
 #       `git diff` omits. A fix round's diff is taken from the same base, so it shows the whole row.
 #       With <ref>, diff against that ref instead (a stage review uses @{upstream}); every
-#       untracked file is then shown in full. With no recorded base, HEAD is used and said so.
+#       untracked file is then shown in full, as it is with no recorded base. Then the row id `run`
+#       uses its merge-base with the remote default branch (origin/HEAD, else origin/main), and any
+#       other row uses HEAD, its partial work being uncommitted. The header names the base used.
 #       Each repo's header, and one stderr line, give its status: `changed` (it has hunks),
 #       `plan file only`, or `no changes since base`.
 #
@@ -28,7 +30,7 @@
 # `changed`, so no patch is written: run inline.
 set -euo pipefail
 
-usage() { sed -n '3,28p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '3,30p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 die() { echo "row-snapshot: $2" >&2; exit "$1"; }
 
 [[ $# -ge 2 ]] || usage
@@ -186,6 +188,13 @@ trap 'rm -f "$out.full" "$out.sec"' EXIT   # check_base can exit 3 part-way thro
       IFS=$'\t' read -r _ sha key <<<"$line"
       check_base "$top" "$sha"
       label="recorded base ${sha:0:12}"
+    elif [[ "$row" == run ]]; then   # HEAD would hide every commit the run made
+      d=origin/HEAD
+      git -C "$top" rev-parse --verify -q "$d^{commit}" >/dev/null || d=origin/main
+      sha="$(git -C "$top" merge-base HEAD "$d" 2>/dev/null)" \
+        || die 3 "no recorded base and no remote default branch — pass a ref"
+      check_base "$top" "$sha"
+      label="merge-base ${sha:0:12} with $d — no recorded base; every untracked file counts as new"
     else
       sha="$(git -C "$top" rev-parse HEAD)"
       label="HEAD ${sha:0:12} — no recorded base; every untracked file counts as new"
