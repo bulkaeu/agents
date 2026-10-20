@@ -11,7 +11,8 @@
 #       lives there, outside every repository, so none of it can reach a commit.
 # base  Per repo: record a commit holding the tree as it stands (`git stash create`, or HEAD when
 #       the tree is clean) and copy every untracked file, which no commit holds. Never HEAD~1: a
-#       row may make several commits. Use the row id `run` for the run base.
+#       row may make several commits. Use the row id `run` for the run base. Only the named repos'
+#       records are replaced, and only once every one is recorded; other repos' lines are kept.
 # diff  Write <run dir>/rows/<row-id>/diff-<n>.patch and print its path: one section per repo,
 #       the tree against the recorded base, commits and uncommitted work alike. A file untracked at
 #       base is diffed against its copy; a file new since base is shown in full, which plain
@@ -32,7 +33,7 @@
 # remote default branch to take a merge-base with: pass a ref.
 set -euo pipefail
 
-usage() { sed -n '3,32p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '3,33p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 die() { echo "row-snapshot: $2" >&2; exit "$1"; }
 
 [[ $# -ge 2 ]] || usage
@@ -74,9 +75,8 @@ toplevel() { git -C "$1" rev-parse --show-toplevel 2>/dev/null || die 2 "not a r
 # The plan's path relative to <top>, if the plan lives in that repo; empty otherwise.
 plan_in() { case "$plan_abs" in "$1"/*) printf '%s' "${plan_abs#"$1"/}" ;; esac; }
 
-record_base() { # <toplevel>
-  local top="$1" key sha f
-  key="$(key_of "$top")"
+base_sha() { # <toplevel> — print its base commit, or exit 3 having written nothing
+  local top="$1" sha f
   for f in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD; do
     (cd "$top" && [[ -e "$(git rev-parse --git-path "$f")" ]]) \
       && die 3 "$top is mid-operation ($f) — run the row inline, labelled"
@@ -85,15 +85,17 @@ record_base() { # <toplevel>
     || die 3 "cannot record a base in $top (mid-rebase, or no commits) — run the row inline, labelled"
   [[ -n "$sha" ]] || sha="$(git -C "$top" rev-parse HEAD 2>/dev/null)" \
     || die 3 "cannot record a base in $top (no commits) — run the row inline, labelled"
-  rm -rf "${row_dir:?}/untracked/$key" "$row_dir/untracked-$key.list"
-  mkdir -p "$row_dir/untracked/$key"
-  git -C "$top" ls-files -o --exclude-standard -z >"$row_dir/untracked-$key.list"
+  printf '%s' "$sha"
+}
+
+stage_untracked() { # <toplevel> <key> <staging dir> — copy every untracked file, and list them
+  local f
+  mkdir -p "$3/untracked/$2"
+  git -C "$1" ls-files -o --exclude-standard -z >"$3/untracked-$2.list"
   while IFS= read -r -d '' f; do
-    mkdir -p "$row_dir/untracked/$key/$(dirname "$f")"
-    cp -p "$top/$f" "$row_dir/untracked/$key/$f"
-  done <"$row_dir/untracked-$key.list"
-  printf '%s\t%s\t%s\n' "$top" "$sha" "$key" >>"$row_dir/base.tsv"
-  echo "base $row · $top · ${sha:0:12} · $(tr -cd '\0' <"$row_dir/untracked-$key.list" | wc -c | tr -d ' ') untracked copied"
+    mkdir -p "$3/untracked/$2/$(dirname "$f")"
+    cp -p "$1/$f" "$3/untracked/$2/$f"
+  done <"$3/untracked-$2.list"
 }
 
 # Reject a base that cannot yield a meaningful range. A wrong-branch or wrong-checkout HEAD gives a
@@ -163,8 +165,8 @@ diff_repo() { # <toplevel> <sha> <key> <label>
   # lists whole, so no reader exits early on a list over the pipe buffer). Newline in a name: unsupported.
   local now base_list=/dev/null
   [[ -n "$key" && -f "$row_dir/untracked-$key.list" ]] && base_list="$row_dir/untracked-$key.list"
-  now="$(cd "$top" && git ls-files -o --exclude-standard -z | tr '\0' '\n' | LC_ALL=C sort)"
-  LC_ALL=C comm -23 <(printf '%s\n' "$now") <(tr '\0' '\n' <"$base_list" | LC_ALL=C sort) \
+  now="$(cd "$top" && git ls-files -o --exclude-standard -z | LC_ALL=C tr '\0' '\n' | LC_ALL=C sort)"
+  LC_ALL=C comm -23 <(printf '%s\n' "$now") <(LC_ALL=C tr '\0' '\n' <"$base_list" | LC_ALL=C sort) \
     | while IFS= read -r f; do
       [[ -z "$f" || "$f" == "$skip" ]] && continue
       (cd "$top" && git diff --no-index --no-color /dev/null "$f") || true
@@ -172,9 +174,39 @@ diff_repo() { # <toplevel> <sha> <key> <label>
 }
 
 if [[ "$cmd" == base ]]; then
-  mkdir -p "$row_dir"
-  rm -f "$row_dir/base.tsv"
-  for r in "${repos[@]}"; do record_base "$(toplevel "$r")"; done
+  # Pass 1: every refusal fires before anything already recorded is touched.
+  tops=() shas=()
+  for r in "${repos[@]}"; do
+    top="$(toplevel "$r")"
+    for t in ${tops[@]+"${tops[@]}"}; do [[ "$t" == "$top" ]] && continue 2; done
+    sha="$(base_sha "$top")"
+    tops+=("$top") shas+=("$sha")
+  done
+  # Pass 2: stage each repo's copies and line, then swap them in. Other repos' lines are kept.
+  mkdir -p "$row_dir/untracked"
+  new="$row_dir/base.new"
+  rm -rf "$new"; mkdir "$new"
+  trap 'rm -rf "$new"' EXIT
+  : >"$new/lines"
+  for i in "${!tops[@]}"; do
+    key="$(key_of "${tops[i]}")"
+    stage_untracked "${tops[i]}" "$key" "$new"
+    printf '%s\t%s\t%s\n' "${tops[i]}" "${shas[i]}" "$key" >>"$new/lines"
+  done
+  {
+    if [[ -f "$row_dir/base.tsv" ]]; then   # drop lines whose whole first field is a named repo
+      awk -F'\t' 'NR == FNR { named[$1]; next } !($1 in named)' "$new/lines" "$row_dir/base.tsv"
+    fi
+    cat "$new/lines"
+  } >"$new/base.tsv"
+  for i in "${!tops[@]}"; do
+    key="$(key_of "${tops[i]}")"
+    rm -rf "${row_dir:?}/untracked/$key" "$row_dir/untracked-$key.list"
+    mv "$new/untracked/$key" "$row_dir/untracked/$key"
+    mv "$new/untracked-$key.list" "$row_dir/untracked-$key.list"
+    echo "base $row · ${tops[i]} · ${shas[i]:0:12} · $(tr -cd '\0' <"$row_dir/untracked-$key.list" | wc -c | tr -d ' ') untracked copied"
+  done
+  mv "$new/base.tsv" "$row_dir/base.tsv"
   exit 0
 fi
 

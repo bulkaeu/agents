@@ -167,7 +167,8 @@ bash scripts/row-snapshot.sh base <plan> run --repo <repo>...
 ```
 
 and lists each repo's sha in the Run log as `run base: <repo> <sha>`. **A later resume never
-overwrites it** — if the Run log already has one, it stands.
+overwrites it** — if the Run log already has one, it stands. A repository that joins the run
+later, such as a worktree, is based alone: `base <plan> run --repo <it>`.
 
 ## The final review
 
