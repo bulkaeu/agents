@@ -43,7 +43,8 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 - **Specification** — the body section or sections backing the row, found by name, not position.
 - **Interfaces** — what the row consumes from earlier rows and what later rows need from it.
 - **Scope** — the repositories it may change, and the plan file's path, which it may not.
-- **Constraints** — the plan's global constraints, and every project rule the work must obey.
+- **Constraints** — the plan's global constraints, every project rule the work must obey, and the
+  row's check command, its runner's process name and its time limit, where the plan gives them.
   `Explore` loads no instruction files, so a rule not written here does not exist for the reviewer.
 - **Rulings** — every ruling touching this row, or `none`.
 
