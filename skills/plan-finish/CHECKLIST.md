@@ -138,9 +138,8 @@ bash "${CLAUDE_SKILL_DIR}/../plan-shared/scripts/table-claims.sh" "<plan-file>" 
 
 Every repository in scope is a `--repo`, the plan's own included — any `--repo` drops the script's
 default, the plan's repository. The run directory (`row-snapshot.sh dir` prints it) is a `--root`,
-so cited review files resolve. A `--root` replaces the default, the plan repo's parent — pass that
-too if Notes cite paths relative to it. **Each MISSING is a question, not a verdict**: a path a row
-deleted or moved is meant to be absent. A claimed sha or path really absent is drift.
+so cited review files resolve. **Each MISSING is a question, not a verdict**: a path a row deleted
+or moved is meant to be absent. A claimed sha or path really absent is drift.
 
 **Re-read the plan from disk before auditing it.** Do not audit a copy carried in context from
 earlier in the session — it may predate edits made since, and you will report a defect that was
