@@ -94,7 +94,7 @@ Pre-flight only. Prints:
   both verdicts including a refusal — and, before it, any author-parked `⛔` rows as *already
   parked*;
 - the **dispatch count** — the rows `EXECUTION.md` would classify as dispatch, by id, and the
-  subagent floor that implies (`DISPATCH.md`, *Cost*), so the cost is known before anything starts,
+  subagent floor that implies (*Cost*, below), so the cost is known before anything starts,
   and the floor's count per model tier from `DISPATCH.md` §3 — each row's implementer and reviewer
   judged from its step text, markers included, and the final review's tier as the table predicts it;
 - and **writes nothing**.
@@ -109,6 +109,11 @@ dry-run is not clearance.**
 **A dry run makes no offers.** The pre-flight offers in section 2 — derive a table, proceed anyway
 on a part-done plan — are absent here: accepting either means executing, which a dry run cannot do.
 Report the refusal and stop.
+
+*Cost.* A dispatched row costs at least 2 subagents, and up to 9 — one `NEEDS_CONTEXT` retry, then
+three fix rounds; the final review adds 1 to 3. Only code rows dispatch, each on `DISPATCH.md` §3's
+tiers: implementers standard and reviewers strong by default, stepping up on its table's triggers.
+The floor is 2 × dispatched rows + 1.
 
 Report shape — follow it, so two runs on the same plan are comparable:
 

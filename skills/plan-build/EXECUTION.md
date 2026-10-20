@@ -35,9 +35,10 @@ A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows 
 `⛔` *"depends on N"* — then the loop **continues** with everything else (rule 2).
 
 **A dispatched row that parks leaves no edits behind.** Before the next row, the controller
-restores the files in the row's last diff to the row's base — tracked files from the base sha,
-files the row created removed — and says so in the row's Notes. The diff stays in the run
-directory as the record.
+restores the files in the row's last diff — or in a fresh `diff`, when the row parked before one
+was taken — to the row's base: tracked files from the base sha, files untracked at base from the
+base's copy (`rows/<row id>/untracked/`), files the row created removed. It says so in the row's
+Notes. The diff stays in the run directory as the record.
 
 **Scope changes go in the table as they happen.** A step you discover is needed becomes a row where
 it actually ran, never appended beside a thematically similar one — a table reading `E1 E2 E5 E3 E4`

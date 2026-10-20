@@ -9,7 +9,7 @@ on those rows: code it wrote would skip the review that is the point of this fil
 - The run directory
 - 1 Base · 2 Brief · 3 Agents and models · 4 Filling a prompt · 5 Statuses
 - 6 Review · 7 Fix loop · 8 Rulings · 9 Record
-- The run base · The final review · Fallback · Cost
+- The run base · The final review · Fallback
 
 ## The run directory
 
@@ -114,8 +114,10 @@ the row inline, labelled `review: none — base unusable`.
 Before dispatching the reviewer, run the row's checks and save them as `checks-<n>.txt`; dispatch
 with `{checks}` = that file, or `none` when the row names no check. The checks are its done-state
 command and any the brief names, a long one in the background (`implementer-prompt.md`); the file
-records the sha they ran against: the commit, or `git stash create`'s. Dispatch the reviewer with
-that diff, the brief (`Mode: row`), the report, `{checks}`, and `{findings}` = `none`.
+records each command with its output and exit status — a check silent on success is otherwise
+indistinguishable from one not run — and the sha they ran against: the commit, or
+`git stash create`'s. Dispatch the reviewer with that diff, the brief (`Mode: row`), the report,
+`{checks}`, and `{findings}` = `none`.
 
 **After every reviewer dispatch** — this one, a rereview in §7, and the final review below — compare
 `git status --short` in each repository in scope against its state before the dispatch, and check
@@ -159,8 +161,9 @@ ruling that raises the bar is its opposite. One that lowers the bar is not a rul
 
 ## 9. Record
 
-Only the controller writes the table and commits. Before the tick: run the done-state check fresh,
-confirm every claimed file exists and every claimed sha is in `git log`. Then `✅` with Notes
+Only the controller writes the table and commits. Before the tick: pass `EXECUTION.md`'s
+verification gate — the done-state check run fresh or cited from a current `checks-<n>.txt`, every
+claimed file present, every claimed sha in `git log`. Then `✅` with Notes
 carrying that evidence and a review token, its path its own backticked span so
 `table-claims.sh` can check it: review: `rows/<row id>/review-<n>.md` PASS.
 
@@ -191,10 +194,3 @@ the closing question. Log `final review: <file> <verdict>` in the Run log. Run t
 
 The controller implements and reviews in-thread, with the same brief and diff, and labels the row's
 Notes `review: same-agent`. That is weaker, and the label says so rather than hiding it.
-
-## Cost
-
-A dispatched row costs at least 2 subagents, and up to 9 — one `NEEDS_CONTEXT` retry, then three
-fix rounds; the final review adds 1 to 3. Only code rows dispatch, each on §3's tiers: implementers
-standard and reviewers strong by default, stepping up on the table's triggers. A dry run prints the
-floor — 2 × dispatched rows + 1 — and its count per model tier before anything starts.
