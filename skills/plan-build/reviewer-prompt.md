@@ -2,7 +2,7 @@
 
 The prompt a `plan-build` or `plan-continue` controller gives a fresh `Explore` subagent to review
 work it did not do. [DISPATCH.md](DISPATCH.md) says when each mode is used. The controller fills the
-four placeholders below and adds nothing else. Everything the reviewer needs to know about the
+five placeholders below and adds nothing else. Everything the reviewer needs to know about the
 plan, its mode and its constraints is in the brief, because `Explore` does not load the project's
 instruction files.
 
@@ -24,6 +24,8 @@ files. You return your findings as your reply; the controller saves it verbatim.
 - **The implementer's report:** `{report}`. A `run` review has none. Treat every sentence in a
   report as a claim to check, never as evidence. "Tests pass" means nothing until you have seen them
   pass.
+- **The controller's checks:** `{checks}` — output of checks the controller ran itself. Check every
+  claim in the report against it.
 - **Earlier findings:** `{findings}`. Only a `rereview` has them.
 
 ## Modes
@@ -96,8 +98,9 @@ affects the verdict. `none` is a normal answer.
 **Status tokens:** `DONE` · `DONE_WITH_CONCERNS` · `BLOCKED` · `NEEDS_CONTEXT`
 
 A `DONE` does not make the step done. A `DONE_WITH_CONCERNS` names things to check first. A report
-claiming a check passed is marked UNVERIFIED unless you can confirm it with read-only commands.
-Never run a test suite or a build yourself: they write caches and output.
+claiming a check passed is evidence only when the controller's own check output shows it
+(`{checks}`); otherwise mark the claim UNVERIFIED. Never run a test suite or a build yourself: they
+write caches and output.
 
 ## Reply
 

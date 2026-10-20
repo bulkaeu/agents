@@ -56,7 +56,8 @@ done; trust them over a memory of intending to do it.
 
 Before any `✅`, fresh in the same turn as the tick:
 
-- the row's done-state check, run by the controller, with its output in Notes;
+- the row's done-state check, run by the controller, with its output in Notes — or cite the
+  latest `checks-<n>.txt` instead, when the tree's sha still equals the one recorded in it;
 - every file the row claims exists, every sha it cites resolves, and every review file the row's
   Notes cite — the `review:` token, and any other `review-<n>.md` a fix round added —
   `../plan-shared/scripts/table-claims.sh` checks all three across the repos in scope, run with

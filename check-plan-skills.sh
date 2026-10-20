@@ -193,7 +193,7 @@ placeholders() { # <file> <allowed, space-separated>
   done
 }
 placeholders skills/plan-build/implementer-prompt.md "brief findings out" | record
-placeholders skills/plan-build/reviewer-prompt.md "brief diff report findings" | record
+placeholders skills/plan-build/reviewer-prompt.md "brief diff report findings checks" | record
 
 # K13 — the two executing skills keep standing orders near the top, where a re-read after a
 # context summary lands

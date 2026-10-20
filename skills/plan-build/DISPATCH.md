@@ -15,9 +15,9 @@ on those rows: code it wrote would skip the review that is the point of this fil
 
 `bash scripts/row-snapshot.sh dir <plan>` prints it: `~/.claude/plan-runs/<plan stem>/`. Each
 dispatched row gets `rows/<row id>/`, holding the base, then one set of files per pass `<n>` —
-`brief-<n>.md`, `report-<n>.md`, `diff-<n>.patch`, `review-<n>.md` — where pass 1 is the first
-attempt and each fix round adds one. The script numbers the diffs; number the rest to match. It all
-lives outside every repository, so none of it can reach a commit.
+`brief-<n>.md`, `report-<n>.md`, `diff-<n>.patch`, `checks-<n>.txt`, `review-<n>.md` — where pass 1
+is the first attempt and each fix round adds one. The script numbers the diffs; number the rest to
+match. It all lives outside every repository, so none of it can reach a commit.
 
 ## 1. Base — once per repository in scope
 
@@ -87,7 +87,7 @@ with `none`. Add nothing: no hints, no expected answers, no pre-judged findings.
 
 - [implementer-prompt.md](implementer-prompt.md) — `{brief}`, `{findings}`, `{out}` (the path the
   controller saves the reply to).
-- [reviewer-prompt.md](reviewer-prompt.md) — `{brief}`, `{diff}`, `{report}`, `{findings}`.
+- [reviewer-prompt.md](reviewer-prompt.md) — `{brief}`, `{diff}`, `{report}`, `{findings}`, `{checks}`.
 
 ## 5. Statuses
 
@@ -111,7 +111,11 @@ bash scripts/row-snapshot.sh diff <plan> <row id> --repo <repo>...
 `no changes since base`, is exit 3 for the row: §1's remedy. An exit 3 here takes §1's remedy: run
 the row inline, labelled `review: none — base unusable`.
 
-Dispatch the reviewer with that diff, the brief (`Mode: row`), the report, and `{findings}` = `none`.
+Before dispatching the reviewer, run the row's checks and save them as `checks-<n>.txt`; dispatch
+with `{checks}` = that file, or `none` when the row names no check. The checks are its done-state
+command and any the brief names, a long one in the background (`implementer-prompt.md`); the file
+records the sha they ran against: the commit, or `git stash create`'s. Dispatch the reviewer with
+that diff, the brief (`Mode: row`), the report, `{checks}`, and `{findings}` = `none`.
 
 **After every reviewer dispatch** — this one, a rereview in §7, and the final review below — compare
 `git status --short` in each repository in scope against its state before the dispatch, and check
@@ -133,13 +137,13 @@ way, at Medium or above. Independence stays in the *finding* of defects and in t
 them.
 
 Each round: a fresh implementer with `{findings}` = the latest review file; a new diff from the
-**original** base, so the whole row is shown with its fixes in; a fresh reviewer, `Mode: rereview`.
-At most **3 rounds**, on §3's tiers: the implementer on strong in round 2 and strongest in round 3,
-the reviewer on strongest in round 3. **If the open count does not fall** between two rounds, the
-loop has stalled: the next round's review runs on the strongest tier. If it still does not fall after
-a strongest-tier review, or anything is open after round 3, stop and write a ruling: accept with the
-reason and the risk, or park the row. A row is never ticked with a finding at Medium or above still
-open.
+**original** base, so the whole row is shown with its fixes in; a fresh `checks-<n>.txt`, run as in
+§6; a fresh reviewer, `Mode: rereview`. At most **3 rounds**, on §3's tiers: the implementer on
+strong in round 2 and strongest in round 3, the reviewer on strongest in round 3. **If the open
+count does not fall** between two rounds, the loop has stalled: the next round's review runs on the
+strongest tier. If it still does not fall after a strongest-tier review, or anything is open after
+round 3, stop and write a ruling: accept with the reason and the risk, or park the row. A row is
+never ticked with a finding at Medium or above still open.
 
 ## 8. Rulings — including overriding the step's wording
 
@@ -176,7 +180,8 @@ later, such as a worktree, is based alone: `base <plan> run --repo <it>`.
 After the last row and before close-out: `row-snapshot.sh diff <plan> run --repo …` gives the whole
 run as one diff file. With no run base recorded, `diff` falls back to the merge-base with the remote
 default branch; say so in the Run log. One fresh reviewer in `Mode: run`, its brief listing the rows
-this run did, on §3's tiers. Findings at Medium or above go to **one** fix subagent for the whole
+this run did, on §3's tiers, with `{checks}` = the plan's `## Verification` commands run over the
+whole run. Findings at Medium or above go to **one** fix subagent for the whole
 list, then one re-review; there is no second wave. What stays open is a ruling or a parked item for
 the closing question. Log `final review: <file> <verdict>` in the Run log. Run the write check from
 §6 after this dispatch, and after the re-review, too.
