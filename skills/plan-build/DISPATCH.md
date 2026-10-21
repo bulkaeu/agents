@@ -15,9 +15,9 @@ on those rows: code it wrote would skip the review that is the point of this fil
 
 `bash scripts/row-snapshot.sh dir <plan>` prints it: `~/.claude/plan-runs/<plan stem>/`. Each
 dispatched row gets `rows/<row id>/`, holding the base, then one set of files per pass `<n>` —
-`brief-<n>.md`, `report-<n>.md`, `diff-<n>.patch`, `checks-<n>.txt`, `review-<n>.md` — where pass 1
-is the first attempt and each fix round adds one. The script numbers the diffs; number the rest to
-match. It all lives outside every repository, so none of it can reach a commit.
+`brief-<n>.md`, `report-<n>.md`, `diff-<n>.patch`, `impl-checks-<n>-<k>.txt`, `checks-<n>.txt`,
+`review-<n>.md` — where pass 1 is the first attempt and each fix round adds one. The script numbers
+the diffs; number the rest to match. All of it lives outside every repository, so none of it can reach a commit.
 
 ## 1. Base — once per repository in scope
 
@@ -44,7 +44,8 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 - **Interfaces** — what the row consumes from earlier rows and what later rows need from it.
 - **Scope** — the repositories it may change, and the plan file's path, which it may not.
 - **Constraints** — the plan's global constraints, every project rule the work must obey, and the
-  row's check command, its runner's process name and its time limit, where the plan gives them.
+  row's check commands, its runner's process name and its time limit, where the plan gives them —
+  each slow check (`RULES.md` rule 7) wrapped with its own record, `<k>` = 1, 2, … in brief order: `bash <this skill>/scripts/check-run.sh run <run dir>/rows/<row id>/impl-checks-<n>-<k>.txt --repo <repo> -- <command>`.
   `Explore` loads no instruction files, so a rule not written here does not exist for the reviewer.
 - **Rulings** — every ruling touching this row, or `none`.
 
@@ -113,13 +114,13 @@ bash scripts/row-snapshot.sh diff <plan> <row id> --repo <repo>...
 `no changes since base`, is exit 3 for the row: §1's remedy. An exit 3 here takes §1's remedy: run
 the row inline, labelled `review: none — base unusable`.
 
-Before dispatching the reviewer, run the row's checks and save them as `checks-<n>.txt`; dispatch
-with `{checks}` = that file, or `none` when the row names no check. The checks are its done-state
-command and any the brief names, a long one in the background (`implementer-prompt.md`); the file
-records each command with its output and exit status — a check silent on success is otherwise
-indistinguishable from one not run — and the sha they ran against: the commit, or
-`git stash create`'s. Dispatch the reviewer with that diff, the brief (`Mode: row`), the report,
-`{checks}`, and `{findings}` = `none`.
+Before dispatching the reviewer, account for every check: the done-state command and each one the
+brief names. Cite a slow check `k` whose `impl-checks-<n>-<k>.txt` `check-run.sh current` accepts,
+pass or fail (`RULES.md` rule 7). Run every other check yourself (quick, unwrapped, unrecorded or
+not current), slow ones into `checks-<n>-<k>.txt` in the background. Concatenate the records and
+the quick checks' output, each command with its exit status, into `checks-<n>.txt`: a check silent
+on success otherwise looks unrun. Dispatch the reviewer with that diff, the brief (`Mode: row`),
+the report, `{checks}` = that file (or `none` if the row names no check), and `{findings}` = `none`.
 
 **After every reviewer dispatch** — this one, a rereview in §7, and the final review below — compare
 `git status --short` in each repository in scope against its state before the dispatch, and check
@@ -164,7 +165,8 @@ ruling that raises the bar is its opposite. One that lowers the bar is not a rul
 ## 9. Record
 
 Only the controller writes the table and commits. Before the tick: pass `EXECUTION.md`'s
-verification gate — the done-state check run fresh or cited from a current `checks-<n>.txt`, every
+verification gate — the done-state check run fresh, or cited from a `checks-<n>.txt` that
+`check-run.sh current` accepts — every
 claimed file present, every claimed sha in `git log`. Then `✅` with Notes
 carrying that evidence and a review token, its path its own backticked span so
 `table-claims.sh` can check it: review: `rows/<row id>/review-<n>.md` PASS.

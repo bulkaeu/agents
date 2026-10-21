@@ -58,6 +58,30 @@ session's sequencer files and dirty tree alone (`shared-state-between-agents.md`
 
 Name what did not run, and why. "Tests pass" is not a result; the counts are.
 
+**And a check that already ran on this tree is not run again.** A result is evidence about one tree.
+Every slow check goes through `bash scripts/check-run.sh run <file> --repo <repo>... -- <command>`:
+a test suite, a build, anything over about ten seconds. A quick check (a grep, a count) is cheaper
+to re-run than to record. The script writes one record per file, with the exit status and each
+repo's tree identity: commits, edits and untracked files. Any environment variable that changes
+what the check does goes inside the command (`-- env NAME=value …`), where `# cmd` shows it. Before
+running a slow check, ask `check-run.sh current` about the newest record whose `# cmd` matches:
+
+- **exit 0**: cite the record;
+- **exit 4**, only `*.md` changed: cite it, unless the check reads Markdown. That includes a doc,
+  link or format check, and a suite that parses `.md` as input;
+- **exit 1**: run the check.
+
+Plan ticks, Run log lines and ticket edits never justify a re-run. Read a record through `current`
+and its own `# exit` line, never through a report's summary of it.
+
+**A failure is retried at most once on an unchanged tree,** into a new record file, and only for a
+cause logged as a ruling: a suspected flake, a concurrent run, a timeout. A second failure is the
+result.
+
+*Example:* the implementer's record `rows/4/impl-checks-1-1.txt` ends `# exit 0`. Since then only the
+plan, a Markdown file in another repo, has changed, and `current` prints `current`. That record
+becomes the reviewer's `{checks}` and the gate's evidence, so the suite runs once for the row.
+
 ## 8. Never bend the plan to make a step pass
 
 A step that cannot be done as written becomes `⛔` with the reason — not a quietly narrowed step
@@ -68,6 +92,8 @@ contract exists to prevent.
 
 An implementer's `DONE` is a claim, and so is a reviewer's `PASS`. The controller runs the
 done-state check itself, reads the diff, and confirms every claimed file and sha before it ticks.
+The one exception is a `check-run.sh` record that the controller confirms is current itself: that
+record is the script's evidence about the tree, not the subagent's claim (rule 7).
 **Only the controller writes** the table, the Run log and commits; a subagent that did any of them
 has left work to be undone, not work to be kept.
 

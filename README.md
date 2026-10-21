@@ -207,7 +207,7 @@ and restart Codex.
   and each is a single hop into a sibling directory, never a chain. The `plan-*` skills read
   `plan-shared/`, where the conventions, the stop-list and the claims script each live once, and
   they read `plan-build`'s contract files — `RULES.md`, `EXECUTION.md`, `DISPATCH.md`,
-  `scripts/row-snapshot.sh` and, for the concurrency check `plan-continue` defers to, `plan-build`'s
+  `scripts/row-snapshot.sh`, `scripts/check-run.sh` and, for the concurrency check `plan-continue` defers to, `plan-build`'s
   own `SKILL.md` §2 — because the execution contract, the dispatch tiers and the run
   directory are written once for the whole family instead of copied into every skill that runs a
   plan. The close-outs reach sideways too: `plan-build`'s reads `plan-finish`'s files, and

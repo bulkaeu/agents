@@ -92,7 +92,7 @@ Then list every repo the work touched — the plan's own paths, the cwd, and any
 | 6 | Cleanup | Merged branches, stale worktrees, `*.orig`/`*.rej`, scratch files the plan created? |
 
 **Area 2 follows the [global scope rule](../../claude/CLAUDE.md#finishing-a-plan):** text-only work gets document checks; implementation (including executable input) gets the required full suite. Explicit requests apply.
-Neither multiple steps nor this skill triggers unrelated checks; record these as **not applicable** and do not repeat unchanged passing evidence.
+Neither multiple steps nor this skill triggers unrelated checks; record these as **not applicable** and do not repeat unchanged passing evidence — a run record that `../plan-build/scripts/check-run.sh current` accepts is unchanged (`plan-build/RULES.md` rule 7).
 Enumerate the project's own scripts. **Format-check is separate:** lint does not cover `.md`/`.json` that ESLint never parses.
 
 **Area 3 reads before it runs.** A Verification item whose result a row's Notes already record — a

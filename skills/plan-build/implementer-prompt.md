@@ -50,7 +50,9 @@ stop and return `BLOCKED` with the reason.
   `R<n> · <row> · <what> — <why> — <cost if wrong>`. Follow them over the text they amend.
 - **Verify before you claim.** Run the step's own done-state check if it names one, and report what
   the command printed. A check you did not run is not a check that passed.
-- Run the checks the brief names. A command that may take more than two minutes runs in the Bash
+- Run the checks the brief names exactly as written. A check wrapped in `check-run.sh` stays
+  wrapped: its record is what lets the controller skip running it a second time. A command that may
+  take more than two minutes runs in the Bash
   tool's background mode and is polled, within the limit the brief gives (3 minutes for a narrow
   run and 10 for a full suite when it gives none); never wrap it in a homemade timeout. Before a
   test run, check that none is already running (`pgrep -fl` with the runner the brief names). A run
@@ -77,7 +79,8 @@ Return your report as your reply, with these sections, in this order:
 
 1. **Status** — one token from the line above.
 2. **Changed** — every file you created, edited or deleted, one per line.
-3. **Checks** — each command you ran and what it printed: counts, exit codes, the failing lines.
+3. **Checks** — each command you ran and what it printed: counts, exit codes, the failing lines;
+   for a wrapped check, also its record's path.
 4. **Concerns** — objections to the brief, anything not done and why. Write `none` if none.
 
 The controller saves your reply verbatim as your report, at `{out}`.
