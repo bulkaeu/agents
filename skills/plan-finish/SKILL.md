@@ -1,7 +1,7 @@
 ---
 name: plan-finish
 description: >-
-  Finishes a plan: audits whether it is genuinely done — full check suite green,
+  Finishes a plan: audits whether it is genuinely done — applicable checks green,
   the plan's own verification items passing, nothing uncommitted or unpushed,
   docs matching the code, workspace clean, plan state accurate — then fixes what
   it found and reports what it did. Reports the plan's unfinished rows rather
@@ -85,15 +85,15 @@ Then list every repo the work touched — the plan's own paths, the cwd, and any
 | # | Area | Question it answers |
 | - | --- | --- |
 | 1 | Scope | Which plan, which repos, which worktrees? |
-| 2 | Checks | Does the project's own full suite pass, every script, by name? |
+| 2 | Checks | Do the checks applicable to the actual change pass, by name? Full required suite for implementation; documentation checks for text-only work. |
 | 3 | Verification | Does each of the plan's `## Verification` items pass — by its recorded result, or run now? |
 | 4 | Commits | Is anything uncommitted, unpushed, or stashed? |
 | 5 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Which Progress rows are closed, parked, open — **and does every commit have a row?** Does the plan's `**Ticket:**` still match the plan's state? |
 | 6 | Cleanup | Merged branches, stale worktrees, `*.orig`/`*.rej`, scratch files the plan created? |
 
-Area 2 is the one people skip. Enumerate the project's scripts rather than assuming the usual four
-exist, and treat **format-check as its own step** — passing lint does not cover it, because
-`format:check` typically globs `.md` and `.json` that ESLint never parses.
+**Area 2 follows the [global scope rule](../../claude/CLAUDE.md#finishing-a-plan):** text-only work gets document checks; implementation (including executable input) gets the required full suite. Explicit requests apply.
+Neither multiple steps nor this skill triggers unrelated checks; record these as **not applicable** and do not repeat unchanged passing evidence.
+Enumerate the project's own scripts. **Format-check is separate:** lint does not cover `.md`/`.json` that ESLint never parses.
 
 **Area 3 reads before it runs.** A Verification item whose result a row's Notes already record — a
 stage-time check — is reported from that row, citing its id; **do not re-run it**, since its fixtures

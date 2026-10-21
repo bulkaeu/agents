@@ -15,13 +15,14 @@ and label the report by repo when there is more than one.
 
 ## Area 2 — Checks
 
-**Enumerate before running.** Do not assume the usual four scripts exist; read the project's own
-manifest and run everything CI runs.
+**Classify scope using the [global rule](../../claude/CLAUDE.md#finishing-a-plan), then enumerate.** Text-only work needs document checks, not application/Godot/build/asset tests; mark those **not applicable**.
+Implementation, including executable Markdown/JSON, needs the required full suite/CI checks. Explicit requests apply; multiple steps or `/plan-finish` alone do not expand scope.
+Do not repeat unchanged passing checks. The ecosystem table is not a text-only task list.
 
 ```bash
 # JS/TS — list what actually exists, then run each
 cat package.json | python3 -c 'import json,sys;print("\n".join(json.load(sys.stdin).get("scripts",{})))'
-# Shell / docs — list the root's scripts and the tracked ones, then run each check among them
+# Shell implementation — list the root's scripts and tracked ones, then run applicable checks
 ls ./*.sh; git ls-files '*.sh'
 git ls-files -z '*.sh' | LC_ALL="$(locale -a | grep -iEm1 'utf-?8$')" xargs -0 -r shellcheck -S warning
 ```
@@ -33,11 +34,11 @@ git ls-files -z '*.sh' | LC_ALL="$(locale -a | grep -iEm1 'utf-?8$')" xargs -0 -
 | Go | `Makefile`, CI config | `gofmt -l .`, `go vet ./...`, `go test ./...`, `go build ./...` |
 | Python | `pyproject.toml`, `tox.ini` | `ruff format --check`, `ruff check`, `mypy`, `pytest` |
 | Make-driven | `Makefile` targets | `make check` or the individual targets it calls |
-| Shell / docs | no manifest at all | **every check script at the repository root** — `check-*.sh`, `sanitize-check.sh`, whatever the root holds; list them rather than assume. `bash -n` each tracked `*.sh` file, and `shellcheck -S warning` on each (not bare `shellcheck`, whose default level also fails on info and style notes that flag intentional patterns), run with `LC_ALL` set to a UTF8 locale available on the host (`locale -a` lists them) — under the default `C`/`POSIX` locale it can crash printing non-ASCII output from the scripts. Any installer's `--dry-run`; formatter only if one is configured |
+| Shell implementation | no manifest at all | Required project check scripts — `check-*.sh`, `sanitize-check.sh`, whatever the root holds; list them rather than assume. `bash -n` and `shellcheck -S warning` for applicable scripts (not bare `shellcheck`, whose default level also fails on info and style notes that flag intentional patterns), with a UTF8 locale available on the host. An installer's `--dry-run` only when the changed implementation requires it; formatter only if configured. |
+| Documentation / storyline / plans / tickets / instructions only | project documentation/formatting configuration | Changed-text/source consistency, links/references, Markdown structure and `git diff --check`; run a configured formatter/documentation check when applicable. No application build, Godot/runtime tests, unrelated asset validation or installer dry run. |
 
-**No manifest is not no checks.** A repo of shell and markdown still has a runnable suite — syntax
-checks, a linter, an idempotent script's dry run. Run what exists and name it. Report "no project
-suite" as a finding about the *repo*, never as a reason the Checks row is green by default.
+**No manifest is not no checks.** Name checks applicable to the change. For text-only work, use available document/link/whitespace checks, not unrelated shell checks or installer dry runs.
+Report a missing configured checker/formatter; do not install one or label an unrun check green.
 
 **`format:check` is its own step.** Where ESLint loads `eslint-plugin-prettier`, formatting shows up
 as a lint error *for the files ESLint parses* — which makes it easy to believe `lint` covers
