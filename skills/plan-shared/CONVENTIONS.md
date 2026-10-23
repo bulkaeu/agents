@@ -132,13 +132,13 @@ release needs no edit here.
 | Tier | Claude Code | Cursor | Codex |
 | --- | --- | --- | --- |
 | standard | Sonnet, at high effort | Composer | Luna, at high effort |
-| strong | Opus, at high effort | Grok, at high effort where the host offers a choice | Sol, at medium effort |
-| strongest | Fable, at high effort | Grok, as for strong — Cursor has two tiers | Sol, at high effort |
+| strong | Opus, at medium effort | Grok, at high effort where the host offers a choice | Sol, at medium effort |
+| strongest | Fable, at medium effort | Grok, as for strong — Cursor has two tiers | Sol, at high effort |
 
 - **On Claude Code, pass the model and an `effort` on each dispatch** — the tier's above, unless
-  `DISPATCH.md` §3 names another for that role (every implementer, row reviewer and final-review
-  dispatch runs at medium, bar a risky row's review at high). A dispatch without an effort inherits
-  the session's, whatever it happens to be, so the tier no longer fixes what runs.
+  `DISPATCH.md` §3 names another for that role (every implementer runs at medium, and a risky
+  row's review at high). A dispatch without an effort inherits the session's, whatever it happens
+  to be, so the tier no longer fixes what runs.
 - **On Cursor, pick from the host's own list of subagent models** — the family's newest entry. A
   family the list does not offer means `inherit`, logged once per run in the Run log. **Never pass
   a Claude model on Cursor**: it bills a separate, costlier quota, so a dispatch naming one is a
