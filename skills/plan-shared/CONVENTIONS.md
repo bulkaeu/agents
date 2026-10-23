@@ -146,6 +146,8 @@ release needs no edit here.
 - **On Codex, pass the model and the effort on each spawn** — Codex lets a spawn set both. The
   model is the family's newest entry in the host's own model list; a family the list does not offer
   means `inherit`, logged once per run in the Run log. **Never name a Claude model on Codex.**
+  `DISPATCH.md` §3 moves two Codex dispatches up a tier: fix round 1's implementer, and a risky
+  step's reviewer.
 - **On any other host** than these three, dispatch with `inherit` for every tier, logged once per
   run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
