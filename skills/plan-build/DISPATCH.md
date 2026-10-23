@@ -59,7 +59,7 @@ is Claude Code's and replaces the tier's; every other cell, and every other host
 | --- | --- | --- |
 | Implementer | standard, at medium effort | strong, at medium effort, for a risky step, an edit to instructions, rules or prompts, and fix round 2 — on Codex from fix round 1; strongest, at medium effort, for fix round 3 only |
 | Reviewer — row and rereview | strong, at medium effort | strong at high effort for a risky step — strongest on Codex, where this table's efforts do not apply; strongest at medium effort for a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
-| Final whole-run review | strong, at medium effort | strongest, at medium effort, if any dispatch this run went to the strongest tier, or a Medium-or-worse defect turned up during the run |
+| Final whole-run review | strong, at medium effort | strongest, at medium effort, if any row this run reached fix round 3, carried a `review: deep` marker or stalled its fix loop, or a Medium-or-worse defect turned up during the run |
 | Final review's fix subagent, and its re-review | strong, at medium effort | never — strong whatever tier the final review ran on |
 
 **Risky** means untrusted input reaching file paths or shell commands, auth, secrets, data deletion,
