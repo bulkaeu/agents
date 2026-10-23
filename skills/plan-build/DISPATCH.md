@@ -57,10 +57,10 @@ is Claude Code's and replaces the tier's; every other cell, and every other host
 
 | Who | Default | Steps up |
 | --- | --- | --- |
-| Implementer | standard, at medium effort | strong, at medium effort, for a risky step, an edit to instructions, rules or prompts, and fix round 2; strongest, at medium effort, for fix round 3 only |
-| Reviewer — row and rereview | strong, at medium effort | strong at xhigh effort for a risky step; strongest at medium effort for a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
-| Final whole-run review | strong | strongest if any dispatch this run went to the strongest tier, or a Medium-or-worse defect turned up during the run |
-| Final review's fix subagent, and its re-review | strong | never — strong whatever tier the final review ran on |
+| Implementer | standard, at medium effort | strong, at medium effort, for a risky step, an edit to instructions, rules or prompts, and fix round 2 — on Codex from fix round 1; strongest, at medium effort, for fix round 3 only |
+| Reviewer — row and rereview | strong, at medium effort | strong at high effort for a risky step — strongest on Codex, where this table's efforts do not apply; strongest at medium effort for a `review: deep` marker in the step text, fix round 3, a stalled fix loop |
+| Final whole-run review | strong, at medium effort | strongest, at medium effort, if any row this run reached fix round 3, was reviewed under a `review: deep` marker or stalled its fix loop, or a Medium-or-worse defect turned up during the run |
+| Final review's fix subagent, and its re-review | strong, at medium effort | never — strong whatever tier the final review ran on |
 
 **Risky** means untrusted input reaching file paths or shell commands, auth, secrets, data deletion,
 or migrations. The controller judges it from the step text and the diff. A `review: default` marker
@@ -68,7 +68,7 @@ cancels only the risk step-up: the row's reviewer keeps its default even when th
 risky, but fix round 3 and a stalled fix loop still step it up, and the implementer still steps up.
 A row carrying both `review: deep` and `review: default` gets the strongest-tier reviewer —
 `review: deep` wins (`CONVENTIONS.md`, *Row markers*). **Every step-up is logged in the Run log
-with its reason** — `reviewer at xhigh effort: step writes to a path built from an argument`.
+with its reason** — `reviewer at high effort: step writes to a path built from an argument`.
 A `review:`-marked row logs its reviewer's tier on every review: `EXECUTION.md`, *The Run log*.
 
 - **Implementer:** a `general-purpose` subagent (`generalPurpose` on Cursor), model per the table.
@@ -145,11 +145,11 @@ them.
 Each round: a fresh implementer with `{findings}` = the latest review file; a new diff from the
 **original** base, so the whole row is shown with its fixes in; a fresh `checks-<n>.txt`, run as in
 §6; a fresh reviewer, `Mode: rereview`. At most **3 rounds**, on §3's tiers: the implementer on
-strong in round 2 and strongest in round 3, the reviewer on strongest in round 3. **If the open
-count does not fall** between two rounds, the loop has stalled: the next round's review runs on the
-strongest tier. If it still does not fall after a strongest-tier review, or anything is open after
-round 3, stop and write a ruling: accept with the reason and the risk, or park the row. A row is
-never ticked with a finding at Medium or above still open.
+strong in round 2 (from round 1 on Codex), strongest in round 3, the reviewer strongest in round 3.
+**If the open count does not fall** between two rounds, the loop has stalled: the next round's
+review runs on the strongest tier. If it still does not fall after a strongest-tier review, or
+anything is open after round 3, stop and write a ruling: accept with the reason and the risk, or
+park the row. A row is never ticked with a finding at Medium or above still open.
 
 ## 8. Rulings — including overriding the step's wording
 

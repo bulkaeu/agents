@@ -132,13 +132,13 @@ release needs no edit here.
 | Tier | Claude Code | Cursor | Codex |
 | --- | --- | --- | --- |
 | standard | Sonnet, at high effort | Composer | Luna, at high effort |
-| strong | Opus, at high effort | Grok, at high effort where the host offers a choice | Sol, at medium effort |
-| strongest | Fable, at high effort | Grok, as for strong — Cursor has two tiers | Sol, at high effort |
+| strong | Opus, at medium effort | Grok, at high effort where the host offers a choice | Sol, at medium effort |
+| strongest | Fable, at medium effort | Grok, as for strong — Cursor has two tiers | Sol, at high effort |
 
 - **On Claude Code, pass the model and an `effort` on each dispatch** — the tier's above, unless
-  `DISPATCH.md` §3 names another for that role (every implementer and row reviewer runs at medium,
-  bar a risky row's review at xhigh). A dispatch without an effort inherits the session's, whatever
-  it happens to be, so the tier no longer fixes what runs.
+  `DISPATCH.md` §3 names another for that role (every implementer runs at medium, and a risky
+  row's review at high). A dispatch without an effort inherits the session's, whatever it happens
+  to be, so the tier no longer fixes what runs.
 - **On Cursor, pick from the host's own list of subagent models** — the family's newest entry. A
   family the list does not offer means `inherit`, logged once per run in the Run log. **Never pass
   a Claude model on Cursor**: it bills a separate, costlier quota, so a dispatch naming one is a
@@ -146,6 +146,8 @@ release needs no edit here.
 - **On Codex, pass the model and the effort on each spawn** — Codex lets a spawn set both. The
   model is the family's newest entry in the host's own model list; a family the list does not offer
   means `inherit`, logged once per run in the Run log. **Never name a Claude model on Codex.**
+  `DISPATCH.md` §3 moves two Codex dispatches up a tier: fix round 1's implementer, and a risky
+  step's reviewer.
 - **On any other host** than these three, dispatch with `inherit` for every tier, logged once per
   run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
