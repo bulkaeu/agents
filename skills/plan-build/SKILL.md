@@ -78,6 +78,9 @@ in `git worktree list` — and check each. Rows whose artifacts live
 outside any repository are verified on disk, not by `git log`. **No repository in scope is a state,
 not an error**: the concurrency check reports *no repo* and passes.
 
+**On Codex**, pre-flight also prints a one-line reminder when the session's own model or effort
+differs from the `plan-run` profile (`CONVENTIONS.md`, *Model tiers*, Controller). It never stops.
+
 **Author-parked rows are not a resume.** A `⛔` the plan's author wrote before any run — the
 pending-ticket row `plan-ticket-tracking.md` requires is the usual one — passes this check. It is
 listed as already parked, and the run starts at the first `⬜`. A `⛔` whose Notes record a run's

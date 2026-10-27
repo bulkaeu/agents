@@ -152,6 +152,13 @@ release needs no edit here.
   run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
 
+**Controller** — the session that runs `/plan-build` or `/plan-continue` and dispatches the tiers:
+
+- **Claude Code:** the session's own model.
+- **Cursor:** the session's own model.
+- **Codex:** start with `codex --profile plan-run`, defined in `~/.codex/config.toml` — Sol at
+  medium effort, Fast mode off: Fast draws subscription limits at 2.5× Standard.
+
 ## On Codex
 
 The skills name Claude Code mechanisms. On Codex, read each one as follows:
