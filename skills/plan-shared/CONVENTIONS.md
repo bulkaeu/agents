@@ -15,6 +15,7 @@ read them.
 - Severity scale
 - Model tiers
 - On Codex
+- On OpenCode
 
 ## Resolving the plan — the ladder
 
@@ -127,13 +128,14 @@ file.
 Subagents are dispatched by tier — **standard**, **strong**, **strongest** — and `plan-build`'s
 `DISPATCH.md` §3 says which dispatch gets which. Each host maps a tier to a model **family**, never
 a version or an id: the newest model of that family the host offers is the one meant, so a new
-release needs no edit here.
+release needs no edit here. OpenCode is the exception: its ids are pinned, and a new model there
+needs an edit.
 
-| Tier | Claude Code | Cursor | Codex |
-| --- | --- | --- | --- |
-| standard | Sonnet, at high effort | Composer | Luna, at high effort |
-| strong | Opus, at medium effort | Grok, at high effort where the host offers a choice | Sol, at medium effort |
-| strongest | Fable, at medium effort | Grok, as for strong — Cursor has two tiers | Sol, at high effort |
+| Tier | Claude Code | Cursor | Codex | OpenCode |
+| --- | --- | --- | --- | --- |
+| standard | Sonnet, at high effort | Composer | Luna, at high effort | `ollama/qwen3-coder:30b` |
+| strong | Opus, at medium effort | Grok, at high effort where the host offers a choice | Sol, at medium effort | `openrouter/meta/muse-spark-1.3-contributor#medium`, or `anthropic/claude-opus-5-5#medium` if that call fails |
+| strongest | Fable, at medium effort | Grok, as for strong — Cursor has two tiers | Sol, at high effort | `openrouter/meta/muse-spark-1.3-contributor#max`, or `anthropic/claude-opus-5-5#high` if that call fails |
 
 - **On Claude Code, pass the model and an `effort` on each dispatch** — the tier's above, unless
   `DISPATCH.md` §3 names another for that role (every implementer runs at medium, and a risky
@@ -148,7 +150,11 @@ release needs no edit here.
   means `inherit`, logged once per run in the Run log. **Never name a Claude model on Codex.**
   `DISPATCH.md` §3 moves two Codex dispatches up a tier: fix round 1's implementer, and a risky
   step's reviewer.
-- **On any other host** than these three, dispatch with `inherit` for every tier, logged once per
+- **On OpenCode, pass `model` on each `subagent` call** — the tier's pinned id as written, whatever effort
+  `DISPATCH.md` §3 names (local ids have no `#variant`). If a strong or strongest dispatch
+  errors (provider down, no credit) or its id is missing from the host's model list, re-dispatch once
+  on that tier's Opus fallback from the table, logged once per run; a missing standard id means `inherit`.
+- **On any other host** than these four, dispatch with `inherit` for every tier, logged once per
   run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
 
@@ -158,6 +164,7 @@ release needs no edit here.
 - **Cursor:** the session's own model.
 - **Codex:** start with `codex --profile plan-run`, defined in `~/.codex/config.toml` — Sol at
   medium effort, Fast mode off: Fast draws subscription limits at 2.5× Standard.
+- **OpenCode:** the session's own model.
 
 ## On Codex
 
@@ -183,3 +190,11 @@ The skills name Claude Code mechanisms. On Codex, read each one as follows:
   run directory", plan-review's saved reviews included, goes under it: `row-snapshot.sh dir` reads it.
 - **Progress nag:** Codex has no Stop hook, so nothing nags about open rows. The executor's own
   table updates, at every boundary, are the only guard.
+
+## On OpenCode
+
+- **Invocation:** `/plan-x` means `@plan-x`, or loading the skill by ID; a hidden skill still loads.
+- **Subagents:** `Explore` means `explore` and `general-purpose` means `general`; *Model
+  tiers* gives the model.
+- **`${CLAUDE_SKILL_DIR}`:** the "Base directory for this skill" path OpenCode appends to a loaded skill.
+- **Plan mode:** as in *On Codex* — only the stops that depend on it lapse.

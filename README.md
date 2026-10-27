@@ -93,6 +93,16 @@ ignores `disable-model-invocation`, so each `plan-*` skill carries an `agents/op
 file. Claude Code mechanisms the skills name map to Codex equivalents, or have none, as listed in
 [`CONVENTIONS.md` § On Codex](skills/plan-shared/CONVENTIONS.md#on-codex).
 
+**Plan skills on OpenCode.** OpenCode reads skills from `~/.claude/skills` and `~/.agents/skills`, both of
+which `install.sh` links every skill into, so the `plan-*` family reaches it with no extra step. Start one
+with an `@` mention (`@plan-build`). OpenCode honours `disable-model-invocation`: the flag hides a `plan-*`
+skill from the model's list and it still loads by explicit ID, so no gate file is needed. Standard runs on a
+local Ollama model; strong and strongest on Meta's Muse Spark 1.3 Contributor via OpenRouter, each falling
+back to Claude Opus if that call fails. Contributor-tier models may train on what they see, so the
+`opencode/plugins/contributor-redact/` plugin strips secrets and infrastructure identifiers from requests to
+them — `install.sh` does not link it: copy that directory into `~/.config/opencode/plugins/` by hand — and
+the rest is in [`CONVENTIONS.md` § On OpenCode](skills/plan-shared/CONVENTIONS.md#on-opencode).
+
 Twenty-one vendored third-party skills are linked beside these and are not listed above;
 [`vendor/README.md`](vendor/README.md) is the catalogue for the fifteen in the skills-only sets, and
 ponytail's six have their own section. See Vendored skills.
