@@ -90,8 +90,7 @@ A row carrying both `review: deep` and `review: default` gets the strongest-tier
 Take the text below the `---` line of the prompt file and replace its placeholders with paths, or
 with `none`. Add nothing: no hints, no expected answers, no pre-judged findings.
 
-- [implementer-prompt.md](implementer-prompt.md) — `{brief}`, `{findings}`, `{out}` (the path the
-  controller saves the reply to).
+- [implementer-prompt.md](implementer-prompt.md) — `{brief}`, `{findings}`, `{out}` (the reply's path).
 - [reviewer-prompt.md](reviewer-prompt.md) — `{brief}`, `{diff}`, `{report}`, `{findings}`, `{checks}`.
 
 ## 5. Statuses
@@ -185,14 +184,15 @@ later, such as a worktree, is based alone: `base <plan> run --repo <it>`.
 
 ## The final review
 
-After the last row and before close-out: `row-snapshot.sh diff <plan> run --repo …` gives the whole
-run as one diff file. With no run base recorded, `diff` falls back to the merge-base with the remote
-default branch; say so in the Run log. One fresh reviewer in `Mode: run`, its brief listing the rows
-this run did, on §3's tiers, with `{checks}` = the plan's `## Verification` commands run over the
-whole run. Findings at Medium or above go to **one** fix subagent for the whole list, then one
-re-review, both on §3's tiers; no second wave. A finding at Medium or above still open is a
-parked item for the closing question, never a ruling. Log `final review: <file> <verdict>` in
-the Run log. Run the write check from §6 after this dispatch, and after the re-review, too.
+Before close-out, `row-snapshot.sh diff <plan> run --repo …` gives the whole run as one diff. With no run
+base recorded, `diff` falls back to the merge-base with the remote default branch; say so in the Run log.
+One fresh reviewer in `Mode: run`, briefed with the rows this run did, on §3's tiers, with `{checks}` = the
+plan's `## Verification` commands run over the whole run. Findings at Medium or above go to **one** fix
+subagent for the whole list, then one re-review, both on §3's tiers; no second wave. The fix subagent
+reports **Changed** like an implementer; that list is its own paths. A foreign path in its diff stops the
+run as for a row (`EXECUTION.md`); its commit names only its own paths, logged `inline final-fix: <paths>`
+so `plan-finish` claims them. A finding at Medium or above still open is parked for the closing question,
+never a ruling. Log `final review: <file> <verdict>`. Run §6's write check after it and after the re-review.
 
 ## Fallback — a host without subagents
 

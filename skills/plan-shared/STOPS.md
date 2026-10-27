@@ -23,6 +23,10 @@ the user the time these skills exist to save.
 | **Publishing to a live surface** — a package registry, a public site, a shared channel | The audience cannot be un-notified |
 | **Sending** — an email, a chat message, a notification, a webhook to someone else's system | Same; a sent message cannot be recalled |
 | **A push whose row is parked** — the plan's push row is `⛔`, or depends on a `⛔` row | The plan held that push back on purpose. This stop binds the close-out too: "push to the existing upstream" does not override it |
+| **A foreign path** in a dispatched row's diff — in its `paths-<n>.txt`, in no report's **Changed** (`plan-build/EXECUTION.md`) | Likely a peer's work: never restored, removed or committed. **Halts the run** |
+| **No usable report** from a dispatched row — a crash, or no **Changed** | Its own paths are unknown, so nothing in the tree is safe to restore. **Halts the run** |
+| A row's `diff` exits 3 because its base is **not an ancestor** of `HEAD` | History moved under the run and no paths file exists. **Halts the run** |
+| **A commit in `@{u}..HEAD`** that the Run log does not record and the user did not name | Pushing would publish someone else's commit. Stops the push |
 
 **What stays ordinary:** `git add` and `git commit` of work in scope, by explicit path; pushing to a
 branch's **existing upstream** when no push row is parked and
@@ -43,7 +47,9 @@ listed separately with its exact command, because a yes to "these six things" is
 blanket approval `migration-apply-confirmation.md` refuses — and a deploy, a publish or a sent
 message is no more recoverable than a migration.
 
-Everything else that stopped goes into **one** batch question. A run with four stopped items, one of
+The three marked **Halts the run** are not batched or deferred either: the run stops at once and
+waits for the user (`plan-build/RULES.md` §1–2), because continuing could commit or erase a peer's
+work. Everything else that stopped goes into **one** batch question. A run with four stopped items, one of
 them a deploy, asks two questions: the batch of three, and the deploy on its own. Not four, and not
 one.
 
