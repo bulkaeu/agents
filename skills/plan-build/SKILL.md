@@ -35,7 +35,8 @@ Re-read these, `RULES.md`, the Progress table and the Run log after any context 
    no code on it (`DISPATCH.md`).
 3. Only the controller writes the table, the Run log and commits.
 4. Stop only for `STOPS.md`. Every other judgement is a ruling, logged, and the run goes on.
-5. One question, after close-out — bar `STOPS.md`'s asked-alone set, each asked on its own.
+5. One question, after close-out — bar `STOPS.md`'s asked-alone set, each asked on its own, and its safety
+   halts, which end the run.
 
 ## 0. Mode
 

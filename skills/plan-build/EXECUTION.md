@@ -10,7 +10,7 @@ it and does not repeat the stop-list. Dispatched rows follow [DISPATCH.md](DISPA
 - The verification gate
 - When to commit
 - The Run log
-- Hand-off rows — the one sanctioned halt
+- Hand-off rows — a sanctioned halt, beside `STOPS.md`'s safety halts
 - The spin guard
 - The final review, then close-out
 - Order, stated once
@@ -113,7 +113,7 @@ in the file, so it survives a context summary. It holds:
 
 Old `✅` rows without a `review:` token are not drift: they predate this loop.
 
-## Hand-off rows — the one sanctioned halt
+## Hand-off rows — a sanctioned halt, beside `STOPS.md`'s safety halts
 
 A row whose step is to give the user work to do outside this run and stop — its text says
 **`hand-off row`** — ends the run mid-table:
