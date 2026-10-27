@@ -184,15 +184,15 @@ later, such as a worktree, is based alone: `base <plan> run --repo <it>`.
 
 ## The final review
 
-Before close-out, `row-snapshot.sh diff <plan> run --repo …` gives the whole run as one diff. With no run
-base recorded, `diff` falls back to the merge-base with the remote default branch; say so in the Run log.
-One fresh reviewer in `Mode: run`, briefed with the rows this run did, on §3's tiers, with `{checks}` = the
-plan's `## Verification` commands run over the whole run. Findings at Medium or above go to **one** fix
-subagent for the whole list, then one re-review, both on §3's tiers; no second wave. The fix subagent
-reports **Changed** like an implementer; that list is its own paths. A foreign path in its diff stops the
-run as for a row (`EXECUTION.md`); its commit names only its own paths, logged `inline final-fix: <paths>`
-so `plan-finish` claims them. A finding at Medium or above still open is parked for the closing question,
-never a ruling. Log `final review: <file> <verdict>`. Run §6's write check after it and after the re-review.
+Before close-out, `row-snapshot.sh diff <plan> run --repo …` is the whole run as one diff. With no run base
+recorded, it falls back to the merge-base with the remote default branch; say so in the Run log. One fresh
+reviewer in `Mode: run`, briefed on this run's rows, on §3's tiers, with `{checks}` = the plan's
+`## Verification` commands run over the whole run. Medium-or-above findings go to **one** fix subagent, then
+one re-review, both on §3's tiers; no second wave. Record `base <plan> final-fix --repo …` before dispatching
+it; its diff and `paths-<n>.txt` are `diff <plan> final-fix`. Its **Changed**, as an implementer's, is its own
+paths: a foreign path in that diff stops the run as for a row (`EXECUTION.md`). Its commit names only its own
+paths, logged `inline final-fix: <paths>` so `plan-finish` claims them. One still open is parked for the
+closing question, never a ruling. Log `final review: <file> <verdict>`. Run §6's write check after each one.
 
 ## Fallback — a host without subagents
 
