@@ -27,17 +27,14 @@ Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it befor
 
 ## Hard rules
 
-- **Audit fully, then act.** Complete the whole audit before changing anything — fixing as
-  you go means acting without the full picture. But once the audit is done, *act*: the report is the
-  record of what you did, not a request for permission to start.
+- **Audit fully, then act.** Complete the whole audit before changing anything — fixing as you go means acting
+  without the full picture. Then *act*: the report is the record of what you did, not a request to start.
 - **Never run an open row.** A `⬜`/`🟡` row (*open*, per `CONVENTIONS.md`) is reported, not run,
   however small its step: point at `/plan-continue <plan>` (`/plan-build` if none has started), which
   brings the separate reviewer and the parking this skill lacks.
-- **Fix by default; stop only for `STOPS.md`.** That list is exhaustive. If something is not on it,
-  do it — do not invent a reason to ask.
-- **One approval covers a batch** — except `STOPS.md`'s asked-alone set, each of which is asked on
-  its own. Otherwise ask once for the whole set: "these four things" → one yes → all four. Never
-  turn six worktrees into six prompts.
+- **Fix by default; stop only for `STOPS.md`.** That list is exhaustive — never invent a reason to ask.
+- **One approval covers a batch** — except `STOPS.md`'s asked-alone set, each asked alone. Otherwise ask once
+  for the whole set: "these four things" → one yes → all four. Never turn six worktrees into six prompts.
 - **A harness prompt is not a stop** (`STOPS.md`): answer the hook and continue.
 - **A check you did not run is not a check that passed.** If tooling is missing or a script does not
   exist, say so by name. Never let an unrun check read as green.
@@ -53,12 +50,14 @@ Anything reversible, in scope, and implied by the word *finish* — never the pl
   owning uncommitted or unreviewed files, **stays open** — never tick a row on an artifact alone.
 - Scratch files, decoys, and probes **this skill or this plan created**.
 - Doc drift it can verify mechanically — a stale count, a missing table row, a renamed path.
-- `git add` and `git commit` of work in the tree, in scope, that **no open row owns** — **by explicit
-  path, never `git add -A` or `git add .`**. A blanket add stages whatever else appeared in the working
-  tree since the audit: another agent's half-written file, a stray download. Between staging and
-  committing, `git status --short` must show only the paths you named. An open row's files — a
-  crashed row's half-written file, work its step names — stay uncommitted, listed in the report with
-  that row for `/plan-continue` to finish and review.
+- `git add` and `git commit` of **claimed paths** only, by explicit path, never `git add -A` or `.`: the
+  plan file, every closed row's own paths (`plan-build`'s `EXECUTION.md`), the Run log's
+  `inline <row id>: <paths>`, and its own writes — never to a file dirty and unclaimed when it began
+  (*dirty at start*): drift or a red check's cause there is reported, not fixed. Run `plan-build`'s
+  `SKILL.md` §2 *Concurrency* check first: a leftover sequencer stops the commit. Any other dirty path — a
+  legacy row with no report, a peer's file — is *not committed — unclaimed*: listed, committed only if the
+  user names it; repo-only mode has no claims, so commits only its fixes and what the user names. Staged,
+  `git diff --cached --name-only` shows only named paths; an open row's files stay, listed with it.
 - `git push` of those commits to the current branch's existing upstream.
 
 ### What it stops for
@@ -69,16 +68,15 @@ were about to do and the exact command, so a yes is one word.
 ## 1. Scope
 
 Resolve the plan with the ladder in `CONVENTIONS.md`. This skill commits and pushes, so it **never
-picks a plan by recency**: at the last rung, or with two or more plausible at any rung, list the
-candidates with mtimes and offer a repo-only audit instead — the user names a plan, or takes the
-audit.
+picks a plan by recency**. One rule: **no plan anywhere → audit the repo anyway, without asking**;
+candidates listed at the last rung, or two or more plausible at any rung → list them with mtimes,
+offer a repo-only audit, and stop — the user names a plan, or takes the audit.
 
-**If no plan resolves, do not stop and ask.** Audit the current repo anyway, skip area 3 and the
-Progress check in area 5, and label the report *no plan — repo audit only*. "Is this change done?"
-is a first-class way to invoke this skill.
+A repo audit skips area 3 and the Progress check in area 5, and its report is labelled *no plan —
+repo audit only*. "Is this change done?" is a first-class way to invoke this skill.
 
-Then list every repo the work touched — the plan's own paths, the cwd, and anything in
-`git worktree list`. A plan that spanned three repos needs three audits, not one.
+Then list every repo the work touched, as `plan-build`'s `SKILL.md` §2 *Repository scope* does. A
+plan that spanned three repos needs three audits, not one.
 
 ## 2. Audit, in order
 
@@ -91,34 +89,38 @@ Then list every repo the work touched — the plan's own paths, the cwd, and any
 | 5 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Which Progress rows are closed, parked, open — **and does every commit have a row?** Does the plan's `**Ticket:**` still match the plan's state? |
 | 6 | Cleanup | Merged branches, stale worktrees, `*.orig`/`*.rej`, scratch files the plan created? |
 
-**Area 2 follows the [global scope rule](../../claude/CLAUDE.md#finishing-a-plan):** text-only work gets document checks; implementation (including executable input) gets the required full suite. Explicit requests apply.
-Neither multiple steps nor this skill triggers unrelated checks; record these as **not applicable** and do not repeat unchanged passing evidence — a run record that `../plan-build/scripts/check-run.sh current` accepts is unchanged (`plan-build/RULES.md` rule 7).
-Enumerate the project's own scripts. **Format-check is separate:** lint does not cover `.md`/`.json` that ESLint never parses.
+**Area 2 follows the [global scope rule](../../claude/CLAUDE.md#finishing-a-plan):** text-only work gets
+document checks; implementation (including executable input) gets the required full suite. Explicit requests
+apply. Neither multiple steps nor this skill triggers unrelated checks; record these as **not applicable**
+and do not repeat unchanged passing evidence — a run record that `../plan-build/scripts/check-run.sh current`
+accepts is unchanged (`plan-build/RULES.md` rule 7). Enumerate the project's own scripts.
+**Format-check is separate:** lint does not cover `.md`/`.json` that ESLint never parses.
 
 **Area 3 reads before it runs.** A Verification item whose result a row's Notes already record — a
-stage-time check — is reported from that row, citing its id; **do not re-run it**, since its fixtures
-may be gone by design. Run any other item now: PASS or FAIL, with the command's real output. An item
-that is also one of the repository's own checks falls under area 2 — an obvious cause is fixed and the
-check re-run — and area 3 reports the re-run's result, citing the fix. **Any other FAIL is reported,
-never fixed**: a finding for the plan's own rows or `/plan-continue`, not work for this skill. No
-`## Verification` section reports *none*, not green. How-to: `CHECKLIST.md`, Verification.
+stage-time check — is reported from that row, citing its id; **do not re-run it**: its fixtures may be
+gone by design. Run any other item now: PASS or FAIL, with the command's real output. An item that is
+also one of the repository's own checks falls under area 2 — an obvious cause not *dirty at start* is
+fixed, the check re-run — and area 3 reports the re-run's result, citing the fix. **Any other FAIL is
+reported, never fixed**: a finding for the plan's own rows or `/plan-continue`, not work for this
+skill. No `## Verification` section reports *none*, not green. How-to: `CHECKLIST.md`, Verification.
 
 ## 3. Fix what the audit found
 
 Work through the non-green areas in this order, verifying after each:
 
-1. **Red checks first.** A commit on top of a failing suite is worse than no commit. Fix, re-run that
-   check, and carry the real new result into the report.
+1. **Red checks first.** A commit on top of a failing suite is worse than no commit. Fix an obvious
+   cause (one *dirty at start* is reported instead), re-run that check, report the real new result.
 2. **Docs.** Fix the drift you can verify. Re-run `format:check` afterwards if it globs markdown.
-3. **Commit**, then **push**. The commit message describes *the change*, not the plan step — `git log`
-   is read by people who never saw the plan, so "F7 commit-push-f" tells them nothing. When the
-   plan's `**Ticket:**` line names an identifier, every commit starts with it —
-   `ABC-123: <what changed>`, per `plan-ticket-tracking.md`; no ticket, no prefix, never an invented
-   one. Push only to a branch that **already has an upstream**; if it has none, that is a new
-   destination, so stop and offer the exact `git push -u` line rather than choosing a remote.
+3. **Commit**, then **push**. The commit message describes *the change*, not the plan step — `git log` is
+   read by people who never saw the plan, so "F7 commit-push-f" tells them nothing. When the plan's
+   `**Ticket:**` line names an identifier, every commit starts with it — `ABC-123: <what changed>`, per
+   `plan-ticket-tracking.md`; no ticket, no prefix, never an invented one. Right after each commit, log
+   `commit: <short sha> <subject>` in the Run log. Push only to an **existing upstream** of the same
+   name (`plan-shared/STOPS.md`); none is a new destination: stop, offer the exact `git push -u` line.
+   Before `git push`, print `git log --oneline @{u}..HEAD`; a commit not so logged nor named by the
+   user this session stops the push with the list. Repo-only mode always lists and asks.
 
-   **Say what no reviewer saw.** Changes found in the tree that no open row owns, not a dispatched
-   row's reviewed diff, are committed unreviewed — not a stop, but the report names their paths.
+   **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.
 4. **Cleanup.** Delete what this plan created; leave anything else alone. Worktrees come out before
    the branches they hold, or git refuses the branch and leaves a dangling registration.
 5. **Close the plan.** Confirm the table agrees with what happened, no row claiming more than the
@@ -145,7 +147,7 @@ done · 6/6 green · nothing outstanding
 
 ```markdown
 Fixed: added 2 missing Progress rows · deleted 1 scratch file · committed and pushed (a1b2c3d)
-Committed unreviewed: src/retry.ts, README.md — found in the tree, not a reviewed row's diff
+Not committed — unclaimed: src/retry.ts, README.md — no closed row or Run-log line claims them
 
 | Area | Status | Detail |
 | ---- | ------ | ------ |
@@ -158,7 +160,7 @@ Committed unreviewed: src/retry.ts, README.md — found in the tree, not a revie
 **When something stopped you**, that goes last and alone, with the exact command:
 
 ```
-Not done — 1 stop-list item: 2 merged branches are candidates for deletion, but this skill did not create them.
+Not done — 1 stop-list item: 2 merged branches are deletion candidates this skill did not create.
   git branch -d feature/old-thing feature/other
 ```
 
@@ -168,19 +170,18 @@ out the empty ones — open rows with the command that runs them, parked rows wi
 stop-list number counts only stop-list items; an item you could have fixed belongs fixed, not counted:
 
 ```
-not done — open: 6, 7 → /plan-continue <plan> · parked: 4 (deploy awaits a yes) · 1 Verification FAIL · 1 stop-list item
+not done — open: 6, 7 → /plan-continue <plan> · parked: 4 (needs yes) · 1 Verification FAIL · 1 stop-list item
 ```
 
 ## Examples
 
 **`/plan-finish` after a feature lands** — suite green, 3 uncommitted files, one leftover scratch file
 the plan created. Commits, pushes, deletes the scratch file, records the commit in the plan's table,
-reports in three lines. Nothing on the stop-list, so nothing is put back to the user for a decision —
-though a `PreToolUse` hook may still prompt for the commit: the environment's prompt, not a stop.
+reports in three lines. Nothing on the stop-list, so nothing is put back to the user for a decision.
 
 **`/plan-finish` on a half-run plan** — row 6 `🟡` with its file half-written, row 7 `⬜`, one other
-file uncommitted, one Verification item failing. Commits the other file by path and names it
-unreviewed; leaves row 6's file uncommitted, listed with row 6; runs neither row; reports the FAIL
+file nothing claims, one Verification item failing. Lists that file as *not committed — unclaimed*;
+leaves row 6's file uncommitted, listed with row 6; runs neither row; reports the FAIL
 and fixes nothing: `not done — open: 6, 7 → /plan-continue <plan> · 1 Verification FAIL`.
 
 **`/plan-finish` with a stale plan table** — two commits have no Progress row and the README omits a
@@ -188,13 +189,12 @@ file added last commit. All three are mechanical and verifiable: fix them, commi
 is the case that must never come back as "shall I?".
 
 **`/plan-finish` in a repo with no plan** — audits the working tree, labels the report *no plan — repo
-audit only*, finishes what it finds.
+audit only*, fixes what it finds, and commits only its own fixes and what the user names.
 
-**Red suite** — 2 failing specs with an obvious cause: fix, re-run, report the new result, then
-continue. If the cause is not obvious, stop with the failing names and what you tried.
+**Red suite** — 2 failing specs, obvious cause: fix, re-run, report the new result, continue. A cause
+*dirty at start* is reported, not fixed; one not obvious stops with the failing names and what you tried.
 
 **Merged branches present** — finishes everything else first (commit, push, the plan's table, its own
 scratch files), *then* raises the branches, because it did not create them. One batch question with
 the exact `git branch -d` line, not one prompt per branch. Note `--merged` lists branches merged into
-the *current* branch, which is not proof they are merged upstream, so present them as candidates
-rather than as safe deletions.
+the *current* branch, which is not proof they are merged upstream, so present them as candidates.

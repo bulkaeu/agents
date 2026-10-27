@@ -7,7 +7,7 @@
 #   bash check-plan-skills.sh --root <dir>    check a copy of the repo at <dir>
 #
 # Prints `FAIL [Kn] file:line — message` per failure and exits 1 on any; prints
-# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K17 (see README).
+# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K19 (see README).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -236,6 +236,26 @@ for s in "${SKILLS[@]}"; do
   grep -qxF '  allow_implicit_invocation: false' "$f" \
     || fail K17 "$f:1" "no exact line '  allow_implicit_invocation: false'"
 done
+
+# K18 — the peer-safety phrases stay in the files that carry them
+checks=$((checks + 1))
+for pair in 'plan-build/EXECUTION.md|foreign path' \
+  'plan-finish/SKILL.md|@{u}..HEAD' \
+  "plan-shared/STOPS.md|upstream branch's name equals the local branch's" \
+  'plan-review/SKILL.md|print the diff and wait'; do
+  f="skills/${pair%%|*}"; phrase="${pair#*|}"
+  grep -qF -- "$phrase" "$f" 2>/dev/null || fail K18 "$f:1" "missing phrase '$phrase'"
+done
+
+# K19 — no line over 110 characters (fenced code included) unless a single URL or a table row.
+# awk counts bytes here, so continuation bytes of multibyte characters are dropped before measuring.
+checks=$((checks + 1))
+for f in "${FILES[@]}"; do
+  LC_ALL=C awk -v f="$f" '
+    /^[ \t]*\|/ || /^[ \t]*<?https?:\/\/[^ \t]+>?[ \t]*$/ { next }
+    { l = $0; gsub(/[\200-\277]/, "", l)
+      if (length(l) > 110) printf "FAIL [K19] %s:%d — line is %d characters, over 110\n", f, NR, length(l) }' "$f"
+done | record
 
 fails="$(grep -c '^FAIL' "$REPORT")"
 if (( fails > 0 )); then

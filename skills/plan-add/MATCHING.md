@@ -27,8 +27,7 @@ exactly as row 2 wrote it. A changed file is not a changed output. Not matched.
 addition in it. Matched only when the answer moves.
 
 **Worked.** Row 5's done-state is `npm test` green at 214 tests, recorded in its Notes. The addition
-brings a module and its tests: the command now runs over code that did not exist, and 214 is wrong.
-Matched.
+adds a module with tests: the command now runs over code that did not exist, and 214 is wrong. Matched.
 
 **Near-miss.** Row 5's done-state is that `out/report.csv` exists. The addition writes a different
 file elsewhere. "Does it exist" still answers yes, unchanged. Not matched. Existence done-states
@@ -124,8 +123,8 @@ Superseded by <row id> — <why the work is no longer wanted>. Earlier result: <
 Worked — §4's `run-suite` row carries the *after*, elided; here it is in full, with the *before*:
 
 ```text
-before   214 tests / 18 suites green, format:check clean
-after    Reopened by 3b — the 5xx retry path landed after this ran. Earlier result: 214 tests / 18 suites green, format:check clean
+before   214 tests green
+after    Reopened by 3b — 5xx retry landed. Earlier result: 214 tests green
 ```
 
 - **The id is the causing row's**, never the reopened row's own. It is what lets a reader jump from
@@ -136,14 +135,13 @@ after    Reopened by 3b — the 5xx retry path landed after this ran. Earlier re
   result stays last, and never a chain of quoted quotes:
 
   ```text
-  Reopened by 5a — the backoff moved to config. Reopened by 3b — the 5xx retry path landed after this ran. Earlier result: 214 tests / 18 suites green, format:check clean
+  Reopened by 5a — backoff moved to config. Reopened by 3b — 5xx retry landed. Earlier result: 214 tests green
   ```
 
 ## 6. Renumber versus suffix
 
 **Renumber only when the plan has not started at all** — every row `⬜`, nothing in flight, nothing
-closed, no `## Run log`. No reference to any id exists yet, so insert in place and renumber straight
-through.
+closed, no `## Run log`. No reference to any id exists yet, so insert in place and renumber straight through.
 
 **The moment any row is in flight or closed, suffix instead** — `3a`, `3b`, between `3` and `4`. The
 trigger is *started*, not *has closed rows*: a plan with a `🟡` row and nothing closed is running,

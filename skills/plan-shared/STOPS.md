@@ -25,9 +25,12 @@ the user the time these skills exist to save.
 | **A push whose row is parked** — the plan's push row is `⛔`, or depends on a `⛔` row | The plan held that push back on purpose. This stop binds the close-out too: "push to the existing upstream" does not override it |
 
 **What stays ordinary:** `git add` and `git commit` of work in scope, by explicit path; pushing to a
-branch's **existing upstream** when no push row is parked; writing under `~/` — scratch files,
-fixtures, caches — which is reversible and local. "Touches anything outside this checkout" is
-deliberately *not* a stop: it would park every step that writes a temp file.
+branch's **existing upstream** when no push row is parked and
+the upstream branch's name equals the local branch's — compare `git rev-parse --abbrev-ref @{u}`,
+minus its remote, with `git branch --show-current`. A mismatch, usually a worktree branch still
+tracking `main`, is a stop: offer `git push -u origin HEAD:<branch>`. Writing under `~/` — scratch
+files, fixtures, caches — is ordinary too, being reversible and local. "Touches anything outside
+this checkout" is deliberately *not* a stop: it would park every step that writes a temp file.
 
 **"Reversible and local" is the test, never "the plan said so".** A step that deploys, migrates,
 publishes, sends or deletes data stops whether or not its author marked it `BLOCKED`. An author who
@@ -47,14 +50,15 @@ one.
 ## Evidenced action
 
 A `BLOCKED — wait for user` step whose awaited action is **already evidenced** — in this session's
-context, or on disk — is verified and recorded, not stopped. The marker gates the action, not the
-bookkeeping after it. A migration someone already applied still may not be re-run; recording that
+context, or on disk — is verified and recorded, not stopped. Evidence is the action's output, or
+the user saying it ran — never the command text printed for them. The marker gates the action, not
+the bookkeeping after it. A migration someone already applied still may not be re-run; recording that
 it happened is not running it.
 
 ## A harness prompt is not a stop-list item
 
-A `PreToolUse` hook may prompt on `git add` or `git commit` even though this list calls them
-ordinary. That prompt is the environment's gate, and it is legitimate: answer it and continue.
+The harness may prompt before a command this list calls ordinary. That prompt is the
+environment's gate, and it is legitimate: answer it and continue.
 **Never** rephrase a command, chain it, or wrap it to slip past a matcher. "Uninterrupted" and "fix
 by default" govern what you decide to do, never how a command gets past a hook.
 

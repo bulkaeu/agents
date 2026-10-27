@@ -72,25 +72,57 @@ path_ok() {
 }
 
 rows=0 sha_good=0 sha_bad=0 path_good=0 path_bad=0
-row_re='^\| *([A-Za-z0-9§.-]+) (⬜|🟡|✅|⛔|⏭️) *\|'
+ic='(⬜|🟡|✅|⛔|⏭️|⏭)'
+modern_re="^([A-Za-z0-9§.-]+) $ic\$"
+legacy_re="^$ic\$"
+# Legacy Status-column rows count only if no row is modern, and then only in the first table with one.
+grep -qE "^\| *[A-Za-z0-9§.-]+ $ic *\|" "$plan" && modern_plan=1 || modern_plan=0
+tbl=0 prev_pipe=0 legacy_tbl=0
+
+# Split a table line into cells[] on `|` outside backtick spans; trailing spaces after the last `|` go.
+split_cells() {
+  local s="${1%"${1##*[![:space:]]}"}" c cur="" tick=0 i
+  s="${s#|}"; [[ "$s" == *'|' ]] && s="${s%|}"
+  cells=()
+  for ((i = 0; i < ${#s}; i++)); do
+    c="${s:i:1}"
+    if [[ "$c" == '`' ]]; then tick=$((1 - tick))
+    elif [[ "$c" == '|' && $tick -eq 0 ]]; then cells+=("$cur"); cur=""; continue; fi
+    cur+="$c"
+  done
+  cells+=("$cur")
+}
+trim() { local t="${1#"${1%%[![:space:]]*}"}"; echo "${t%"${t##*[![:space:]]}"}"; }
 
 while IFS= read -r line; do
-  [[ "$line" =~ $row_re ]] || continue
-  id="${BASH_REMATCH[1]}"
-  icon="${BASH_REMATCH[2]}"
+  [[ "$line" == '|'* ]] || { prev_pipe=0; continue; }
+  [[ $prev_pipe -eq 1 ]] || tbl=$((tbl + 1)); prev_pipe=1
+  split_cells "$line"
+  id="" icon=""
+  c0="$(trim "${cells[0]}")"
+  if [[ "$c0" =~ $modern_re ]]; then id="${BASH_REMATCH[1]}"; icon="${BASH_REMATCH[2]}"
+  elif [[ $modern_plan -eq 0 ]]; then
+    for c in "${cells[@]}"; do
+      c="$(trim "$c")"
+      if [[ "$c" =~ $legacy_re ]]; then
+        [[ $legacy_tbl -eq 0 || $legacy_tbl -eq $tbl ]] || break
+        legacy_tbl=$tbl; id="$c0"; icon="${BASH_REMATCH[1]}"; break
+      fi
+    done
+  fi
+  [[ -n "$icon" ]] || continue
   rows=$((rows + 1))
-  notes="${line%|}"
-  notes="${notes##*|}"
+  notes="$(trim "${cells[${#cells[@]}-1]}")"
   out="$id $icon"
 
   while IFS= read -r sha; do
-    [[ -z "$sha" || "$sha" =~ ^[0-9]+$ ]] && continue
+    [[ -z "$sha" || "$sha" != *[0-9]* || "$sha" =~ ^[0-9]+$ ]] && continue  # a sha has a digit
     if sha_ok "$sha"; then out+=" · sha $sha ok"; sha_good=$((sha_good + 1))
     else out+=" · sha $sha MISSING"; sha_bad=$((sha_bad + 1)); fi
   done < <(grep -oE '\b[0-9a-f]{7,40}\b' <<<"$notes" || true)
 
   while IFS= read -r tok; do
-    tok="${tok//\`/}"
+    tok="${tok//\`/}"; tok="$(sed -E 's/:[0-9]+(-[0-9]+)?$//' <<<"$tok")"  # drop a :line anchor
     [[ -z "$tok" || "$tok" == *[\ \*\$\<\{]* ]] && continue
     [[ "$tok" == */* && ! "$tok" =~ ^/[A-Za-z0-9_-]+$ ]] || continue
     is_ref "$tok" && continue
