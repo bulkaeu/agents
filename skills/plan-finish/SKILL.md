@@ -50,14 +50,14 @@ Anything reversible, in scope, and implied by the word *finish* — never the pl
   owning uncommitted or unreviewed files, **stays open** — never tick a row on an artifact alone.
 - Scratch files, decoys, and probes **this skill or this plan created**.
 - Doc drift it can verify mechanically — a stale count, a missing table row, a renamed path.
-- `git add` and `git commit` of **claimed paths** only, by explicit path, never `git add -A` or `.`: the
-  plan file, every closed row's own paths (`plan-build`'s `EXECUTION.md`), the Run log's
-  `inline <row id>: <paths>`, and its own writes — never to a file dirty and unclaimed when it began
-  (*dirty at start*): drift or a red check's cause there is reported, not fixed. Run `plan-build`'s
+- `git add` and `git commit` of **claimed paths** only, by explicit path, never `git add -A` or `.`: the plan
+  file, a closed row's own paths (`plan-build`'s `EXECUTION.md`) and the Run log's `inline <row id>: <paths>`,
+  each until a Run-log `commit:` holds them, and its own writes — never to a file dirty and unclaimed when it
+  began (*dirty at start*): drift or a red check's cause there is reported, not fixed. Run the `plan-build`
   `SKILL.md` §2 *Concurrency* check first: a leftover sequencer stops the commit. Any other dirty path — a
-  legacy row with no report, a peer's file — is *not committed — unclaimed*: listed, committed only if the
-  user names it; repo-only mode has no claims, so commits only its fixes and what the user names. Staged,
-  `git diff --cached --name-only` shows only named paths; an open row's files stay, listed with it.
+  legacy row with no report, a later hunk on a path a `commit:` holds, a peer's file — is
+  *not committed — unclaimed*: listed, committed if the user names it; in repo-only mode, its fixes only.
+  Staged, `git diff --cached --name-only` shows only named paths; an open row's files stay, listed.
 - `git push` of those commits to the current branch's existing upstream.
 
 ### What it stops for

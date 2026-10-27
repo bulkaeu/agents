@@ -15,7 +15,8 @@ the user to authorise one at a time costs them the time these skills exist to sa
 
 During execution the run asks **at most one question, after close-out**, covering the whole parked
 set — **except the asked-alone set in `STOPS.md`**, each of which is asked on its own with its
-exact command.
+exact command, **and the safety halts `STOPS.md` marks *Halts the run*** (a foreign path, no usable
+report, a base not an ancestor of `HEAD`), which stop the run at once and wait for the user.
 
 Pre-flight offers (derive a Progress table? proceed on a part-done plan?) sit outside this budget —
 they happen before execution starts.
@@ -26,7 +27,9 @@ A step that hits the stop-list becomes `⛔` with the blocker named in Notes. A 
 depends on it is parked too, with *"depends on N"*. **Every other row continues.** A blocked item
 never justifies leaving the fixable ones undone.
 
-The one sanctioned halt is a **hand-off row**, defined in `EXECUTION.md`.
+The sanctioned halts are a **hand-off row**, defined in `EXECUTION.md`, and the other exception:
+the **safety halts** `STOPS.md` marks *Halts the run* — parking would let the loop commit or erase a
+peer's work.
 
 ## 3. The stop-list
 

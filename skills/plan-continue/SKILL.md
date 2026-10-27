@@ -62,8 +62,10 @@ stops rather than picking one; two or more plausible at any rung → list with m
 
 Before reconciling, run `plan-build`'s repository-scope and concurrency checks (its `SKILL.md` §2):
 another session's dirty tree or leftover sequencer means stop and report, not clean up. A dirty path
-is this run's own only if it is the plan file or an own path of the in-flight `🟡` row — as
-`plan-build/EXECUTION.md` defines own paths, read from that row's saved reports in the run directory.
+is this run's own only if it is the plan file, an own path of the in-flight `🟡` row, or an own path
+of a closed (`✅`) row that no commit on a Run log `commit:` line holds yet (a crash before the plan's
+commit row) — as `plan-build/EXECUTION.md` defines own paths, read from those rows' saved reports in
+the run directory.
 Any other dirty path stops it. Work that is done but not yet committed is verified from the working
 tree; absence of a commit is not absence of the work.
 
