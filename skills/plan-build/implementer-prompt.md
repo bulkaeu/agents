@@ -36,7 +36,8 @@ stop and return `BLOCKED` with the reason.
   asks for one.
 - Deploying, publishing, or sending anything: no network call that changes state anywhere.
 - Installing packages, globally or into the project.
-- Editing the plan file, or writing outside the repositories in scope.
+- Editing the plan file, or writing outside the repositories in scope — except the
+  `check-run.sh` records (`impl-checks-*`) whose paths the brief names.
 - Deleting a file the brief does not name.
 
 ## How to work
@@ -78,7 +79,8 @@ stop and return `BLOCKED` with the reason.
 Return your report as your reply, with these sections, in this order:
 
 1. **Status** — one token from the line above.
-2. **Changed** — every file you created, edited or deleted, one per line.
+2. **Changed** — every file you created, edited or deleted, one absolute path per line and nothing
+   else on the line; explanations go under Concerns.
 3. **Checks** — each command you ran and what it printed: counts, exit codes, the failing lines;
    for a wrapped check, also its record's path.
 4. **Concerns** — objections to the brief, anything not done and why. Write `none` if none.

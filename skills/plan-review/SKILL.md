@@ -44,14 +44,17 @@ Independence comes from a reviewer that did not write the plan, dispatched by th
   plan's uncommitted edits, wherever it lives. Never edited, never a second plan (`no-plan-copies.md`).
 - **Dispatch one fresh `Explore` subagent** with [reviewer-prompt.md](reviewer-prompt.md): the text
   below its `---` line, `{plan}` and `{checklist}` replaced with the paths of the plan and
-  [checklist.md](checklist.md), nothing added. Set its model **explicitly**, on the row-reviewer
-  tiers of [DISPATCH.md](../plan-build/DISPATCH.md) §3. The prompt resolves paths across the scope.
-- **Save its reply verbatim** as `~/.claude/plan-runs/<plan stem>/plan-review/review-<n>.md`, `<n>`
+  [checklist.md](checklist.md), nothing added. The prompt resolves paths across the scope. Set its
+  model **explicitly**, on every host: the strong tier at the row reviewer's default effort, and the
+  strongest only when a row carries `review: deep` or the plan has a `BLOCKED — wait for user` row for
+  a migration or deploy. Tiers per host: [DISPATCH.md](../plan-build/DISPATCH.md) §3, `CONVENTIONS.md`.
+- **Save its reply verbatim** as `$(row-snapshot.sh dir <plan>)/plan-review/review-<n>.md`, `<n>`
   the next free number — outside every repository, and never over an earlier cycle's review.
-- **Run the write check** (`DISPATCH.md` §6): every note against the present, plus the scratchpad
-  and the review's directory — anything the controller did not write. Any write is a finding; stray
-  files are removed; a changed plan is restored from the snapshot if one was saved, then re-checked
-  against the checksum — with no snapshot, the change is reported, not restored.
+- **Run the write check** (`DISPATCH.md` §6): every note against the present, plus the scratchpad and the
+  review's directory — anything the controller did not write. Any write is a finding; list stray files and
+  ask, removing them only on the user's yes. A changed plan: print the diff and wait, naming the Progress
+  ticks and Run-log lines in it as probably another session's, and ask; on the user's yes restore the
+  snapshot, then re-check the checksum (no snapshot: report only).
 - **Build the round output** below from the reply — findings, labels, locations, severities as given.
 
 **Host without subagents** — not Cursor, which dispatches: run round 1 in-thread with the same
@@ -98,7 +101,8 @@ the quoted words, or the command and its output. Then a compact table with exact
 
 - **Evidence** — `CONFIRMED` or `UNVERIFIED`
 - **Location** — plan section or heading (e.g. `Phase 2 — Rollout`, `todos: phase3-validate`), not `file:line`
-- One-line status after the table: `Round {N}: {count} findings ({Critical: X} {High: X} {Medium: X} {Low: X} {Very Low: X})`
+- One-line status after the table:
+  `Round {N}: {count} findings ({Critical: X} {High: X} {Medium: X} {Low: X} {Very Low: X})`
 
 ## Step 2 — Fix relevant findings
 
@@ -109,8 +113,7 @@ the quoted words, or the command and its output. Then a compact table with exact
   `plan-atomic-todos.md` and `plan-progress-section.md`. A review fix that grows the body but not the
   step list recreates the drift this skill exists to catch
 - Keep edits minimal and scoped to each finding
-- Do **not** fix Very Low items during the loop — churning nits every round blocks convergence. The
-  closing pass (Step 4) fixes them once, after the loop stops
+- Do **not** fix Very Low items during the loop — churning nits blocks convergence; Step 4 fixes them once
 
 ## Step 3 — Loop decision
 
@@ -121,8 +124,7 @@ After fixes, re-read the **updated** plan and run Step 1 again (new round) — a
 
 ## Step 4 — Closing pass: fix the Very Lows
 
-The loop has stopped — nothing above Very Low remains. Now fix the Very Low findings too, once,
-instead of leaving them as a list the user has to act on:
+The loop has stopped — nothing above Very Low remains. Now fix the Very Lows too, once, not list them:
 
 - **Fix each Very Low finding directly**, same editing rules as Step 2.
 - **Exception — deliberate tradeoffs stay.** A Very Low that records a safe-by-design choice, where
@@ -151,15 +153,13 @@ Append or update a `### Plan review cycle` section in the plan:
 
 - **Low+ found** — brief list of every finding above Very Low, severity-labelled, or `None`. Lows
   continue the loop, so a round that found only Lows must not read `None`: that is the stop signature
-- **Re-reviewing a plan whose existing log has the old `Medium+ found` header:** rename the header
-  to `Low+ found` in the same edit that appends the new rows — old rows keep their meaning (they
-  never hid Lows behind `None` knowingly), and mixing the two semantics under one header recreates
-  the ambiguity the rename removed
+- **Re-reviewing a plan whose existing log has the old `Medium+ found` header:** rename it to `Low+ found` in
+  the same edit that appends the new rows — old rows keep their meaning (they never hid Lows behind `None`
+  knowingly), and mixing the two semantics under one header recreates the ambiguity the rename removed
 - **Action** — what was fixed that round, or `Stopped — very low only` / `Stop review cycle`
 - **Round 1 reviewer** — `dispatched subagent`, the tier it ran on, the review's path if saved, any
   `denied: <path>`; or `same-agent` on a host without subagents. A later cycle adds its own line
-- **`/code-review`** — only when one ran: a `**/code-review:**` line naming the round and the mode it
-  actually ran in
+- **`/code-review`** — only when one ran: a `**/code-review:**` line naming its round and actual mode
 - **Very low (fixed at close)** — what the closing pass fixed; **(accepted)** — only deliberate
   tradeoffs, each with the reason it was kept
 

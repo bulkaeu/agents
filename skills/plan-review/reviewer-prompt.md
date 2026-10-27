@@ -59,7 +59,7 @@ the plan names, the repository the plan itself lives in, your working directory,
 working directory alone is no base. Resolve a sha with `git -C <repo> cat-file -e <sha>` in every
 repository in scope, and a relative path under every repository in scope, under any directory the
 plan names as its base, and under `plan-build`'s run directory for this plan,
-`~/.claude/plan-runs/<plan stem>/` (the stem is the plan's file name without `.md`), where a `✅`
+`$(row-snapshot.sh dir <plan>)` (the plan's Run log records it as `run dir:`), where a `✅`
 row's `rows/<row id>/review-<n>.md` lives — before you call either missing. Then record each
 spot-check as:
 

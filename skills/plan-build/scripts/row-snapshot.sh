@@ -6,9 +6,15 @@
 #   row-snapshot.sh base <plan.md> <row-id> [--repo <dir>]...
 #   row-snapshot.sh diff <plan.md> <row-id> [<ref>] [--repo <dir>]...
 #
-# dir   Print the run directory, ~/.claude/plan-runs/<plan stem>/, creating nothing: base and diff
-#       create what they write. Everything a row produces (base, brief, report, diff, checks,
-#       review) lives there, outside every repository, so none of it can reach a commit.
+# dir   Print the run directory, creating nothing: base and diff create what they write. It is the
+#       existing directory a `run dir: <path>` line in the plan's Run log names (a leading `~/`
+#       expanded; a missing one warns on stderr), else <home>/<plan stem>-<first 8 hex of the sha256
+#       of the plan's canonical absolute path>, <home> being $ROW_SNAPSHOT_HOME or
+#       ~/.claude/plan-runs. If that does not exist but a legacy <home>/<stem> does, it is used, and
+#       stderr asks for its `run dir:` line.
+#       The stem alone collides: every Codex plan is PLAN.md. This is the one place that computes
+#       it. Everything a row produces (base, brief, report, diff, checks, review) lives there,
+#       outside every repository, so none of it can reach a commit.
 # base  Per repo: record a commit holding the tree as it stands (`git stash create`, or HEAD when
 #       the tree is clean) and copy every untracked file, which no commit holds. Never HEAD~1: a
 #       row may make several commits. Use the row id `run` for the run base. Only the named repos'
@@ -24,16 +30,18 @@
 #       uncommitted. The header names the base used.
 #       Each repo's header, and one stderr line, give its status: `changed` (it has hunks),
 #       `plan file only`, or `no changes since base`.
+#       Also writes paths-<n>.txt beside the patch, same <n>: one absolute path per line, sorted,
+#       for every file in the diff, taken before any truncation; base copies by their real path.
 #
 # --repo  a repository in scope; repeatable. Default: the cwd's repository.
 # The plan file itself is excluded from every diff. A diff over ROW_SNAPSHOT_MAX_LINES (default
 # 4000) lines is truncated with a note. Exit 0 on success, 2 on a usage error, 3 when a base cannot
 # be recorded (mid-rebase, no commits) or used (not an ancestor of HEAD), or when no repo is
-# `changed`, so no patch is written: run inline. Exit 3 also when `run` has no recorded base and no
+# `changed`, so no patch is written: park the row. Exit 3 also when `run` has no recorded base and no
 # remote default branch to take a merge-base with: pass a ref.
 set -euo pipefail
 
-usage() { sed -n '3,33p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '3,41p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 die() { echo "row-snapshot: $2" >&2; exit "$1"; }
 
 [[ $# -ge 2 ]] || usage
@@ -41,7 +49,25 @@ cmd="$1" plan="$2"; shift 2
 [[ -f "$plan" ]] || die 2 "no such plan: $plan"
 plan_abs="$(cd "$(dirname "$plan")" && pwd)/$(basename "$plan")"
 stem="$(basename "$plan" .md)"
-run_dir="${ROW_SNAPSHOT_HOME:-$HOME/.claude/plan-runs}/$stem"
+# The run directory (see `dir` above): the first `run dir: <path>` line of the Run log, if it names
+# an existing directory; else derived from the symlink-resolved path, so two PLAN.md never share one.
+run_dir="$(awk '/^## / { in_log = ($0 ~ /^## Run log[ \t]*$/); next }
+  in_log && sub(/^([-*][ \t]+)?run dir:[ \t]+/, "") { gsub(/`/, ""); sub(/[ \t]+$/, ""); print; exit }' "$plan")"
+[[ "$run_dir" == \~/* ]] && run_dir="$HOME/${run_dir#\~/}"
+if [[ -n "$run_dir" && ! -d "$run_dir" ]]; then
+  echo "row-snapshot: recorded run dir $run_dir does not exist; falling back" >&2; run_dir=""
+fi
+if [[ -z "$run_dir" ]]; then
+  home="${ROW_SNAPSHOT_HOME:-$HOME/.claude/plan-runs}"
+  plan_real="$(cd "$(dirname "$plan")" && pwd -P)/$(basename "$plan")"
+  if command -v shasum >/dev/null 2>&1; then sum=(shasum -a 256); else sum=(sha256sum); fi
+  hash="$(printf '%s' "$plan_real" | "${sum[@]}" | cut -c1-8)"
+  run_dir="$home/$stem-$hash"
+  if [[ ! -d "$run_dir" && -d "$home/$stem" ]]; then   # a legacy run already under way keeps its files
+    run_dir="$home/$stem"
+    echo "row-snapshot: using legacy run dir $run_dir; record \`run dir: $run_dir\` in the Run log" >&2
+  fi
+fi
 max_lines="${ROW_SNAPSHOT_MAX_LINES:-4000}"
 
 row="" ref="" repos=()
@@ -80,12 +106,12 @@ base_sha() { # <toplevel> — print its base commit, or exit 3 having written no
   local top="$1" sha f
   for f in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD; do
     (cd "$top" && [[ -e "$(git rev-parse --git-path "$f")" ]]) \
-      && die 3 "$top is mid-operation ($f) — run the row inline, labelled"
+      && die 3 "$top is mid-operation ($f) — park the row"
   done
   sha="$(git -C "$top" stash create 2>/dev/null)" \
-    || die 3 "cannot record a base in $top (mid-rebase, or no commits) — run the row inline, labelled"
+    || die 3 "cannot record a base in $top (mid-rebase, or no commits) — park the row"
   [[ -n "$sha" ]] || sha="$(git -C "$top" rev-parse HEAD 2>/dev/null)" \
-    || die 3 "cannot record a base in $top (no commits) — run the row inline, labelled"
+    || die 3 "cannot record a base in $top (no commits) — park the row"
   printf '%s' "$sha"
 }
 
@@ -113,7 +139,7 @@ check_base() { # <toplevel> <sha>
     if (( $(git -C "$top" rev-list --parents -n1 "$sha" 2>/dev/null | wc -w) < 3 )) \
       || [[ "$(git -C "$top" log -1 --format=%s "$sha")" != 'WIP on '* ]] \
       || ! git -C "$top" merge-base --is-ancestor "$sha^1" HEAD 2>/dev/null; then
-      die 3 "base ${sha:0:12} is not an ancestor of HEAD in $top (wrong branch or checkout?) — run inline"
+      die 3 "base ${sha:0:12} is not an ancestor of HEAD in $top (wrong branch or checkout?) — park the row"
     fi
   fi
 }
@@ -138,6 +164,7 @@ repo_status() { # <toplevel> <sha> <key> <section file>
 }
 
 # Diff one repo against <sha>. <key> names its base copies; empty means none recorded.
+# Appends each diffed file's absolute path to $out.paths.
 diff_repo() { # <toplevel> <sha> <key> <label>
   local top="$1" sha="$2" key="$3" label="$4" skip f copy_root copy_esc xa xb
   local excl=()
@@ -148,6 +175,8 @@ diff_repo() { # <toplevel> <sha> <key> <label>
     while IFS= read -r -d '' f; do excl+=(":(exclude)$f"); done <"$row_dir/untracked-$key.list"
   fi
   git -C "$top" diff --no-color "$sha" -- . ${excl[@]+"${excl[@]}"}
+  git -C "$top" diff --no-renames --name-only -z "$sha" -- . ${excl[@]+"${excl[@]}"} \
+    | while IFS= read -r -d '' f; do printf '%s/%s\n' "$top" "$f"; done >>"$out.paths"
   # Files untracked at base: diff each against its copy, labelled as the base.
   if [[ -n "$key" && -f "$row_dir/untracked-$key.list" ]]; then
     copy_root="$row_dir/untracked/$key"
@@ -158,8 +187,10 @@ diff_repo() { # <toplevel> <sha> <key> <label>
         xa=0 xb=0; [[ -x "$copy_root/$f" ]] && xa=1; [[ -x "$top/$f" ]] && xb=1
         # unchanged content and exec bit (all git records of a mode): skip the git spawn
         cmp -s "$copy_root/$f" "$top/$f" && (( xa == xb )) && continue
+        printf '%s/%s\n' "$top" "$f" >>"$out.paths"
         (cd "$top" && git diff --no-index --no-color "$copy_root/$f" "$f") || true
       else
+        printf '%s/%s\n' "$top" "$f" >>"$out.paths"
         (cd "$top" && git diff --no-index --no-color "$copy_root/$f" /dev/null) || true
       fi
     done <"$row_dir/untracked-$key.list" | sed "s/$copy_esc/\/(base)/g"
@@ -172,6 +203,7 @@ diff_repo() { # <toplevel> <sha> <key> <label>
   LC_ALL=C comm -23 <(printf '%s\n' "$now") <(LC_ALL=C tr '\0' '\n' <"$base_list" | LC_ALL=C sort) \
     | while IFS= read -r f; do
       [[ -z "$f" || "$f" == "$skip" ]] && continue
+      printf '%s/%s\n' "$top" "$f" >>"$out.paths"
       (cd "$top" && git diff --no-index --no-color /dev/null "$f") || true
     done
 }
@@ -220,7 +252,8 @@ fi
 mkdir -p "$row_dir"
 n=1; while [[ -e "$row_dir/diff-$n.patch" ]]; do n=$((n + 1)); done
 out="$row_dir/diff-$n.patch"
-trap 'rm -f "$out.full" "$out.sec"' EXIT   # check_base can exit 3 part-way through the write below
+trap 'rm -f "$out.full" "$out.sec" "$out.paths"' EXIT   # check_base can exit 3 part-way through the write below
+: >"$out.paths"
 {
   for r in "${repos[@]}"; do
     top="$(toplevel "$r")" key=""
@@ -228,7 +261,7 @@ trap 'rm -f "$out.full" "$out.sec"' EXIT   # check_base can exit 3 part-way thro
       sha="$(git -C "$top" rev-parse --verify -q "$ref^{commit}")" || die 2 "ref '$ref' does not resolve in $top"
       check_base "$top" "$sha"
       label="$ref (${sha:0:12})"
-    elif line="$(grep -F "$top"$'\t' "$row_dir/base.tsv" 2>/dev/null | head -1)" && [[ -n "$line" ]]; then
+    elif line="$(TOP="$top" awk -F'\t' '$1 == ENVIRON["TOP"] { print; exit }' "$row_dir/base.tsv" 2>/dev/null)" && [[ -n "$line" ]]; then
       IFS=$'\t' read -r _ sha key <<<"$line"
       check_base "$top" "$sha"
       label="recorded base ${sha:0:12}"
@@ -252,7 +285,8 @@ trap 'rm -f "$out.full" "$out.sec"' EXIT   # check_base can exit 3 part-way thro
 } >"$out.full"
 # Tested before truncation, on every branch above: the EXIT trap removes the hunk-less package.
 grep -q '^diff --git' "$out.full" \
-  || die 3 "no repository changed since its base (wrong branch or checkout?) — run inline"
+  || die 3 "no repository changed since its base (wrong branch or checkout?) — park the row"
+LC_ALL=C sort -u "$out.paths" >"$row_dir/paths-$n.txt"   # from the untruncated diff
 total="$(wc -l <"$out.full" | tr -d ' ')"
 if (( total > max_lines )); then
   head -n "$max_lines" "$out.full" >"$out"

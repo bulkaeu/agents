@@ -73,8 +73,8 @@ work that is not yours, and `.git/CHERRY_PICK_HEAD`, `.git/MERGE_HEAD`, `.git/re
 sequencer someone left mid-flight. Another session's dirty tree is not yours to clean, and a
 cleanup command is the dangerous one.
 
-**Repository scope**: list every repo the plan touches the way `plan-finish` does — the plan's own
-paths, the cwd, and anything in `git worktree list` — and check each. Rows whose artifacts live
+**Repository scope**: list every repo the plan touches — the plan's own paths, the cwd, and anything
+in `git worktree list` — and check each. Rows whose artifacts live
 outside any repository are verified on disk, not by `git log`. **No repository in scope is a state,
 not an error**: the concurrency check reports *no repo* and passes.
 

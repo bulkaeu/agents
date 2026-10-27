@@ -29,25 +29,29 @@ Rows run in **table order**. For each:
    went fine. If the step names no done-state, it is under-specified: say so rather than invent one.
 5. **Mark `✅` and write the Notes cell in the same edit** (rule 5). Counts, versions, paths, the
    real command output, and for a dispatched row its `review:` token.
-6. **Commit** if the row calls for it — below. Then the next row.
+6. **Commit** if the row calls for it — below — then log it in the Run log. Then the next row.
 
 A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it get
-`⛔` *"depends on N"* — then the loop **continues** with everything else (rule 2).
+`⛔` *"depends on N"* — then the loop **continues** with the rest (rule 2), bar one: no usable report.
 
-**A dispatched row that parks leaves no edits behind.** Before the next row, the controller
-restores the files in the row's last diff — or in a fresh `diff`, when the row parked before one
-was taken — to the row's base: tracked files from the base sha, files untracked at base from the
-base's copy (`rows/<row id>/untracked/`), files the row created removed. It says so in the row's
-Notes. The diff stays in the run directory as the record.
+**A dispatched row acts only on its own paths**: the union of **Changed** in every `report-<n>.md` it has,
+all rounds, symlinks resolved as in `paths-<n>.txt` (`/tmp` is `/private/tmp` on macOS). A **foreign path**,
+in the latest `paths-<n>.txt` but not own, is never restored, removed or committed: it **stops the run** —
+print them and `git status --short`, wait for the user (likely a peer). **No usable report** (a crash, or no
+**Changed**) hides own paths: park the row, leave the tree, stop the run with the diff's path list.
+
+**A dispatched row that parks leaves no edits behind.** Before the next row, the controller restores
+the own paths in its last diff (or a fresh `diff`, if it parked before one) to the row's base: tracked
+files from the base sha, files untracked at base from `rows/<row id>/untracked/`, files the row
+created removed. It says so in the row's Notes; the diff stays in the run directory as the record.
 
 **Scope changes go in the table as they happen.** A step you discover is needed becomes a row where
-it actually ran, never appended beside a thematically similar one — a table reading `E1 E2 E5 E3 E4`
-makes every later reader reconstruct the real order. Renumber rather than misplace. A step you are
-told to skip gets `⏭️` and a reason; silent omission and a recorded skip look identical in the body
-and completely different six weeks later.
+it actually ran, never beside a similar one — a table reading `E1 E2 E5 E3 E4` makes every reader
+rebuild the real order. Give it a suffixed id (`3a`, `3b`) per `../plan-add/MATCHING.md` §6, never
+renumbering: `rows/<id>/`, Notes' review tokens and the Run log cite ids. A skipped step gets `⏭️`
+and a reason; silent omission and a recorded skip look identical now and different six weeks later.
 
-**Never re-dispatch a `✅` row.** After a context summary, the table and the Run log say what is
-done; trust them over a memory of intending to do it.
+**Never re-dispatch a `✅` row.** After a context summary, trust the table and Run log over memory.
 
 ## Classifying a row — dispatch or inline
 
@@ -76,7 +80,7 @@ A subagent's claim clears none of these (rule 9).
 
 ## When to commit
 
-- **A dispatched row commits after its tick**, by explicit path — the paths in its final diff —
+- **A dispatched row commits after its tick**, by explicit path — its own paths in its final diff —
   with a message describing the change, not the row id, prefixed with the plan's ticket id if it
   has one. A crash then loses at most one row, and the next row's base is clean.
 - **Unless the plan has its own commit row** for that work: then that row commits, and the
@@ -91,6 +95,9 @@ in the file, so it survives a context summary. It holds:
 
 - a header per run: the date, the starting commit per repo, and the run base (`DISPATCH.md`);
 - every ruling, `R<n> · <row id> · <what> — <why> — <cost if wrong>`;
+- every commit the run makes — dispatched row, commit row, close-out or fix wave — as
+  `commit: <short sha> <subject>`, in the Run log edit right after that commit;
+- every inline row that changes files, `inline <row id>: <paths>`;
 - every model or effort step-up with its reason, and, on a row carrying a `review:` marker, `deep` or
   `default`, the reviewer's tier and reason for every review of that row, whether or not the marker
   changed anything — one line per review, naming the row and its `review-<n>.md` (`DISPATCH.md`
@@ -132,9 +139,8 @@ approval: the plan author put it there.
 report.** Marching to the end producing un-auditable ticks looks like progress and is the opposite
 — it destroys the record the table exists to keep. Say which rows, and what you could not measure.
 
-**`⛔` and `⏭️` rows do not count toward the guard.** Their Notes carry a named blocker or reason,
-which is the verifiable content those rows can have; two parked rows in a row is a normal shape, not
-a spin.
+**`⛔` and `⏭️` rows do not count toward the guard.** Their Notes carry a named blocker or reason;
+two parked rows in a row is a normal shape, not a spin.
 
 ## The final review, then close-out
 
@@ -168,9 +174,8 @@ execute → park what must be parked → final review → fix wave → close out
        → on no: they stay blocked
 ```
 
-`plan-finish`'s own *"not done — N items"* ask is **folded into that one question**, not raised
-beside it. A run that ends at a hand-off row does none of this; the resuming run does it at the
-true end.
+`plan-finish`'s own *"not done — N items"* ask is **folded into that one question**. A run that
+ends at a hand-off row does none of this; the resuming run does it at the true end.
 
 ## The report
 

@@ -107,8 +107,9 @@ on the reader's behalf. **This is the section the skill
 exists for**; when the plan has started, lead the reader here.
 
 If the plan has not started, one line stands **in place of this section, with no `## Where we are`
-header** (the same rule as the complete case): *"Not started — N waiting, first is `<id>`."* **Count only `⬜` in that N**: a plan with 16 `⬜` and 2 `⛔` is "16 waiting, 2 blocked by
-design", never "18 waiting". A count that disagrees with the tally line discredits both.
+header** (the same rule as the complete case): *"Not started — N waiting, first is `<id>`."* **Count
+only `⬜` in that N**: a plan with 16 `⬜` and 2 `⛔` is "16 waiting, 2 blocked by design", never "18
+waiting". A count that disagrees with the tally line discredits both.
 
 ### Verification & exit criteria
 

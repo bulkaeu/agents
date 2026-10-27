@@ -60,13 +60,12 @@ stops rather than picking one; two or more plausible at any rung → list with m
 
 ## 2. Repository scope
 
-Before reconciling, list every repo the plan touches — its own paths, the cwd, anything in
-`git worktree list` — and check each. Artifacts outside any repository are verified on disk, not by
-`git log`. **No repository in scope is a state, not an error.** Work that is done but not yet
-committed is verified from the working tree; absence of a commit is not absence of the work.
-
-Run `plan-build`'s concurrency check (its `SKILL.md` §2) here too: another session's dirty tree or
-leftover sequencer means stop and report, not clean up.
+Before reconciling, run `plan-build`'s repository-scope and concurrency checks (its `SKILL.md` §2):
+another session's dirty tree or leftover sequencer means stop and report, not clean up. A dirty path
+is this run's own only if it is the plan file or an own path of the in-flight `🟡` row — as
+`plan-build/EXECUTION.md` defines own paths, read from that row's saved reports in the run directory.
+Any other dirty path stops it. Work that is done but not yet committed is verified from the working
+tree; absence of a commit is not absence of the work.
 
 ## 3. Reconcile — the part that earns the skill
 
@@ -136,9 +135,10 @@ as `CONVENTIONS.md` shapes it, `Nothing written.`
 
 Start at the **first open row in table order** — `🟡` or `⬜`. Usually that is the `🟡` a crashed
 run left, but a `✅` that reconciliation demoted to `⬜` comes before it and runs first; starting at
-the `🟡` would skip it for good. Then the loop in `EXECUTION.md`, unchanged: `🟡` → work → verify → `✅` with Notes, parking what `RULES.md` says to
-park, final review, close-out and one question at the end — unless a hand-off row ends the run
-first. Record a run base only if the Run log has none (`DISPATCH.md`).
+the `🟡` would skip it for good. Then the loop in `EXECUTION.md`, unchanged: `🟡` → work → verify →
+`✅` with Notes, parking what `RULES.md` says to park, final review, close-out and one question at
+the end — unless a hand-off row ends the run first. Record a run base only if the Run log has none
+(`DISPATCH.md`).
 
 **Partial work on a `🟡` code row is kept, not discarded.** A fresh implementer gets a brief that
 names the partial files as its starting point and finishes the row; its diff, from the recorded base
@@ -160,8 +160,8 @@ to `⬜`, named in the report, re-done, and the run continues to the end.
 commit shas as their Notes, and the report says so. Nothing is re-run.
 
 **Resuming after a hand-off** — row 22 is `✅` with no commit behind it. Accepted as done, not
-reverted. Rows 23–28 carry `BLOCKED — wait for user` markers and the user's six commands are in this
-session's context: evidenced, so they are verified and ticked rather than parked. The run continues
+reverted. Rows 23–28 carry `BLOCKED — wait for user` markers, and the output of the user's six commands
+is in this session's context: evidenced, so they are verified and ticked rather than parked. The run continues
 to the last row.
 
 **`--dry-run` on a drifted plan** — one proposed correction, the *will park* list, the fixture's

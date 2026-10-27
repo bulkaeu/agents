@@ -31,11 +31,11 @@ In order, stopping at the first hit:
 **Two or more plausible at any rung → list them with mtimes and stop.** A report on the wrong plan
 reads exactly like a report on the right one until it misleads.
 
-**Stop means the report ends at the list:** the candidates newest first, each with its mtime — past
-25, about a screenful, the 25 newest and the total count. No grouping, no ranking, and no pre-flight, verdict or
-preview for any of them, however likely one looks; an example invocation uses a placeholder path,
-never a candidate's. Choosing is the user's move; an "if you name this one…" report is a pick in all
-but name. (The two offers below are not exceptions: `plan-finish`'s repo-only audit and `plan-add`'s
+**Stop means the report ends at the list:** the candidates newest first, each with its mtime — past 25,
+about a screenful, the 25 newest and the total count. No grouping, no ranking, and no pre-flight,
+verdict or preview for any of them, however likely one looks; an example invocation uses a placeholder
+path, never a candidate's. Choosing is the user's move; an "if you name this one…" report is a pick in
+all but name. (The two offers below are not exceptions: `plan-finish`'s repo-only audit and `plan-add`'s
 new-plan option name no candidate, so neither previews nor ranks one.)
 
 **The last rung picks a plan only for the read-only skills**, `plan-status` and `plan-summary`.
@@ -70,8 +70,8 @@ Markers live in the Step cell's text. The skills parse exactly these:
 | `BLOCKED — wait for user: …` or `BLOCKED — wait for user confirmation: …` | The step needs the user's action or yes. Both spellings are accepted; an executor parks it unless the action is already evidenced (`STOPS.md`) |
 | `hand-off row` | The step gives the user work to do outside the run, then the run ends. The one sanctioned mid-table halt |
 | `(⏭️ if …)` | A conditional skip the author allowed in advance; the Notes must say which condition held |
-| `review: deep` | The row's reviewer runs on the strongest model tier (`DISPATCH.md` §3). On a row that also carries `review: default`, `review: deep` wins: an author asking for depth outranks an exemption. Every review of the row logs its reviewer's tier and reason in the Run log, naming the row and the review file it covers |
-| `review: default` | The row's reviewer keeps its default tier and effort even when the controller would judge the step risky. It cancels only that risk step-up: fix round 3 and a stalled fix loop still step the reviewer up, and a risky row's implementer still steps up. Every review of the row logs its reviewer's tier and reason in the Run log, naming the row and the review file it covers, whether or not the marker held anything back. `review: deep` on the same row wins |
+| `review: deep` | The row's reviewer runs on the strongest model tier (`DISPATCH.md` §3). On a row that also carries `review: default`, `review: deep` wins: an author asking for depth outranks an exemption. Its reviews are logged per `EXECUTION.md`, *The Run log* |
+| `review: default` | The row's reviewer keeps its default tier and effort even when the controller would judge the step risky. It cancels only that risk step-up: fix round 3 and a stalled fix loop still step the reviewer up, and a risky row's implementer still steps up. `review: deep` on the same row wins. Its reviews are logged per `EXECUTION.md`, *The Run log* |
 
 **A pending ticket is author-parked.** `plan-ticket-tracking.md`'s `**Ticket:** pending` puts a `⛔`
 row in a brand-new plan. That row was parked by the author, not by a run, so it does not make the
@@ -165,7 +165,7 @@ The skills name Claude Code mechanisms. On Codex, read each one as follows:
   `review: same-agent` fallback (`DISPATCH.md`, *Fallback — a host without subagents*).
 - **Plan mode and `ExitPlanMode`:** Codex has no equivalent. A stop that depends on one of them
   does not apply there; **every other stop in `STOPS.md` still binds**, unchanged.
-- **`PreToolUse` prompts:** Codex's approval prompt is the equivalent gate, raised whenever a
+- **Harness prompts:** Codex's approval prompt is the equivalent gate, raised whenever a
   command needs to leave the sandbox. `STOPS.md`'s *A harness prompt is not a stop-list item*
   carries over: answer the prompt, and never rephrase, chain or wrap a command to get past it.
 - **`bypassPermissions`:** the ban carries over. On Codex it is a ban on
@@ -173,6 +173,6 @@ The skills name Claude Code mechanisms. On Codex, read each one as follows:
   `danger-full-access` — a skill never switches any of them on.
 - **Run directory:** `workspace-write` cannot write `~/.claude/plan-runs/`. Set `ROW_SNAPSHOT_HOME`
   to a writable temp dir outside every repository's tracked tree; every file the skills put in "the
-  run directory", plan-review's saved reviews included, goes under it instead of the literal path.
+  run directory", plan-review's saved reviews included, goes under it: `row-snapshot.sh dir` reads it.
 - **Progress nag:** Codex has no Stop hook, so nothing nags about open rows. The executor's own
   table updates, at every boundary, are the only guard.

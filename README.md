@@ -216,7 +216,9 @@ and restart Codex.
 - **Run `bash check-plan-skills.sh` after touching any `plan-*` skill, `plan-shared/`, or the plan
   rules.** It checks line counts, frontmatter, that the ladder and stop-list live in one place,
   links, time-sensitive wording, the severity scale, `RULES.md`'s pinned headings, the dispatch
-  prompts' status tokens and placeholders, and the standing orders, then runs `sanitize-check.sh`. `--root <dir>` points it at a copy of the repo.
+  prompts' status tokens and placeholders, the standing orders, that key safety wording is still
+  present, and that no non-table line passes 110 characters, then runs `sanitize-check.sh`.
+  `--root <dir>` points it at a copy of the repo.
 - **Bundle a skill's helper scripts inside that skill** and resolve their paths at runtime. A
   hardcoded install path breaks the moment someone clones this somewhere else.
 - **Rules stay short — most under ~50 lines.** A rule governing a recurring artifact (the Progress

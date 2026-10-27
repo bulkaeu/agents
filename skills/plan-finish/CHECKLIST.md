@@ -15,9 +15,11 @@ and label the report by repo when there is more than one.
 
 ## Area 2 — Checks
 
-**Classify scope using the [global rule](../../claude/CLAUDE.md#finishing-a-plan), then enumerate.** Text-only work needs document checks, not application/Godot/build/asset tests; mark those **not applicable**.
-Implementation, including executable Markdown/JSON, needs the required full suite/CI checks. Explicit requests apply; multiple steps or `/plan-finish` alone do not expand scope.
-Do not repeat unchanged passing checks. The ecosystem table is not a text-only task list.
+**Classify scope using the [global rule](../../claude/CLAUDE.md#finishing-a-plan), then enumerate.**
+Text-only work needs document checks, not application/Godot/build/asset tests; mark those **not
+applicable**. Implementation, including executable Markdown/JSON, needs the required full suite/CI
+checks. Explicit requests apply; multiple steps or `/plan-finish` alone do not expand scope. Do not
+repeat unchanged passing checks. The ecosystem table is not a text-only task list.
 
 ```bash
 # JS/TS — list what actually exists, then run each
@@ -37,14 +39,14 @@ git ls-files -z '*.sh' | LC_ALL="$(locale -a | grep -iEm1 'utf-?8$')" xargs -0 -
 | Shell implementation | no manifest at all | Required project check scripts — `check-*.sh`, `sanitize-check.sh`, whatever the root holds; list them rather than assume. `bash -n` and `shellcheck -S warning` for applicable scripts (not bare `shellcheck`, whose default level also fails on info and style notes that flag intentional patterns), with a UTF8 locale available on the host. An installer's `--dry-run` only when the changed implementation requires it; formatter only if configured. |
 | Documentation / storyline / plans / tickets / instructions only | project documentation/formatting configuration | Changed-text/source consistency, links/references, Markdown structure and `git diff --check`; run a configured formatter/documentation check when applicable. No application build, Godot/runtime tests, unrelated asset validation or installer dry run. |
 
-**No manifest is not no checks.** Name checks applicable to the change. For text-only work, use available document/link/whitespace checks, not unrelated shell checks or installer dry runs.
-Report a missing configured checker/formatter; do not install one or label an unrun check green.
+**No manifest is not no checks.** Name checks applicable to the change. For text-only work, use
+available document/link/whitespace checks, not unrelated shell checks or installer dry runs. Report
+a missing configured checker/formatter; do not install one or label an unrun check green.
 
-**`format:check` is its own step.** Where ESLint loads `eslint-plugin-prettier`, formatting shows up
-as a lint error *for the files ESLint parses* — which makes it easy to believe `lint` covers
-formatting. It does not: `format:check` usually also globs `.md` and `.json`, which ESLint never
-parses. Any change touching markdown or JSON — README, AGENTS.md, `docs/*.md` — needs
-`format:check` even when lint is green.
+**`format:check` is its own step.** Where ESLint loads `eslint-plugin-prettier`, formatting shows up as a
+lint error *for the files ESLint parses* — which makes it easy to believe `lint` covers formatting. It does
+not: `format:check` usually also globs `.md` and `.json`, which ESLint never parses. Any change touching
+markdown or JSON — README, AGENTS.md, `docs/*.md` — needs `format:check` even when lint is green.
 
 Report each check by name with its real output. A check that could not run (no such script, missing
 tooling) is reported as **not run**, never folded into a green summary.
@@ -61,9 +63,9 @@ grep -n "<the item's command or number>" "<plan-file>"   # a Progress row whose 
 - **Recorded** — a row's Notes hold the item's result: report it from that row, citing the row id
   ("PASS, recorded in row B3's Notes"). **Do not re-run it**; its fixtures may be gone by design.
 - **Not recorded** — run it now: PASS or FAIL, with its real output (exit code, count, failing lines).
-- **A FAIL on one of the repository's own checks** belongs to area 2: fix an obvious cause, re-run,
-  and report the re-run's result here, citing the fix. **Any other FAIL is reported, never fixed** —
-  a finding for the plan's own rows or `/plan-continue`, not work for this skill.
+- **A FAIL on one of the repository's own checks** belongs to area 2: fix an obvious cause (one in a file
+  dirty and unclaimed at start is reported instead), re-run, report the result here citing the fix. **Any
+  other FAIL is reported, never fixed** — a finding for the plan's own rows or `/plan-continue`.
 
 ## Area 4 — Commits
 
@@ -77,7 +79,7 @@ Unpushed commits, without erroring on a branch that has no upstream:
 
 ```bash
 if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
-  git log --oneline '@{u}..'
+  git log --oneline '@{u}..HEAD'              # the push gate (SKILL.md §3)
 elif git rev-parse origin/HEAD >/dev/null 2>&1; then
   git log --oneline origin/HEAD..
 else
@@ -85,13 +87,14 @@ else
 fi
 ```
 
-Untracked files split three ways: **build output** (should be gitignored), **scratch** (should be
-deleted, see area 6), and **real work** (should be committed). Classify rather than lumping them.
+Untracked files split three ways: **build output** (gitignore it), **scratch** (delete it, area 6),
+and **real work** (committed if claimed, else listed *not committed — unclaimed*). Classify each.
 
 ## Area 5 — Docs
 
 ```bash
-git diff --name-only <plan-start>..HEAD       # or main..HEAD
+# <plan-start>: the Run log's `run base` sha for this repo, else `git merge-base HEAD origin/HEAD`
+git diff --name-only <plan-start>..HEAD       # never main..HEAD — empty on main
 ```
 
 For each changed module, command, flag, or env var name, grep the docs for it:
@@ -129,7 +132,7 @@ Two different questions, and the second is the one that finds things:
 
 ### Claims audit — what the table cites, against git and disk
 
-`${CLAUDE_SKILL_DIR}` is `plan-finish/`. On a host that does not set that variable, the same relative path from this file's own directory.
+`${CLAUDE_SKILL_DIR}` is `plan-finish/`; where unset, the same relative path from this file's directory.
 
 ```bash
 run_dir="$(bash "${CLAUDE_SKILL_DIR}/../plan-build/scripts/row-snapshot.sh" dir "<plan-file>")"
@@ -142,9 +145,8 @@ default, the plan's repository. The run directory (`row-snapshot.sh dir` prints 
 so cited review files resolve. **Each MISSING is a question, not a verdict**: a path a row deleted
 or moved is meant to be absent. A claimed sha or path really absent is drift.
 
-**Re-read the plan from disk before auditing it.** Do not audit a copy carried in context from
-earlier in the session — it may predate edits made since, and you will report a defect that was
-already fixed, or miss one that was introduced.
+**Re-read the plan from disk before auditing it.** A copy carried in context from earlier in the
+session may predate edits made since: you would report a defect already fixed, or miss one introduced.
 
 ### The ticket is a doc too
 
@@ -158,25 +160,23 @@ If the plan carries a `**Ticket:**` line with an identifier, read that issue and
 | `**Ticket:** none` | — | Nothing to check |
 | no `**Ticket:**` line | — | Predates the rule. Note it; do not retro-file |
 
-**Report only.** Moving, closing, or reassigning an issue is a destructive edit and stays gated on an
-explicit yes — `plan-ticket-tracking.md` owns that boundary. Propose the transition and the command;
-do not perform it as part of the audit.
+**Report only.** Moving, closing or reassigning an issue is a destructive edit, gated on an explicit yes that
+`plan-ticket-tracking.md` owns. Propose the transition and the command; never perform it in the audit.
 
 ## Area 6 — Cleanup
 
 ```bash
-git branch --merged | grep -vE '^\*|main|master|develop'   # candidates only
+git branch --merged | grep -vE '^\*|^[ +] (main|master|develop)$'   # candidates only
 git worktree list --porcelain
 git worktree prune --dry-run
-find . -name '*.orig' -o -name '*.rej' -not -path './.git/*'
+find . \( -name '*.orig' -o -name '*.rej' \) -not -path './.git/*'
 ```
 
 Plus scratch the plan itself names — throwaway scripts, dumps, fixture files — and anything left in
 the session scratchpad that was meant to be temporary.
 
-**Candidates, not conclusions.** `--merged` lists branches merged into the *current* branch, which
-is not the same as merged to the default branch or merged upstream. Verify before proposing a
-deletion, and never propose deleting an unmerged branch at all.
+**Candidates, not conclusions.** `--merged` lists branches merged into the *current* branch, not the default
+branch or upstream. Verify before proposing a deletion; never propose deleting an unmerged branch.
 
 Worktrees come out before the branches they hold:
 
@@ -193,7 +193,7 @@ check not run is written *not run*, with the reason. The icon sits in the Status
 ```markdown
 | Area | Status | Detail |
 | ---- | ------ | ------ |
-| Checks | ✅ | `bash check-plan-skills.sh` → `ok — 16 checks`, exit 0 · `shellcheck -S warning` 6 scripts, exit 0 · formatter *not run* — none configured |
+| Checks | ✅ | `bash check-plan-skills.sh` → `ok — N checks`, exit 0 · `shellcheck -S warning` 6 scripts, exit 0 · formatter *not run* — none configured |
 | Verification | ✅ | 2 items · 1: PASS recorded in row B3's Notes, not re-run · 2: PASS run now, `bash check.sh` exit 0 |
 | Commits | ✅ | `git status --porcelain` 0 lines · `git log '@{u}..'` 0 commits |
 | Docs | ✅ | commit walk 9 ok, 1 MISS (another plan's, excluded) · `table-claims.sh` → `shas ok 9 missing 0 · paths ok 14 missing 1` — deleted by row C2 |
