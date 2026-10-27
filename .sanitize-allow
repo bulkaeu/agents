@@ -72,3 +72,6 @@ internally uses AES-256-GCM
 # gitlab host as a string in code and its test
 ("github.com/", "gitlab.com/")
 "gitlab.com/a/b"
+# model ids named in skills/plan-shared/CONVENTIONS.md and README.md (OpenCode tiers)
+muse-spark-1.3-contributor#
+anthropic/claude-opus-5-5#

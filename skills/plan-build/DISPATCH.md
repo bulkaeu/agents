@@ -74,14 +74,14 @@ A row carrying both `review: deep` and `review: default` gets the strongest-tier
 `review: deep` wins (`CONVENTIONS.md`, *Row markers*). **Every step-up, and every review of a
 `review:`-marked row, is logged per `EXECUTION.md`, *The Run log*.**
 
-- **Implementer:** a `general-purpose` subagent (`generalPurpose` on Cursor), model per the table.
-  It returns its report as its reply. **Save that reply verbatim** as `report-<n>.md` — only the
-  controller writes files, exactly as for a reviewer's review.
-- **Reviewer:** an `Explore` subagent (`explore` on Cursor), model **set explicitly** per the
-  table; `Explore` may otherwise default to a smaller one. `Explore` keeps Bash, so it is not
-  read-only by construction: the prompt alone enforces it, and the write check below backs it up.
-  It returns its findings as its reply. **Save that reply verbatim** as `review-<n>.md` — only the
-  controller writes files, and a paraphrased review is not a review.
+- **Implementer:** a `general-purpose` subagent (`generalPurpose` on Cursor, `general` on OpenCode),
+  model per the table. It returns its report as its reply. **Save that reply verbatim** as
+  `report-<n>.md` — only the controller writes files, exactly as for a reviewer's review.
+- **Reviewer:** an `Explore` subagent (`explore` on Cursor, `explore` on OpenCode), model **set
+  explicitly** per the table; `Explore` may otherwise default to a smaller one. `Explore` keeps
+  Bash, so it is not read-only by construction: the prompt alone enforces it, and the write check
+  below backs it up. It returns its findings as its reply. **Save that reply verbatim** as
+  `review-<n>.md` — only the controller writes files, and a paraphrased review is not a review.
 - Every dispatch is a **fresh** subagent. A re-review is a new reviewer handed the saved findings,
   never "the same reviewer" — subagents do not outlive their session.
 
