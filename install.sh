@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
 # Link this repo's skills (including vendored ones) and rules into every agent directory on this machine
-# (Claude, Cursor, and the shared ~/.agents/skills that Codex reads; Codex's instructions file too).
+# (Claude, Cursor, and the shared ~/.agents/skills that Codex reads; Codex's instructions file too),
+# plus its OpenCode plugins into OpenCode's global plugins directory.
 #
 # The repo is the single source of truth. Each agent dir gets a symlink pointing here,
 # so editing a file in this checkout changes what every agent loads. Idempotent and
@@ -119,6 +120,16 @@ for file in "$REPO"/rules/*.md; do
   name="$(basename "$file" .md)"
   link "$REPO/rules/$name.md" "$HOME/.claude/rules/$name.md"
   link "$REPO/rules/$name.md" "$HOME/.cursor/rules/$name.mdc"   # Cursor needs the .mdc extension
+done
+
+say ""
+say "opencode plugins"
+# OpenCode discovers global plugin directories under its config dir, symlinked ones included.
+OPENCODE_PLUGINS="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/plugins"
+for dir in "$REPO"/opencode/plugins/*/; do
+  [[ -d "$dir" ]] || continue
+  name="$(basename "$dir")"
+  link "$REPO/opencode/plugins/$name" "$OPENCODE_PLUGINS/$name"
 done
 
 say ""

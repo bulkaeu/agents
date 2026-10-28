@@ -13,7 +13,8 @@ skills/plan-shared/  files the plan-* skills share — not a skill, so no SKILL.
 rules/             always-apply rules, one .md each
 claude/            CLAUDE.md — global instructions for Claude Code
 vendor/<name>/     pinned copies of other people's skill sets — see Vendored skills
-install.sh         links all of the above into ~/.claude, ~/.cursor and ~/.agents
+opencode/plugins/  OpenCode plugins, one directory each
+install.sh         links all of the above into ~/.claude, ~/.cursor, ~/.agents and ~/.config/opencode
 sanitize-check.sh  refuses to publish private identifiers — see Sanitization
 check-plan-skills.sh  static checks for the plan-* skills — see Contributing
 .sanitize-allow    tracked: strings that legitimately look private (placeholders, boilerplate)
@@ -27,8 +28,8 @@ git clone https://github.com/bulkaeu/agents.git ~/projects/agents
 bash ~/projects/agents/install.sh
 ```
 
-`--dry-run` says what it would do and changes nothing. Run it again any time you add a skill or a
-rule; it only touches what is missing or wrong.
+`--dry-run` says what it would do and changes nothing. Run it again any time you add a skill, a
+rule or an OpenCode plugin; it only touches what is missing or wrong.
 
 What it creates:
 
@@ -101,8 +102,8 @@ local Ollama model; strong and strongest on Meta's Muse Spark 1.3 Contributor vi
 back to Claude Opus if that call fails. Contributor-tier and free models may train on what they see, so the
 `opencode/plugins/contributor-redact/` plugin strips secrets and infrastructure identifiers from requests to
 them (ids with `-contributor` or `-free`/`:free`, `big-pickle`, and the OpenRouter routers `auto`, `fusion`,
-`pareto-code` and `bodybuilder`) — `install.sh` does not link it: copy that directory into
-`~/.config/opencode/plugins/` by hand — and
+`pareto-code` and `bodybuilder`). `install.sh` links it into `~/.config/opencode/plugins/`, so the
+redaction rules OpenCode runs are whatever this checkout has — and
 the rest is in [`CONVENTIONS.md` § On OpenCode](skills/plan-shared/CONVENTIONS.md#on-opencode).
 
 Twenty-one vendored third-party skills are linked beside these and are not listed above;
