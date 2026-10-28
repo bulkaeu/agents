@@ -133,8 +133,8 @@ a run uses its output (`plan-build` §2), never this table from memory.
 
 | Tier | Claude Code | Cursor | Codex | OpenCode |
 | --- | --- | --- | --- | --- |
-| standard | Sonnet, at high effort | Composer | Luna, at high effort | `ollama/qwen3-coder:30b` |
-| strong | Opus, at medium effort | Grok, at high effort where the host offers a choice | Sol, at medium effort | `openrouter/meta/muse-spark-1.3-contributor#medium`, or `anthropic/claude-opus-5-5#medium` if that call fails |
+| standard | Sonnet, at high effort | Composer | Luna, at high effort | `openrouter/meta/muse-spark-1.3-contributor#medium` |
+| strong | Opus, at medium effort | Grok, at high effort where the host offers a choice | Sol, at medium effort | `openrouter/meta/muse-spark-1.3-contributor#high`, or `anthropic/claude-opus-5-5#medium` if that call fails |
 | strongest | Fable, at medium effort | Grok, as for strong — Cursor has two tiers | Sol, at high effort | `openrouter/meta/muse-spark-1.3-contributor#max`, or `anthropic/claude-opus-5-5#high` if that call fails |
 
 - **On Claude Code, pass the model and an `effort` on each dispatch** — the tier's above, unless
