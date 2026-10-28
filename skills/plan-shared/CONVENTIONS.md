@@ -128,8 +128,8 @@ file.
 Subagents are dispatched by tier — **standard**, **strong**, **strongest** — and `plan-build`'s
 `DISPATCH.md` §3 says which dispatch gets which. Each host maps a tier to a model **family**, never
 a version or an id: the newest model of that family the host offers is the one meant, so a new
-release needs no edit here. OpenCode is the exception: its ids are pinned, and a new model there
-needs an edit.
+release needs no edit here. OpenCode's ids are pinned. `scripts/tiers.sh <host>` prints a host's row;
+a run uses its output (`plan-build` §2), never this table from memory.
 
 | Tier | Claude Code | Cursor | Codex | OpenCode |
 | --- | --- | --- | --- | --- |
@@ -150,10 +150,10 @@ needs an edit.
   means `inherit`, logged once per run in the Run log. **Never name a Claude model on Codex.**
   `DISPATCH.md` §3 moves two Codex dispatches up a tier: fix round 1's implementer, and a risky
   step's reviewer.
-- **On OpenCode, pass `model` on each `subagent` call** — the tier's pinned id as written, whatever effort
-  `DISPATCH.md` §3 names (local ids have no `#variant`). If a strong or strongest dispatch
-  errors (provider down, no credit) or its id is missing from the host's model list, re-dispatch once
-  on that tier's Opus fallback from the table, logged once per run; a missing standard id means `inherit`.
+- **On OpenCode, pass `model` on every `subagent` call** — the id `tiers.sh opencode` printed, any
+  `DISPATCH.md` §3 effort aside; a call without it runs on the controller's model and is a defect. A
+  strong or strongest dispatch that errors, replies with no report or verdict, or names an id missing
+  from the host's list is re-dispatched once on its Opus fallback; a missing standard id means `inherit`.
 - **On any other host** than these four, dispatch with `inherit` for every tier, logged once per
   run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
