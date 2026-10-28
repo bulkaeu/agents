@@ -32,7 +32,8 @@ const RULES: [RegExp, string][] = [
   // the keyword (SECRET_KEY_BASE, DB_PASSWORD_PROD) except token_count / tokens / author; `==` is a
   // comparison, not a separator.
   [
-    /((?:pass(?:word|wd|phrase)?|pwd|secret|token|api[_-]?key|access[_-]?key|private[_-]?key|client[_-]?secret|authorization|auth|credentials?)(?!_?counts?\b|(?<=token)s\b|(?<=auth)ors?\b)\w*["']?\s*(?::|=(?!=))\s*["']?)(?!\[REDACTED)[^\s"'`=][^\n"'`]*/gi,
+    // Bare "pass" is not a key: it matched prose such as "would pass: add a case" and hid the rest.
+    /((?:pass(?:word|wd|phrase)|pwd|secret|token|api[_-]?key|access[_-]?key|private[_-]?key|client[_-]?secret|authorization|auth|credentials?)(?!_?counts?\b|(?<=token)s\b|(?<=auth)ors?\b)\w*["']?\s*(?::|=(?!=))\s*["']?)(?!\[REDACTED)[^\s"'`=][^\n"'`]*/gi,
     "$1[REDACTED]",
   ],
 ]
