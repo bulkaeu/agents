@@ -98,9 +98,11 @@ which `install.sh` links every skill into, so the `plan-*` family reaches it wit
 with an `@` mention (`@plan-build`). OpenCode honours `disable-model-invocation`: the flag hides a `plan-*`
 skill from the model's list and it still loads by explicit ID, so no gate file is needed. Standard runs on a
 local Ollama model; strong and strongest on Meta's Muse Spark 1.3 Contributor via OpenRouter, each falling
-back to Claude Opus if that call fails. Contributor-tier models may train on what they see, so the
+back to Claude Opus if that call fails. Contributor-tier and free models may train on what they see, so the
 `opencode/plugins/contributor-redact/` plugin strips secrets and infrastructure identifiers from requests to
-them — `install.sh` does not link it: copy that directory into `~/.config/opencode/plugins/` by hand — and
+them (ids with `-contributor` or `-free`/`:free`, `big-pickle`, and the OpenRouter routers `auto`, `fusion`,
+`pareto-code` and `bodybuilder`) — `install.sh` does not link it: copy that directory into
+`~/.config/opencode/plugins/` by hand — and
 the rest is in [`CONVENTIONS.md` § On OpenCode](skills/plan-shared/CONVENTIONS.md#on-opencode).
 
 Twenty-one vendored third-party skills are linked beside these and are not listed above;

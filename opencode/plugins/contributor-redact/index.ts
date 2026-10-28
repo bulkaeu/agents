@@ -1,6 +1,6 @@
 import { Plugin } from "@opencode/plugin"
 
-// Contributor-tier models (e.g. Meta Muse Spark *-contributor) may use prompts and
+// Contributor-tier and free models (e.g. Meta Muse Spark *-contributor, *-free) may use prompts and
 // responses for training. Strip common secret formats, and the infrastructure details private
 // plans carry (AWS account and instance identifiers, Elastic IPs, SSM parameter paths, where
 // production credentials live), from every outgoing request to such models. Persisted history
@@ -49,14 +49,17 @@ function scrub(value: unknown): unknown {
   return value
 }
 
-const isContributor = (model: { id: string }) => model.id.includes("-contributor")
+// Free tiers may train on or log requests too; big-pickle is free without "free" in its id.
+// OpenRouter routers may pick any of the above, and the hook only sees the router's id.
+const needsRedaction = (model: { id: string }) =>
+  /-contributor|[-:/]free\b|^big-pickle$|^openrouter\/(auto|fusion|pareto-code|bodybuilder)$/.test(model.id)
 
 export default Plugin.define({
   id: "contributor-redact",
   async setup(ctx) {
     for (const kind of ["context", "compaction", "generate", "title"] as const) {
       await ctx.session.hook(kind, (event) => {
-        if (!isContributor(event.model)) return
+        if (!needsRedaction(event.model)) return
         scrub(event.system)
         scrub(event.messages)
       })
