@@ -93,7 +93,7 @@ A subagent's claim clears none of these (rule 9).
 A `## Run log` section after the plan's body, written by the controller as things happen — it is
 in the file, so it survives a context summary. It holds:
 
-- a header per run: the date, the starting commit per repo, and the run base (`DISPATCH.md`);
+- a header per run: the date, the `tiers:` line (`SKILL.md` §2), the starting commits, the run base;
 - every ruling, `R<n> · <row id> · <what> — <why> — <cost if wrong>`;
 - every commit the run makes — dispatched row, commit row, close-out or fix wave — as
   `commit: <short sha> <subject>`, in the Run log edit right after that commit;

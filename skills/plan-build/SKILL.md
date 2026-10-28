@@ -37,6 +37,9 @@ Re-read these, `RULES.md`, the Progress table and the Run log after any context 
 4. Stop only for `STOPS.md`. Every other judgement is a ruling, logged, and the run goes on.
 5. One question, after close-out — bar `STOPS.md`'s asked-alone set, each asked on its own, and its safety
    halts, which end the run.
+6. Dispatch on the tiers this run's `tiers.sh` printed (§2), `model` set on every dispatch, and log
+   each dispatched row's models: `<row id> · implementer <model> · reviewer <model>`, one line per
+   pass. A tier recalled from memory or copied from an earlier run's Run log is a defect.
 
 ## 0. Mode
 
@@ -60,7 +63,7 @@ Read the whole file. The body is where the steps are actually specified.
 
 ## 2. Pre-flight
 
-All four, before any work:
+All five, before any work:
 
 | Check | On failure |
 | --- | --- |
@@ -68,6 +71,13 @@ All four, before any work:
 | Every row is `⬜` (or `⏭️`), bar author-parked `⛔` rows | It is a resume — say so, point at `/plan-continue`, offer once to proceed anyway |
 | No concurrent session | Report what you found and stop |
 | Repository scope known | Proceed; *no repo* is a state, not a failure |
+| Tiers resolve | Report `tiers.sh`'s error and stop — never fall back to `inherit` |
+
+**Tiers**: run `bash ${CLAUDE_SKILL_DIR}/../plan-shared/scripts/tiers.sh <host>` — `opencode`, `codex`,
+`cursor`, `claude-code`, or `other` for any host the table does not name — now, and again after any
+context summary. It reads `CONVENTIONS.md`'s table from disk; put its one-line output in the run's
+Run log header verbatim. That line, not an earlier read of the table and not a previous run's header,
+is what every dispatch in this run uses.
 
 **Concurrency** (`shared-state-between-agents.md`), in every repo in scope: `git status --short` for
 work that is not yours, and `.git/CHERRY_PICK_HEAD`, `.git/MERGE_HEAD`, `.git/rebase-merge` for a
@@ -125,6 +135,7 @@ Report shape — follow it, so two runs on the same plan are comparable:
 /plan-build --dry-run · <plan file>
 Verdict:  would run from row <n>   |   REFUSED — <why>
 Pre-flight: table <pass/fail> · all-⬜ <pass/fail> · concurrency <pass/no repo> · scope <…>
+Tiers:    <tiers.sh's line, or its error>   (the floor's per-tier counts below use these models)
 Parked:   row <n> <step-id> — already parked by the author: <its Notes>
 Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
            (dependents are not listed; they park at execution under rule 2)

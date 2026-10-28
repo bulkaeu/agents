@@ -7,7 +7,7 @@
 #   bash check-plan-skills.sh --root <dir>    check a copy of the repo at <dir>
 #
 # Prints `FAIL [Kn] file:line — message` per failure and exits 1 on any; prints
-# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K19 (see README).
+# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K20 (see README).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -256,6 +256,13 @@ for f in "${FILES[@]}"; do
     { l = $0; gsub(/[\200-\277]/, "", l)
       if (length(l) > 110) printf "FAIL [K19] %s:%d — line is %d characters, over 110\n", f, NR, length(l) }' "$f"
 done | record
+
+# K20 — the tier table resolves for every host it names, so a run's pre-flight cannot fail on it
+checks=$((checks + 1))
+for host in claude-code cursor codex opencode; do
+  out="$(bash skills/plan-shared/scripts/tiers.sh "$host" 2>&1)" \
+    || fail K20 "skills/plan-shared/CONVENTIONS.md:1" "tiers.sh $host: $out"
+done
 
 fails="$(grep -c '^FAIL' "$REPORT")"
 if (( fails > 0 )); then

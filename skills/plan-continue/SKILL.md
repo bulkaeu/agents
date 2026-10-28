@@ -30,6 +30,9 @@ Re-read these, `RULES.md`, the Progress table and the Run log after any context 
    no code on it (`DISPATCH.md`).
 4. Only the controller writes the table, the Run log and commits.
 5. Stop only for `STOPS.md`; every other judgement is a logged ruling. One question, after close-out.
+6. Resolve the tiers afresh for this run (§2) and dispatch on them, `model` set on every dispatch,
+   logging each dispatched row's models: `<row id> · implementer <model> · reviewer <model>`. An
+   earlier run's `tiers:` line, or its "inherit" note, records that run; it never carries over.
 
 ## Files this skill uses
 
@@ -60,8 +63,10 @@ stops rather than picking one; two or more plausible at any rung → list with m
 
 ## 2. Repository scope
 
-Before reconciling, run `plan-build`'s repository-scope and concurrency checks (its `SKILL.md` §2):
-another session's dirty tree or leftover sequencer means stop and report, not clean up. A dirty path
+Before reconciling, run `plan-build`'s repository-scope, concurrency and tiers checks (its `SKILL.md`
+§2): another session's dirty tree or leftover sequencer means stop and report, not clean up, and a
+`tiers.sh` error means stop. Its output opens this run's Run log header, even when an earlier header
+already has one. A dirty path
 is this run's own only if it is the plan file, an own path of the in-flight `🟡` row, or an own path
 of a closed (`✅`) row that no commit on a Run log `commit:` line holds yet (a crash before the plan's
 commit row) — as `plan-build/EXECUTION.md` defines own paths, read from those rows' saved reports in
