@@ -152,8 +152,8 @@ a run uses its output (`plan-build` §2), never this table from memory.
   step's reviewer.
 - **On OpenCode, pass `model` on every `subagent` call** — the id `tiers.sh opencode` printed, any
   `DISPATCH.md` §3 effort aside; a call without it runs on the controller's model and is a defect. A
-  strong or strongest dispatch that errors, replies with no report or verdict, or names an id missing
-  from the host's list is re-dispatched once on its Opus fallback; a missing standard id means `inherit`.
+  dispatch that errors, replies with no report or verdict, or names an id missing from the host's list
+  moves up — standard to strong, strong or strongest to its Opus fallback — logged; never to `inherit`.
 - **On any other host** than these four, dispatch with `inherit` for every tier, logged once per
   run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
