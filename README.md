@@ -102,8 +102,11 @@ local Ollama model; strong and strongest on Meta's Muse Spark 1.3 Contributor vi
 back to Claude Opus if that call fails. Contributor-tier and free models may train on what they see, so the
 `opencode/plugins/contributor-redact/` plugin strips secrets and infrastructure identifiers from requests to
 them (ids with `-contributor` or `-free`/`:free`, `big-pickle`, and the OpenRouter routers `auto`, `fusion`,
-`pareto-code` and `bodybuilder`). `install.sh` links it into `~/.config/opencode/plugins/`, so the
-redaction rules OpenCode runs are whatever this checkout has — and
+`pareto-code` and `bodybuilder`). The `opencode/plugins/plan-dispatch-guard/` plugin holds plan runs to
+their tiers: once a session loads `plan-add`, `-build`, `-continue`, `-review` or `-finish`, every
+`subagent` call in it must name a model `tiers.sh opencode` prints, or it is refused before it starts,
+and the model sees `model` as required (OpenCode's own schema says never to set it). `install.sh` links
+both into `~/.config/opencode/plugins/`, so what OpenCode runs is whatever this checkout has — and
 the rest is in [`CONVENTIONS.md` § On OpenCode](skills/plan-shared/CONVENTIONS.md#on-opencode).
 
 Twenty-one vendored third-party skills are linked beside these and are not listed above;
