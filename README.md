@@ -97,9 +97,9 @@ file. Claude Code mechanisms the skills name map to Codex equivalents, or have n
 **Plan skills on OpenCode.** OpenCode reads skills from `~/.claude/skills` and `~/.agents/skills`, both of
 which `install.sh` links every skill into, so the `plan-*` family reaches it with no extra step. Start one
 with an `@` mention (`@plan-build`). OpenCode honours `disable-model-invocation`: the flag hides a `plan-*`
-skill from the model's list and it still loads by explicit ID, so no gate file is needed. Standard runs on a
-local Ollama model; strong and strongest on Meta's Muse Spark 1.3 Contributor via OpenRouter, each falling
-back to Claude Opus if that call fails. Contributor-tier and free models may train on what they see, so the
+skill from the model's list and it still loads by explicit ID, so no gate file is needed. Every tier runs on Meta's
+Muse Spark 1.3 Contributor via OpenRouter — standard at medium effort, strong at high, strongest at max —
+strong and strongest falling back to Claude Opus if that call fails. Contributor-tier and free models may train on what they see, so the
 `opencode/plugins/contributor-redact/` plugin strips secrets and infrastructure identifiers from requests to
 them (ids with `-contributor` or `-free`/`:free`, `big-pickle`, and the OpenRouter routers `auto`, `fusion`,
 `pareto-code` and `bodybuilder`). The `opencode/plugins/plan-dispatch-guard/` plugin holds plan runs to
