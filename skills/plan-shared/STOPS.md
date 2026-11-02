@@ -23,7 +23,7 @@ the user the time these skills exist to save.
 | **Publishing to a live surface** — a package registry, a public site, a shared channel | The audience cannot be un-notified |
 | **Sending** — an email, a chat message, a notification, a webhook to someone else's system | Same; a sent message cannot be recalled |
 | **A push whose row is parked** — the plan's push row is `⛔`, or depends on a `⛔` row | The plan held that push back on purpose. This stop binds the close-out too: "push to the existing upstream" does not override it |
-| **A foreign path** in a dispatched row's diff — in its `paths-<n>.txt`, in no report's **Changed** (`plan-build/EXECUTION.md`) | Likely a peer's work: never restored, removed or committed. **Halts the run** |
+| **A foreign path** in a dispatched row's diff — in its `paths-<n>.txt`, in no report's **Changed** (`plan-build/EXECUTION.md`) | Likely a peer's work: never restored, removed or committed. **Halts the run**. A path in `outside-<n>.txt`, beyond the row's `--path` scope in a shared checkout, is left alone the same way but does not halt |
 | **No usable report** from a dispatched row — a crash, or no **Changed** | Its own paths are unknown, so nothing in the tree is safe to restore. **Halts the run** |
 | A row's `diff` exits 3 because its base is **not an ancestor** of `HEAD` | History moved under the run and no paths file exists. **Halts the run** |
 | **A commit in `@{u}..HEAD`** that the Run log does not record and the user did not name | Pushing would publish someone else's commit. Stops the push |

@@ -21,7 +21,8 @@ write your code, will review it, and it is told not to take your word for anythi
 
 ## What you may do
 
-- Create and edit files inside the repositories the brief names, other than the plan file.
+- Create and edit files inside the repositories the brief names, other than the plan file — and,
+  where its **Scope** lists files or directories for a repository, only those there.
 - Read anything you need.
 - Run local checks: tests, linters, type checks, a script's own dry-run mode.
 

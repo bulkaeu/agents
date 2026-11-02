@@ -234,7 +234,8 @@ and restart Codex.
   links, time-sensitive wording, the severity scale, `RULES.md`'s pinned headings, the dispatch
   prompts' status tokens and placeholders, the standing orders, that key safety wording is still
   present, and that no non-table line passes 110 characters, then runs `sanitize-check.sh`.
-  `--root <dir>` points it at a copy of the repo.
+  `--root <dir>` points it at a copy of the repo. After touching `plan-build/scripts/row-snapshot.sh`,
+  also run `bash skills/plan-build/scripts/test-row-snapshot.sh`, which works in throwaway repos.
 - **Bundle a skill's helper scripts inside that skill** and resolve their paths at runtime. A
   hardcoded install path breaks the moment someone clones this somewhere else.
 - **Rules stay short — most under ~50 lines.** A rule governing a recurring artifact (the Progress
