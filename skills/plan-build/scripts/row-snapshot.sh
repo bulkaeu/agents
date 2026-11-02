@@ -4,7 +4,7 @@
 #
 #   row-snapshot.sh dir  <plan.md>
 #   row-snapshot.sh base <plan.md> <row-id> [--repo <dir>]...
-#   row-snapshot.sh diff <plan.md> <row-id> [<ref>] [--repo <dir>]...
+#   row-snapshot.sh diff <plan.md> <row-id> [<ref>] [--repo <dir>]... [--path <path>]...
 #
 # dir   Print the run directory, creating nothing: base and diff create what they write. It is the
 #       existing directory a `run dir: <path>` line in the plan's Run log names (a leading `~/`
@@ -32,8 +32,13 @@
 #       `plan file only`, or `no changes since base`.
 #       Also writes paths-<n>.txt beside the patch, same <n>: one absolute path per line, sorted,
 #       for every file in the diff, taken before any truncation; base copies by their real path.
+#       With --path, the diff and paths-<n>.txt hold only files at or under a --path, and
+#       outside-<n>.txt lists, the same way, every other file changed since base: in a checkout
+#       other sessions share, theirs. It is written, possibly empty, whenever --path is given.
 #
 # --repo  a repository in scope; repeatable. Default: the cwd's repository.
+# --path  a file or directory the row may write; repeatable, made absolute from the cwd. A repo
+#         with no --path inside it is scoped to its whole tree, as with no --path at all.
 # The plan file itself is excluded from every diff. A diff over ROW_SNAPSHOT_MAX_LINES (default
 # 4000) lines is truncated with a note. Exit 0 on success, 2 on a usage error, 3 when a base cannot
 # be recorded (mid-rebase, no commits) or used (not an ancestor of HEAD), or when no repo is
@@ -41,7 +46,7 @@
 # remote default branch to take a merge-base with: pass a ref.
 set -euo pipefail
 
-usage() { sed -n '3,41p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '3,46p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 die() { echo "row-snapshot: $2" >&2; exit "$1"; }
 
 [[ $# -ge 2 ]] || usage
@@ -70,7 +75,17 @@ if [[ -z "$run_dir" ]]; then
 fi
 max_lines="${ROW_SNAPSHOT_MAX_LINES:-4000}"
 
-row="" ref="" repos=()
+# A path made absolute and symlink-resolved like a toplevel; it need not exist yet.
+abs_of() { # <path>
+  local p="$1" rest=""
+  [[ "$p" == /* ]] || p="$PWD/$p"
+  while [[ "$p" == */ && "$p" != / ]]; do p="${p%/}"; done
+  while [[ ! -d "$p" ]]; do rest="/$(basename "$p")$rest"; p="$(dirname "$p")"; done
+  p="$(cd "$p" && pwd -P)"
+  printf '%s%s' "${p%/}" "$rest"
+}
+
+row="" ref="" repos=() scope=()
 case "$cmd" in
   dir) ;;
   base|diff)
@@ -81,6 +96,7 @@ case "$cmd" in
     while [[ $# -gt 0 ]]; do
       case "$1" in
         --repo) [[ $# -ge 2 ]] || usage; repos+=("$2"); shift 2 ;;
+        --path) [[ $# -ge 2 && "$cmd" == diff ]] || usage; scope+=("$(abs_of "$2")"); shift 2 ;;
         *) usage ;;
       esac
     done ;;
@@ -163,20 +179,44 @@ repo_status() { # <toplevel> <sha> <key> <section file>
   echo 'no changes since base'
 }
 
-# Diff one repo against <sha>. <key> names its base copies; empty means none recorded.
-# Appends each diffed file's absolute path to $out.paths.
+# The --path entries that scope <toplevel>, into $rscope: its whole tree when none lies inside it.
+set_rscope() { # <toplevel>
+  local s
+  rscope=()
+  for s in ${scope[@]+"${scope[@]}"}; do
+    if [[ "$s" == "$1" || "$1" == "$s"/* ]]; then rscope=("$1"); return; fi
+    [[ "$s" == "$1"/* ]] && rscope+=("$s")
+  done
+  [[ ${#rscope[@]} -gt 0 ]] || rscope=("$1")
+}
+
+# List <toplevel>/<file> in $out.paths when $rscope holds it, else in $out.outside, and fail.
+record_path() { # <toplevel> <relative path>
+  local p="$1/$2" s
+  for s in "${rscope[@]}"; do
+    if [[ "$p" == "$s" || "$p" == "$s"/* ]]; then printf '%s\n' "$p" >>"$out.paths"; return 0; fi
+  done
+  printf '%s\n' "$p" >>"$out.outside"
+  return 1
+}
+
+# Diff one repo against <sha>, within $rscope. <key> names its base copies; empty means none
+# recorded. Lists each changed file via record_path; only the ones in scope are diffed.
 diff_repo() { # <toplevel> <sha> <key> <label>
-  local top="$1" sha="$2" key="$3" label="$4" skip f copy_root copy_esc xa xb
-  local excl=()
+  local top="$1" sha="$2" key="$3" label="$4" skip f s copy_root copy_esc xa xb
+  local excl=() specs=()
   skip="$(plan_in "$top")"
   [[ -n "$skip" ]] && excl+=(":(exclude)$skip")
+  for s in "${rscope[@]}"; do
+    if [[ "$s" == "$top" ]]; then specs+=(.); else specs+=(":(literal)${s#"$top"/}"); fi
+  done
   echo "=== repo: $top · against $label"
   if [[ -n "$key" && -f "$row_dir/untracked-$key.list" ]]; then
     while IFS= read -r -d '' f; do excl+=(":(exclude)$f"); done <"$row_dir/untracked-$key.list"
   fi
-  git -C "$top" diff --no-color "$sha" -- . ${excl[@]+"${excl[@]}"}
+  git -C "$top" diff --no-color "$sha" -- "${specs[@]}" ${excl[@]+"${excl[@]}"}
   git -C "$top" diff --no-renames --name-only -z "$sha" -- . ${excl[@]+"${excl[@]}"} \
-    | while IFS= read -r -d '' f; do printf '%s/%s\n' "$top" "$f"; done >>"$out.paths"
+    | while IFS= read -r -d '' f; do record_path "$top" "$f" || true; done
   # Files untracked at base: diff each against its copy, labelled as the base.
   if [[ -n "$key" && -f "$row_dir/untracked-$key.list" ]]; then
     copy_root="$row_dir/untracked/$key"
@@ -187,10 +227,10 @@ diff_repo() { # <toplevel> <sha> <key> <label>
         xa=0 xb=0; [[ -x "$copy_root/$f" ]] && xa=1; [[ -x "$top/$f" ]] && xb=1
         # unchanged content and exec bit (all git records of a mode): skip the git spawn
         cmp -s "$copy_root/$f" "$top/$f" && (( xa == xb )) && continue
-        printf '%s/%s\n' "$top" "$f" >>"$out.paths"
+        record_path "$top" "$f" || continue
         (cd "$top" && git diff --no-index --no-color "$copy_root/$f" "$f") || true
       else
-        printf '%s/%s\n' "$top" "$f" >>"$out.paths"
+        record_path "$top" "$f" || continue
         (cd "$top" && git diff --no-index --no-color "$copy_root/$f" /dev/null) || true
       fi
     done <"$row_dir/untracked-$key.list" | sed "s/$copy_esc/\/(base)/g"
@@ -203,7 +243,7 @@ diff_repo() { # <toplevel> <sha> <key> <label>
   LC_ALL=C comm -23 <(printf '%s\n' "$now") <(LC_ALL=C tr '\0' '\n' <"$base_list" | LC_ALL=C sort) \
     | while IFS= read -r f; do
       [[ -z "$f" || "$f" == "$skip" ]] && continue
-      printf '%s/%s\n' "$top" "$f" >>"$out.paths"
+      record_path "$top" "$f" || continue
       (cd "$top" && git diff --no-index --no-color /dev/null "$f") || true
     done
 }
@@ -252,8 +292,8 @@ fi
 mkdir -p "$row_dir"
 n=1; while [[ -e "$row_dir/diff-$n.patch" ]]; do n=$((n + 1)); done
 out="$row_dir/diff-$n.patch"
-trap 'rm -f "$out.full" "$out.sec" "$out.paths"' EXIT   # check_base can exit 3 part-way through the write below
-: >"$out.paths"
+trap 'rm -f "$out.full" "$out.sec" "$out.paths" "$out.outside"' EXIT   # check_base can exit 3 part-way through the write below
+: >"$out.paths"; : >"$out.outside"
 {
   for r in "${repos[@]}"; do
     top="$(toplevel "$r")" key=""
@@ -276,6 +316,7 @@ trap 'rm -f "$out.full" "$out.sec" "$out.paths"' EXIT   # check_base can exit 3 
       sha="$(git -C "$top" rev-parse HEAD)"
       label="HEAD ${sha:0:12} — no recorded base; every untracked file counts as new"
     fi
+    set_rscope "$top"
     diff_repo "$top" "$sha" "$key" "$label" >"$out.sec"
     status="$(repo_status "$top" "$sha" "$key" "$out.sec")"
     printf '%s · %s\n' "$(head -n 1 "$out.sec")" "$status"   # the `=== repo:` header, with status
@@ -287,6 +328,10 @@ trap 'rm -f "$out.full" "$out.sec" "$out.paths"' EXIT   # check_base can exit 3 
 grep -q '^diff --git' "$out.full" \
   || die 3 "no repository changed since its base (wrong branch or checkout?) — park the row"
 LC_ALL=C sort -u "$out.paths" >"$row_dir/paths-$n.txt"   # from the untruncated diff
+if [[ ${#scope[@]} -gt 0 ]]; then
+  LC_ALL=C sort -u "$out.outside" >"$row_dir/outside-$n.txt"
+  echo "row-snapshot: $(wc -l <"$row_dir/outside-$n.txt" | tr -d ' ') changed outside --path: $row_dir/outside-$n.txt" >&2
+fi
 total="$(wc -l <"$out.full" | tr -d ' ')"
 if (( total > max_lines )); then
   head -n "$max_lines" "$out.full" >"$out"

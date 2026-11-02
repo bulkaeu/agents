@@ -34,15 +34,17 @@ Rows run in **table order**. For each:
 A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it get
 `⛔` *"depends on N"* — then the loop **continues** with the rest (rule 2), bar one: no usable report.
 
-**A dispatched row acts only on its own paths**: the union of **Changed** in every `report-<n>.md` it has,
-all rounds, symlinks resolved as in `paths-<n>.txt` (`/tmp` is `/private/tmp` on macOS). A **foreign path**,
-in the latest `paths-<n>.txt` but not own, is never restored, removed or committed: it **stops the run** —
-print them and `git status --short`, wait for the user (likely a peer). **No usable report** (a crash, or no
+**A dispatched row acts only on its own paths**: the union of **Changed** in every `report-<n>.md` it has, all
+rounds, symlinks resolved as in `paths-<n>.txt` (`/tmp` is `/private/tmp` on macOS). A **foreign path**, in
+the latest `paths-<n>.txt` but not own, is never restored, removed or committed: it **stops the run** — print
+them and `git status --short`, wait for the user (likely a peer). `outside-<n>.txt` lists changes beyond the
+row's `--path` scope (`DISPATCH.md` §6) in a shared checkout: other sessions' work, left alone too, but no
+stop. An own path there wrote outside the brief: park the row. **No usable report** (a crash, or no
 **Changed**) hides own paths: park the row, leave the tree, stop the run with the diff's path list.
 
-**A dispatched row that parks leaves no edits behind.** Before the next row, the controller restores
-the own paths in its last diff (or a fresh `diff`, if it parked before one) to the row's base: tracked
-files from the base sha, files untracked at base from `rows/<row id>/untracked/`, files the row
+**A dispatched row that parks leaves no edits behind.** Before the next row, the controller restores the own
+paths in its last diff and `outside-<n>.txt` (or a fresh `diff`, if it parked before one) to the row's base:
+tracked files from the base sha, files untracked at base from `rows/<row id>/untracked/`, files the row
 created removed. It says so in the row's Notes; the diff stays in the run directory as the record.
 
 **Scope changes go in the table as they happen.** A step you discover is needed becomes a row where
@@ -59,8 +61,7 @@ and a reason; silent omission and a recorded skip look identical now and differe
   plan itself. An implementer builds it and a separate reviewer checks it (rule 11).
 - **Inline** everything else — bookkeeping the controller does itself: table and Run log edits, git
   operations, running checks, hand-offs, and scratch fixtures outside those repositories.
-- **Unsure** means dispatch. An unreviewed code change is the failure; a reviewed one-line edit only
-  costs a little time.
+- **Unsure** means dispatch: an unreviewed code change is the failure, a reviewed one-liner costs little.
 
 ## The verification gate
 
@@ -73,8 +74,7 @@ Before any `✅`, fresh in the same turn as the tick:
   `../plan-shared/scripts/table-claims.sh` checks all three across the repos in scope, run with
   the run directory (`row-snapshot.sh dir <plan>` prints it) also passed as a `--root`, so the
   review token's `rows/<row id>/review-<n>.md` path resolves;
-- for a dispatched row, a saved review with `Verdict: PASS` and nothing at Medium or above left
-  open (`DISPATCH.md` §7).
+- for a dispatched row, a saved `Verdict: PASS` review, nothing at Medium or above open (`DISPATCH.md` §7).
 
 A subagent's claim clears none of these (rule 9).
 

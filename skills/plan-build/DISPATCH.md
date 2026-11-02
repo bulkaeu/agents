@@ -20,9 +20,7 @@ the base, then per pass `<n>` `brief-<n>.md`, `report-<n>.md`, `diff-<n>.patch`,
 `checks-<n>.txt`, `review-<n>.md` — pass 1 the first attempt, each fix round adding one. The script numbers
 the diffs; number the rest to match. All of it lives outside every repository, so none can reach a commit.
 
-## 1. Base — once per repository in scope
-
-Before the implementer starts:
+## 1. Base — once per repository in scope, before the implementer starts
 
 ```bash
 bash scripts/row-snapshot.sh base <plan> <row id> --repo <repo> [--repo <repo>]...
@@ -43,7 +41,8 @@ Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphr
 - **Row** — its id and step text, verbatim, and its done-state.
 - **Specification** — the body section or sections backing the row, found by name, not position.
 - **Interfaces** — what the row consumes from earlier rows and what later rows need from it.
-- **Scope** — the repositories it may change, and the plan file's path, which it may not.
+- **Scope** — the repositories it may change, and the plan file's path, which it may not. In a checkout
+  other sessions share, also the files or directories it may write there: §6's `--path`.
 - **Constraints** — the plan's global constraints, every project rule the work must obey, and the
   row's check commands, its runner's process name and its time limit, where the plan gives them —
   each slow check (`RULES.md` rule 7) wrapped with its own record `<rec>` =
@@ -107,13 +106,14 @@ with `none`. Add nothing: no hints, no expected answers, no pre-judged findings.
 ## 6. Review
 
 ```bash
-bash scripts/row-snapshot.sh diff <plan> <row id> --repo <repo>...
+bash scripts/row-snapshot.sh diff <plan> <row id> --repo <repo>... [--path <path>]...
 ```
 
-`diff` can exit 3 too: a recorded base is not an ancestor of `HEAD`, or no repository's status is `changed`.
-A repository the report lists under Changed but `no changes since base` counts as exit 3. Either takes
-§1's remedy: park the row with the exit's reason. Not an ancestor writes no paths file: leave the tree,
-stop the run, print the reports' **Changed** union and `git status --short` (as for no usable report).
+`diff` can exit 3 too: a recorded base is not an ancestor of `HEAD`, or no repository's status is `changed`. A
+repository the report lists under Changed but `no changes since base` counts as exit 3. Either takes §1's
+remedy: park the row with the exit's reason. Not an ancestor writes no paths file: leave the tree, stop the
+run, print the reports' **Changed** union and `git status --short` (as for no usable report). Pass the brief's
+**Scope** paths as `--path` (every row's for the final review); `outside-<n>.txt` gets the rest.
 
 Before dispatching the reviewer, account for every check: the done-state command and each one the
 brief names. Cite a slow check `k` whose `impl-checks-<n>-<k>.txt` `check-run.sh current` accepts,
