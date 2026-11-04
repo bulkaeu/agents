@@ -41,6 +41,20 @@ The full procedure — check suite, commit state, docs drift, and cleanup of mer
 worktrees and temp files — is the **`/plan-finish`** skill. Its per-ecosystem command tables live in
 `skills/plan-finish/CHECKLIST.md`.
 
+## Shared local installations
+
+Keep model weights and engine installations outside project repositories and worktrees. Reuse
+compatible shared installations and supported tool caches; keep installer-managed apps intact.
+Keep project source, generated media, licensed assets and engine import/build caches with their
+owning project. Separate immutable weights from Python environments with incompatible dependencies.
+Never use a temporary job directory or per-worktree download as the sole model store.
+
+Whoever changes an installation updates its inventory, affected project guides/instructions and
+operational references in active plans in the same change. Preserve source/revision, format,
+companions, hashes and licence records, plus exact rollback settings; preserve historical receipts
+and add a current-home mapping. Coordinate active jobs before changes and retain the working route
+until the replacement passes offline checks. These rules do not authorize installs or removal.
+
 ## Plans
 
 Every plan opens with a plain-language `## Summary` and a `## Progress` table of atomic steps;
