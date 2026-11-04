@@ -45,11 +45,15 @@ worktrees and temp files — is the **`/plan-finish`** skill. Its per-ecosystem 
 
 Keep model weights and engine installations outside project repositories and worktrees. Reuse
 compatible shared installations and supported tool caches; keep installer-managed apps intact.
-Keep project source, generated media, licensed assets and engine import/build caches with their
-owning project. Separate immutable weights from Python environments with incompatible dependencies.
+Keep project-authored source, mutable edits, prompts, generated media and engine metadata/import/build
+caches with their owning project. Reuse licence-permitted, entitled downloaded asset originals in
+an immutable shared asset library with source pins, licences and attribution; preserve restricted
+or unresolved content in its supported home pending a terms review. Tracked project art and media
+snapshots need an explicit ownership decision before relocation. Separate immutable weights from
+Python environments with incompatible dependencies.
 Never use a temporary job directory or per-worktree download as the sole model store.
 
-Whoever changes an installation updates its inventory, affected project guides/instructions and
+Whoever changes an installation or shared asset storage updates its inventory, affected project guides/instructions and
 operational references in active plans in the same change. Preserve source/revision, format,
 companions, hashes and licence records, plus exact rollback settings; preserve historical receipts
 and add a current-home mapping. Coordinate active jobs before changes and retain the working route
