@@ -150,12 +150,13 @@ or moved is meant to be absent. A claimed sha or path really absent is drift.
 ### The ticket is a doc too
 
 If the plan carries a `**Ticket:**` line with an identifier, read that issue from the tracker in the
-same turn as the report — never an earlier read, the conversation or memory, which go stale — and compare:
+same turn as the report — never an earlier read, the conversation or memory, which go stale — and compare.
+A merged pull request closes its ticket by itself: say so when it did.
 
 | Plan says | Ticket says | Finding |
 | --- | --- | --- |
 | every row `✅` | still open / In Progress | Drift — the work is done and the tracker does not know |
-| rows still `⬜`/`🟡` | closed | Drift the other way — closed early, or the plan is stale. A merged pull request closes its ticket by itself: say so when it did |
+| rows still `⬜`/`🟡` | closed | Drift the other way — closed early, or the plan is stale |
 | plan has a `## Summary` — **any row state** | description no longer matches the Summary | Drift — the plan's story moved and the tracker still tells the old one; mid-flight drift is the worst kind, since it stands for the rest of the run. **Report-only**: propose the description update; applying it follows `plan-ticket-tracking.md`'s sync line |
 | `**Ticket:** none` | — | Nothing to check |
 | no `**Ticket:**` line | — | Predates the rule. Note it; do not retro-file |
@@ -165,24 +166,8 @@ same turn as the report — never an earlier read, the conversation or memory, w
 
 ## Area 6 — Cleanup
 
-```bash
-git branch --merged | grep -vE '^\*|^[ +] (main|master|develop)$'   # candidates only
-git worktree list --porcelain
-git worktree prune --dry-run
-find . \( -name '*.orig' -o -name '*.rej' \) -not -path './.git/*'
-```
-
-Plus scratch the plan itself names — throwaway scripts, dumps, fixture files — and anything left in
-the session scratchpad that was meant to be temporary.
-
-**Candidates, not conclusions.** `--merged` lists branches merged into the *current* branch, not the default
-branch or upstream. Verify before proposing a deletion; never propose deleting an unmerged branch.
-
-Worktrees come out before the branches they hold:
-
-```bash
-git worktree remove <path>     # then the branch, separately confirmed
-```
+The footprint audit — measure, classify, only-copy check, docs re-check, report — is
+[CLEANUP.md](CLEANUP.md).
 
 ## Report — evidence per area
 
