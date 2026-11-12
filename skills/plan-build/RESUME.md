@@ -1,6 +1,7 @@
 # Resuming a started plan — reconcile, then resume
 
-Read this when the plan has already started: any row is past `⬜`. A run that crashed, or a session
+Read this when the plan has already started: any row is `🟡` or `✅`, or a `⛔` row's Notes record
+a run's blocker — an author-parked `⛔` or a `⏭️` does not count. A run that crashed, or a session
 that wandered off, leaves a table saying one thing and a repository saying another. **Resuming from a
 table that lies re-does finished work or skips unfinished work**, and both look like progress at the
 time. So a resumed run earns its keep before it executes a single step: it makes the table true

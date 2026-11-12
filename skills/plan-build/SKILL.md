@@ -1,21 +1,24 @@
 ---
 name: plan-build
 description: >-
-  Runs a plan that has not started, from its first step to its last, without
-  stopping for ordinary work — leaving plan mode first, handing each code step
-  to a fresh subagent and having a second one review it, ticking each Progress
-  row as it goes, parking anything gated and asking about the whole parked set
-  once at the end. Offers --dry-run to rehearse. Use when the user invokes
-  /plan-build or asks to build, execute, implement or run a plan end to end.
+  Runs a plan from its first open step to its last without stopping for
+  ordinary work, and for a plan already started reconciles its Progress table
+  against the repositories first — leaving plan mode, handing each code step
+  to a fresh subagent and having a second one review it, ticking each row as
+  it goes, parking anything gated and asking about the whole parked set once
+  at the end. Offers --dry-run to rehearse. Use when the user invokes
+  /plan-build or asks to build, execute, implement, run, continue, resume or
+  pick up a plan.
 disable-model-invocation: true
 argument-hint: "[optional plan path] [--dry-run]"
 ---
 
-# Plan build — run a fresh plan end to end
+# Plan build — start or resume a plan
 
 A plan that has been approved and then executed one permission prompt at a time was not worth
-approving. This skill takes a plan whose steps are all still waiting and works it to the last row,
-stopping only where stopping is the correct answer.
+approving. This skill takes a plan, fresh or part-way through, and works it to the last row,
+stopping only where stopping is the correct answer. A started plan (§2) is reconciled first, per
+[RESUME.md](RESUME.md).
 
 Read [RULES.md](RULES.md) and [the stop-list](../plan-shared/STOPS.md) now — together they are the
 safety surface, and this file assumes both. The loop and the close-out are
@@ -23,21 +26,19 @@ safety surface, and this file assumes both. The loop and the close-out are
 with its two prompts beside it; shared terms and the plan ladder are
 [CONVENTIONS.md](../plan-shared/CONVENTIONS.md).
 
-**For a plan already part-way through, this is the wrong skill.** Use `/plan-continue`, which
-reconciles the table against reality before resuming.
-
 ## Standing orders
 
 Re-read these, `RULES.md`, the Progress table and the Run log after any context summary.
 
-1. The table and the Run log are the ledger. Never re-dispatch a `✅` row.
-2. A code row is built by an implementer and checked by a separate reviewer; the controller writes
+1. Make the table true before running anything, and name every correction.
+2. The table and the Run log are the ledger. Never re-dispatch a `✅` row.
+3. A code row is built by an implementer and checked by a separate reviewer; the controller writes
    no code on it (`DISPATCH.md`).
-3. Only the controller writes the table, the Run log and commits.
-4. Stop only for `STOPS.md`. Every other judgement is a ruling, logged, and the run goes on.
-5. One question, after close-out — bar `STOPS.md`'s asked-alone set, each asked on its own, and its safety
+4. Only the controller writes the table, the Run log and commits.
+5. Stop only for `STOPS.md`. Every other judgement is a ruling, logged, and the run goes on.
+6. One question, after close-out — bar `STOPS.md`'s asked-alone set, each asked on its own, and its safety
    halts, which end the run.
-6. Dispatch on the tiers this run's `tiers.sh` printed (§2), `model` set on every dispatch, and log
+7. Dispatch on the tiers this run's `tiers.sh` printed (§2), `model` set on every dispatch, and log
    each dispatched row's models: `<row id> · implementer <model> · reviewer <model>`, one line per
    pass. A tier recalled from memory or copied from an earlier run's Run log is a defect.
 
@@ -68,7 +69,7 @@ All five, before any work:
 | Check | On failure |
 | --- | --- |
 | A conforming `## Progress` table exists | Offer **once** to derive one from the body, then stop |
-| Every row is `⬜` (or `⏭️`), bar author-parked `⛔` rows | It is a resume — say so, point at `/plan-continue`, offer once to proceed anyway |
+| Started or not (below) | Never a failure: a started plan reads [RESUME.md](RESUME.md) and reconciles before the loop; an unstarted one goes straight to the loop |
 | No concurrent session | Report what you found and stop |
 | Repository scope known | Proceed; *no repo* is a state, not a failure |
 | Tiers resolve | Report `tiers.sh`'s error and stop — never fall back to `inherit` |
@@ -92,16 +93,17 @@ not an error**: the concurrency check reports *no repo* and passes.
 **On Codex**, pre-flight also prints a one-line reminder when the session's own model or effort
 differs from the `plan-run` profile (`CONVENTIONS.md`, *Model tiers*, Controller). It never stops.
 
-**Author-parked rows are not a resume.** A `⛔` the plan's author wrote before any run — the
-pending-ticket row `plan-ticket-tracking.md` requires is the usual one — passes this check. It is
-listed as already parked, and the run starts at the first `⬜`. A `⛔` whose Notes record a run's
-blocker, or any `🟡`/`✅`, is a resume.
+**Started** means any row is `🟡` or `✅`, or a `⛔` row's Notes record a run's blocker.
+Author-parked rows do not count: a `⛔` the plan's author wrote before any run — the pending-ticket
+row `plan-ticket-tracking.md` requires is the usual one — is listed as already parked, and an
+unstarted run starts at the first `⬜`.
 
-These two pre-flight offers are outside rule 1's one-question budget, which governs execution.
+The offer to derive a table is outside rule 1's one-question budget, which governs execution.
 
 ## 3. `--dry-run`
 
-Pre-flight only. Prints:
+Pre-flight only on an unstarted plan; on a started one, reconcile-and-report in
+[RESUME.md](RESUME.md)'s shape instead. An unstarted plan prints:
 
 - the **verdict** — would run from row *N*, or refuses because …;
 - the ***will park*** list — rows whose step text carries the explicit `BLOCKED` marker, printed on
@@ -120,9 +122,8 @@ State plainly, every time, that the other stop-list categories — deploys, migr
 judgement calls — are recognised at execution time from what a step actually does. **A clean
 dry-run is not clearance.**
 
-**A dry run makes no offers.** The pre-flight offers in section 2 — derive a table, proceed anyway
-on a part-done plan — are absent here: accepting either means executing, which a dry run cannot do.
-Report the refusal and stop.
+**A dry run makes no offers.** Section 2's offer to derive a table is absent here: accepting it
+means executing, which a dry run cannot do. Report the refusal and stop.
 
 *Cost.* A dispatched row costs at least 2 subagents, and up to 9 — one `NEEDS_CONTEXT` retry, then
 three fix rounds; the final review adds 1 to 3. Only code rows dispatch, each on `DISPATCH.md` §3's
@@ -184,8 +185,9 @@ question, with the exact deploy command, so a yes is one word.
 into a batch: `STOPS.md` puts both in the asked-alone set. With one other parked row, that is three
 questions — the migration, the deploy, and a batch of one.
 
-**`/plan-build` on a part-done table** — refuses, names the `✅` rows it found, points at
-`/plan-continue`, and offers once to proceed anyway. It does not silently re-run finished steps.
+**`/plan-build` on a part-done table** — is reconciled and resumed: each `✅` row checked against
+the repositories, every correction named, then the loop from the first open row. It does not
+silently re-run finished steps.
 
-**`--dry-run` on the same plan** — the refusal, the *will park* list, and the reminder that the list
-covers only the explicit markers. Nothing written.
+**`--dry-run` on the same plan** — the proposed corrections, the *will park* list, and the reminder
+that the list covers only the explicit markers. Nothing written.

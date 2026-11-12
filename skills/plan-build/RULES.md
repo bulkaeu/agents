@@ -18,8 +18,8 @@ set — **except the asked-alone set in `STOPS.md`**, each of which is asked on 
 exact command, **and the safety halts `STOPS.md` marks *Halts the run*** (a foreign path, no usable
 report, a base not an ancestor of `HEAD`), which stop the run at once and wait for the user.
 
-Pre-flight offers (derive a Progress table? proceed on a part-done plan?) sit outside this budget —
-they happen before execution starts.
+The pre-flight offer to derive a Progress table sits outside this budget — it happens before
+execution starts.
 
 ## 2. Park, don't halt
 
