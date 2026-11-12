@@ -2,7 +2,8 @@
 
 Read by `/plan-build` when the last row closes, starting or resuming — not before. It holds the final
 review, close-out, the single question and the report; the loop that leads here is
-[EXECUTION.md](EXECUTION.md). A run that ends at a hand-off row reads none of it.
+[EXECUTION.md](EXECUTION.md). A run that ends at a hand-off row reads none of it. Read
+[RULES.md](RULES.md) first — this file assumes it, and the rule numbers it cites are that file's.
 
 ## Contents
 
@@ -57,6 +58,22 @@ When rows parked, they are the news — lead with them, name the blocker, and gi
 so a yes is one word. When a check could not run, say which and why (rule 7). Then **Rulings I
 made**, one line each in the Run log's format — decisions taken on the user's behalf are theirs to
 see, even when every one of them was right.
+
+**Every report ends with one stats line**, so the user sees what the run cost without asking — one
+line in the report, wrapped here only to fit this file:
+
+```
+Run: <wall time> · helpers <n> (standard <a> · strong <b> · strongest <c>)
+  · first-pass reviews <passed>/<reviewed>
+```
+
+Compute it from the Run log and the saved reviews, not from memory. The wall time runs from the start
+time in this run's Run log header to now. Helpers counts every subagent the run dispatched —
+implementers, reviewers, fix rounds, the final review and its fix — by the tier each ran on, from the
+Run log's per-row model lines and step-up lines. First-pass reviews is, over the rows this run
+dispatched, how many have a `rows/<row id>/review-1.md` ending `Verdict: PASS`, out of how many were
+reviewed. A resumed run reports its own figures and, where earlier run headers exist in the Run log,
+adds the plan's total on the same line.
 
 An example table, icons omitted so this file never reads as live work:
 
