@@ -19,6 +19,7 @@ cat > "$tmp/plan.md" <<'EOF'
 | - | ---- | ----- |
 | 1 ✅ | `a` — step | `src/here.txt` and `src/gone.txt` |
 | 2 ✅ | `b` — step | `origin/main..HEAD`, `abc1234:refs/heads/x`, `@scope/pkg`, `owner/repo#12` |
+| 3 ✅ | `c` — step | `src/here.txt:3:7` and `../x/gone.txt` |
 EOF
 out="$(bash "$CLAIMS" "$tmp/plan.md" --root "$tmp")"
 fails=0 checks=0
@@ -28,7 +29,9 @@ has() { # <name> <text the output must contain>
 }
 has "a real path counts" "path src/here.txt ok"
 has "a missing path is reported" "path src/gone.txt MISSING"
-has "ranges, refspecs, scopes and references are skipped" "paths ok 1 missing 1"
+has "a line and column anchor is dropped" "3 ✅ · path src/here.txt ok"
+has "a climbing path is still a path" "path ../x/gone.txt MISSING"
+has "ranges, refspecs, scopes and references are skipped" "paths ok 2 missing 2"
 
 [[ $fails -eq 0 ]] || exit 1
 echo "ok — $checks checks"

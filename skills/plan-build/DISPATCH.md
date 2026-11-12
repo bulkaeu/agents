@@ -8,7 +8,7 @@ on those rows: code it wrote would skip the review that is the point of this fil
 
 - The run directory · 1 Base · 2 Brief · 3 Agents and models · 4 Filling a prompt · 5 Statuses
 - 6 Review · 7 Fix loop · 8 Rulings · 9 Record
-- The final review · Fallback
+- The final review
 
 ## The run directory
 
@@ -85,6 +85,8 @@ stalled fix loop still step it up, and the implementer still steps up. A row car
   `review-<n>.md` — only the controller writes files, and a paraphrased review is not a review.
 - Every dispatch is a **fresh** subagent. A re-review is a new reviewer handed the saved findings,
   never "the same reviewer" — subagents do not outlive their session.
+- **Fallback, a host without subagents:** the controller implements and reviews in-thread, with the
+  same brief and diff, and labels the row's Notes `review: same-agent`: weaker, and the label says so.
 
 ## 4. Filling a prompt
 
@@ -138,18 +140,19 @@ Record it like any other finding; list the stray files and ask, and remove them 
 confirmed, it stays open; refuted, it is dropped with a ruling.
 
 **Closing pass: Very Lows are fixed once, after the last review, with no re-review.** When a review
-leaves only Very Low findings, one fresh implementer gets them as `{findings}`; the controller then
-re-runs the row's checks and takes the diff as in §6, and ticks the row. A failed check, or a path
-outside the row's own, reopens the loop as a Medium finding. A Very Low that records a deliberate
-tradeoff stays, its reason in the row's Notes. **Nothing is logged as deferred**: every finding ends
-fixed, refuted or, for such a tradeoff, noted.
+leaves only Very Lows, the controller notes in the row's Notes any that records a deliberate tradeoff,
+with its reason, and gives the rest to one fresh implementer as `{findings}`, marked `closing pass`,
+on the last round's tier. It then re-runs the row's checks and takes the diff as in §6: a foreign path
+or an own path beyond the brief's scope is handled as in `EXECUTION.md`; a failed check opens a Medium
+finding for the next round, and with round 3 spent the row parks on it. The closing pass is not a round.
+**Nothing is logged as deferred.**
 
 A defect the controller confirms itself while reading the diff (`RULES.md` rule 9) is an **open
 finding**, handled exactly like a reviewer's CONFIRMED one: the controller records it with its
 evidence in the row's findings file, it goes to a fresh implementer in the next fix round, and only
 a fresh reviewer in `rereview` mode can report it ADDRESSED. **The controller never closes a finding
-itself** — confirming one only opens it; §8's override of the step's wording applies to it the same
-way, at Medium or above. Independence stays in the *finding* of defects and in the *closing* of them.
+itself**, bar §8's wording ruling — confirming one only opens it; §8's override of the step's wording
+applies to it the same way. Independence stays in the *finding* of defects and in the *closing* of them.
 
 Each round: a fresh implementer with `{findings}` = the latest review file; a new diff from the **original**
 base, so the whole row is shown with its fixes in; a fresh `checks-<n>.txt`, run as in §6; a fresh reviewer,
@@ -157,7 +160,7 @@ base, so the whole row is shown with its fixes in; a fresh `checks-<n>.txt`, run
 Codex), strongest in round 3, the reviewer strongest in round 3. **If the open count does not fall** between
 two rounds, the loop has stalled: the next round's review runs on the strongest tier. If it still does not
 fall after a strongest-tier review, or anything is open after round 3, park the row with its open findings as
-the reason; no ruling accepts one. A row is never ticked with a finding at Low or above still open.
+the reason; no ruling accepts one, bar §8's. A row is never ticked with a finding at Low or above still open.
 
 ## 8. Rulings — including overriding the step's wording
 
@@ -169,6 +172,7 @@ verbatim" that would ship a path traversal — **overrides the wording**. Log it
 and write it into the next fix brief and the re-review brief, so neither the implementer nor the
 reviewer treats the departure as a spec failure. Rule 8 forbids narrowing a step to make it pass; a
 ruling that raises the bar is its opposite. One that lowers the bar is not a ruling: park the row.
+A Low or Very Low whose only fix departs from the wording is closed by a ruling that keeps the wording.
 
 ## 9. Record
 
@@ -186,15 +190,11 @@ recorded, it falls back to the merge-base with the remote default branch; say so
 reviewer in `Mode: run`, briefed on this run's rows, on §3's tiers, with `{checks}` = the plan's
 `## Verification` items no row's Notes record, run now, plus the recorded ones quoted with their row ids —
 a stage-time check is not re-run, as its fixtures may be gone by design (`plan-finish`, area 3).
-All its findings go to **one** fix subagent, then one re-review, both on §3's tiers; no second wave, and
-no re-review when every finding was Very Low: the controller re-runs the checks, as in §7's closing pass.
+All its findings go to **one** fix subagent, then one re-review, both on §3's tiers; no second wave. When
+every finding was Very Low there is no re-review: the controller re-runs the checks as in §7's closing
+pass, and a check that fails is an open Medium, parked as below.
 Record `base <plan> final-fix --repo …` before dispatching it; its diff and `paths-<n>.txt` are
 `diff <plan> final-fix`. Its **Changed**, as an implementer's, is its own paths: a foreign path in that
 diff stops the run as for a row (`EXECUTION.md`). Its commit names only its own paths, logged
 `inline final-fix: <paths>` so `plan-finish` claims them. One at Low or above still open is parked for
 the closing question, never a ruling. Log `final review: <file> <verdict>`. §6's write check follows each.
-
-## Fallback — a host without subagents
-
-The controller implements and reviews in-thread, with the same brief and diff, and labels the row's
-Notes `review: same-agent`. That is weaker, and the label says so rather than hiding it.

@@ -91,7 +91,8 @@ Before any `✅`, fresh in the same turn as the tick:
   `../plan-shared/scripts/table-claims.sh` checks all three across the repos in scope, run with
   the run directory (`row-snapshot.sh dir <plan>` prints it) also passed as a `--root`, so the
   review token's `rows/<row id>/review-<n>.md` path resolves;
-- for a dispatched row, a saved `Verdict: PASS` review and its closing pass done (`DISPATCH.md` §7).
+- for a dispatched row, a saved `Verdict: PASS` review, and the closing pass done where that review
+  listed any Very Low (`DISPATCH.md` §7).
 
 A subagent's claim clears none of these (rule 9).
 

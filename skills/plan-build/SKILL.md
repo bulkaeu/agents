@@ -27,7 +27,7 @@ Read each file when first needed, not before: an early read spends context the r
 | The plan is started (§2) | [RESUME.md](RESUME.md), which reconciles it before the loop |
 | The first row classified as dispatch | [DISPATCH.md](DISPATCH.md), how a code row is built and reviewed, and its two prompts beside it |
 | The last row closes | [CLOSEOUT.md](CLOSEOUT.md) |
-| A `--dry-run` | [DRYRUN.md](DRYRUN.md); for an unstarted plan also `DISPATCH.md` §3 only, for its per-tier counts |
+| At invocation, when `--dry-run` is given | [DRYRUN.md](DRYRUN.md), before §1; for an unstarted plan also `DISPATCH.md` §3 only, for its per-tier counts |
 
 ## Standing orders
 
@@ -71,7 +71,7 @@ All five, before any work:
 
 | Check | On failure |
 | --- | --- |
-| A conforming `## Progress` table exists | Offer **once** to derive one from the body, then stop — an offer outside rule 1's one-question budget, which governs execution |
+| A conforming `## Progress` table exists | Offer **once** to derive one from the body, then stop — an offer outside rule 1's one-question budget, which governs execution; a `--dry-run` reports it and makes no offer |
 | No collision with another session (below) | Name the colliding paths and stop |
 | Started or not (below) | Never a failure: a started plan reads [RESUME.md](RESUME.md) and reconciles before the loop; an unstarted one goes straight to the loop |
 | Repository scope known | Proceed; *no repo* is a state, not a failure |

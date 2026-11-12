@@ -1,8 +1,8 @@
 # `--dry-run` — rehearse, write nothing
 
-Read by `/plan-build` when it is invoked with `--dry-run`, and only then: [SKILL.md](SKILL.md) §1 and
-§2 have run, so the plan is resolved and pre-flight is done. Rule numbers are `RULES.md`'s. A dry run
-ends with its report: `SKILL.md` §4 and §5 do not run.
+Read by `/plan-build` at invocation when `--dry-run` is given, before [SKILL.md](SKILL.md) §1, and
+only then. It changes how §1's stop and §2's offer report, and it ends the run with its report: §4
+and §5 do not run. Rule numbers are `RULES.md`'s.
 
 Pre-flight only on an unstarted plan; on a started one, reconcile-and-report in
 [RESUME.md](RESUME.md)'s shape instead. An unstarted plan prints:

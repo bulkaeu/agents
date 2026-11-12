@@ -17,7 +17,7 @@
 # counts as present if it exists as given (after ~ expansion), under any repo in scope, or under
 # the root. Only tokens containing a `/` are paths: bare file names, slash commands (`/name`), git
 # refs (`origin/main`), globs, variables and placeholders (`*`, `$`, `<`, `{`) are skipped, and so are
-# ranges and refspecs (`a..b`, `sha:refs/x`), package scopes (`@x/y`) and `#` references.
+# ranges and refspecs (`a..b`, `sha:refs/x`, `HEAD:branch`), package scopes (`@x/y`) and `#` references.
 #
 # Output: one line per row, then a tally. Exit 0 always on a readable plan; 2 on a usage error.
 set -euo pipefail
@@ -76,6 +76,8 @@ rows=0 sha_good=0 sha_bad=0 path_good=0 path_bad=0
 ic='(⬜|🟡|✅|⛔|⏭️|⏭)'
 modern_re="^([A-Za-z0-9§.-]+) $ic\$"
 legacy_re="^$ic\$"
+range_re='[^/.]\.\.\.?[^/.]'
+refspec_re='(:refs/|^[0-9a-f]{7,40}:|^HEAD:)'
 # Legacy Status-column rows count only if no row is modern, and then only in the first table with one.
 grep -qE "^\| *[A-Za-z0-9§.-]+ $ic *\|" "$plan" && modern_plan=1 || modern_plan=0
 tbl=0 prev_pipe=0 legacy_tbl=0
@@ -123,10 +125,11 @@ while IFS= read -r line; do
   done < <(grep -oE '\b[0-9a-f]{7,40}\b' <<<"$notes" || true)
 
   while IFS= read -r tok; do
-    tok="${tok//\`/}"; tok="$(sed -E 's/:[0-9]+(-[0-9]+)?$//' <<<"$tok")"  # drop a :line anchor
+    tok="${tok//\`/}"; tok="$(sed -E 's/:[0-9]+(:[0-9]+|-[0-9]+)?$//' <<<"$tok")"  # drop :line, :line:col
     [[ -z "$tok" || "$tok" == *[\ \*\$\<\{]* ]] && continue
-    # never a path: a range or refspec (a..b, sha:refs/x), an npm scope, an issue or PR reference
-    [[ "$tok" == *..* || "$tok" == *:* || "$tok" == @* || "$tok" == *'#'* ]] && continue
+    # never a path: a range (a..b, a...b; ../x stays a path), a refspec (x:refs/y, sha:branch,
+    # HEAD:branch), an npm scope, an issue or pull-request reference
+    [[ "$tok" =~ $range_re || "$tok" =~ $refspec_re || "$tok" == @* || "$tok" == *'#'* ]] && continue
     [[ "$tok" == */* && ! "$tok" =~ ^/[A-Za-z0-9_-]+$ ]] || continue
     is_ref "$tok" && continue
     if path_ok "$tok"; then out+=" · path $tok ok"; path_good=$((path_good + 1))

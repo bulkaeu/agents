@@ -47,12 +47,6 @@ meant to be absent — but it is where drift shows first.
 | `⛔` | Re-attempted **only** if the blocker is demonstrably gone. Otherwise it stays parked, reason intact |
 | `⬜` | Nothing to check — it is the work ahead |
 
-**A `🟡` may be a live session's row, not a crash.** If its Notes or the last Run log line carry a
-time under 30 minutes old — or, where neither has a time, the plan file changed in the last 30
-minutes — the row is *held*: do not re-verify it, demote it or take it over. A real run names the
-row and its evidence and stops, as for a collision (`SKILL.md` §2); the user saying that session is
-gone releases it. A dry run prints `row <n>: 🟡 held — <the evidence>`, which is not a correction.
-
 **The auditable bar is low on purpose: does the Note carry at least one thing you could go and
 check?** — the *auditable Note* in `CONVENTIONS.md`. Set the bar higher and a healthy table fills
 with spurious corrections.

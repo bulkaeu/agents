@@ -16,7 +16,8 @@ write your code, will review it, and it is told not to take your word for anythi
   that specifies it, the interfaces it consumes and produces, the repositories in scope, and the
   plan's constraints. It is your whole specification; do not go looking for the rest of the plan.
 - **Findings to fix:** `{findings}`. A first pass has none. In a fix round these are the
-  reviewer's findings: fix every one listed as open, and nothing else.
+  reviewer's findings: fix every one listed as open, and nothing else. In a closing pass, which the
+  controller marks as one, fix every Very Low it lists, and nothing else.
 - **Your report:** `{out}` — the path the controller saves your reply to (see Report below).
 
 ## What you may do

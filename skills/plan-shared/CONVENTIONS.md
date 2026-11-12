@@ -176,7 +176,7 @@ The skills name Claude Code mechanisms. On Codex, read each one as follows:
   still holds: a tracked write, never a shell redirect or `sed -i`.
 - **Subagents:** an `Explore` dispatch uses the `explorer` agent, a `general-purpose` one the
   `worker` agent; *Model tiers* gives the model. Where subagents are unavailable, use the
-  `review: same-agent` fallback (`DISPATCH.md`, *Fallback — a host without subagents*).
+  `review: same-agent` fallback (`DISPATCH.md` §3).
 - **Plan mode and `ExitPlanMode`:** Codex has no equivalent. A stop that depends on one of them
   does not apply there; **every other stop in `STOPS.md` still binds**, unchanged.
 - **Harness prompts:** Codex's approval prompt is the equivalent gate, raised whenever a
