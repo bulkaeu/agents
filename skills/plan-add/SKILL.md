@@ -4,8 +4,8 @@ description: >-
   Adds new work to a plan that already exists — resolving the plan, matching the
   addition against the rows already there, writing atomic rows where they will
   actually run, and reopening the closed rows the addition invalidates. It
-  authors and never executes: it ends by pointing at /plan-build or
-  /plan-continue. Use when the user invokes /plan-add, or asks to add a step to
+  authors and never executes: it ends by pointing at /plan-build, which
+  starts or resumes it. Use when the user invokes /plan-add, or asks to add a step to
   a plan, fold new scope into one, or extend a plan that is already running.
 disable-model-invocation: true
 argument-hint: "<what to add> [optional plan path]"
@@ -29,7 +29,7 @@ three on purpose, in that order, and hands the plan back to an executor rather t
 - **Plan edits go through `Edit`/`Write`, never Bash** (`ui-rendered-files-use-write-tool.md`). A
   `sed -i` lands the bytes and leaves the rendered panel showing the stale table.
 - **This skill authors; it never executes.** No step runs here, however small. It ends pointing at
-  `/plan-build`, or `/plan-continue` for a plan already under way.
+  `/plan-build`, which starts the plan or resumes one already under way.
 
 ## 1. Resolve the plan — or start one
 
@@ -111,7 +111,7 @@ Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that d
   implementer's brief as its **Specification** (`plan-build/DISPATCH.md` §2) — and position is not
   the mapping. Extend the section an existing row already names where the addition belongs in it;
   otherwise write a new section and name it from the row. A row with nothing behind it hands the
-  next `/plan-continue` an implementer whose Specification is empty: the under-specified step the
+  next `/plan-build` an implementer whose Specification is empty: the under-specified step the
   hard rules above forbid.
 - **Renumber only when the plan has not started at all** — every row `⬜`, nothing in flight, no
   `## Run log`. The moment any row is in flight or closed, insert with a suffixed id — `3a`, `3b` —
@@ -153,8 +153,8 @@ the whole change: if it stopped you, these reopens were in what you printed.
 ## 7. Report, then review — inline, not by invocation
 
 First the report, and keep it short: the rows added with their ids, the rows reopened with why,
-whether the Summary moved, and the pointer — `/plan-build` for a plan that has not started,
-`/plan-continue` for one that has.
+whether the Summary moved, and the pointer — `/plan-build`, which starts a plan that has not
+started and resumes one that has.
 
 Then **review the whole plan, not only the new rows**: read
 `${CLAUDE_SKILL_DIR}/../plan-review/SKILL.md` — on a host that does not set that variable, the same

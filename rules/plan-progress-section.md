@@ -54,13 +54,13 @@ the user is working on).
 
 ### Markers the executing skills read
 
-`/plan-build` and `/plan-continue` run a table unattended, so a few words in the Step cell carry
+`/plan-build` runs a table unattended, so a few words in the Step cell carry
 meaning. Write them exactly:
 
 | Marker | Use it for |
 | --- | --- |
 | `BLOCKED — wait for user: <what>` | A step that needs the user's action or explicit yes — an apply, a cutover, a run only they can do. `BLOCKED — wait for user confirmation: <what>` is the same marker |
-| `hand-off row` | A step that prints work for the user to do outside the run; the run ends there and resumes with `/plan-continue` |
+| `hand-off row` | A step that prints work for the user to do outside the run; the run ends there and resumes with `/plan-build <plan path>` |
 | `(⏭️ if <condition>)` | A skip you allow in advance — "fix the findings (`⏭️` if the check was clean)" |
 
 **Closed, parked, open.** `✅` and `⏭️` rows are *closed*; `⛔` rows are *parked*; `⬜` and `🟡` are

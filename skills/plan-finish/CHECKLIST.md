@@ -65,7 +65,7 @@ grep -n "<the item's command or number>" "<plan-file>"   # a Progress row whose 
 - **Not recorded** — run it now: PASS or FAIL, with its real output (exit code, count, failing lines).
 - **A FAIL on one of the repository's own checks** belongs to area 2: fix an obvious cause (one in a file
   dirty and unclaimed at start is reported instead), re-run, report the result here citing the fix. **Any
-  other FAIL is reported, never fixed** — a finding for the plan's own rows or `/plan-continue`.
+  other FAIL is reported, never fixed** — a finding for the plan's own rows or `/plan-build`.
 
 ## Area 4 — Commits
 

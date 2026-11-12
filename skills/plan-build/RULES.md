@@ -1,6 +1,6 @@
 # Hard rules
 
-The safety surface of `/plan-build` and `/plan-continue`. Both `SKILL.md` files load this file
+The safety surface of `/plan-build`, starting or resuming. Its `SKILL.md` loads this file
 first, before resolving a plan. `EXECUTION.md` restates inline only the rules it enforces; this is
 the canonical wording.
 

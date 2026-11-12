@@ -34,7 +34,7 @@ sections that are out of scope for the plan under review.
 
 ## Executability
 
-For a plan an executor — `plan-build` or `plan-continue` — will run unattended. The markers and
+For a plan the executor — `plan-build` — will run unattended. The markers and
 terms are those of [CONVENTIONS.md](../plan-shared/CONVENTIONS.md) (*Row markers*, *Terms*); hold
 the plan to that file, not to a paraphrase of it.
 

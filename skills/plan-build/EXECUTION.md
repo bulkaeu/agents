@@ -1,6 +1,6 @@
 # The execution loop
 
-Shared by `/plan-build` and `/plan-continue`. Read [RULES.md](RULES.md) first — this file assumes
+Read by `/plan-build`, starting or resuming. Read [RULES.md](RULES.md) first — this file assumes
 it and does not repeat the stop-list. Dispatched rows follow [DISPATCH.md](DISPATCH.md).
 
 ## Contents
@@ -126,7 +126,7 @@ A row whose step is to give the user work to do outside this run and stop — it
 
 **Name who picks up the parked set.** A hand-off defers the closing question, so anything parked
 before it has no scheduled owner — and if the hand-off is the *last* row, deferring is indefinite.
-The printed block must therefore say what resumes the plan (normally `/plan-continue <plan path>`)
+The printed block must therefore say what resumes the plan (normally `/plan-build <plan path>`)
 and list the parked rows it will have to answer for. A hand-off that ends the table with rows still
 `⛔` and no named resumption is a leak, not a halt.
 

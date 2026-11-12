@@ -1,6 +1,6 @@
 # Dispatch — a row built by one subagent and reviewed by another
 
-Read by `plan-build` and `plan-continue` for every row [EXECUTION.md](EXECUTION.md) classifies as
+Read by `plan-build`, starting or resuming, for every row [EXECUTION.md](EXECUTION.md) classifies as
 *dispatch*. The controller — the session running the plan — coordinates, and writes no code itself
 on those rows: code it wrote would skip the review that is the point of this file.
 

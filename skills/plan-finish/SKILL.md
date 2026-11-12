@@ -30,7 +30,7 @@ Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it befor
 - **Audit fully, then act.** Complete the whole audit before changing anything — fixing as you go means acting
   without the full picture. Then *act*: the report is the record of what you did, not a request to start.
 - **Never run an open row.** A `⬜`/`🟡` row (*open*, per `CONVENTIONS.md`) is reported, not run,
-  however small its step: point at `/plan-continue <plan>` (`/plan-build` if none has started), which
+  however small its step: point at `/plan-build <plan>`, which starts or resumes it and
   brings the separate reviewer and the parking this skill lacks.
 - **Fix by default; stop only for `STOPS.md`.** That list is exhaustive — never invent a reason to ask.
 - **One approval covers a batch** — except `STOPS.md`'s asked-alone set, each asked alone. Otherwise ask once
@@ -101,7 +101,7 @@ stage-time check — is reported from that row, citing its id; **do not re-run i
 gone by design. Run any other item now: PASS or FAIL, with the command's real output. An item that is
 also one of the repository's own checks falls under area 2 — an obvious cause not *dirty at start* is
 fixed, the check re-run — and area 3 reports the re-run's result, citing the fix. **Any other FAIL is
-reported, never fixed**: a finding for the plan's own rows or `/plan-continue`, not work for this
+reported, never fixed**: a finding for the plan's own rows or `/plan-build`, not work for this
 skill. No `## Verification` section reports *none*, not green. How-to: `CHECKLIST.md`, Verification.
 
 ## 3. Fix what the audit found
@@ -170,7 +170,7 @@ out the empty ones — open rows with the command that runs them, parked rows wi
 stop-list number counts only stop-list items; an item you could have fixed belongs fixed, not counted:
 
 ```
-not done — open: 6, 7 → /plan-continue <plan> · parked: 4 (needs yes) · 1 Verification FAIL · 1 stop-list item
+not done — open: 6, 7 → /plan-build <plan> · parked: 4 (needs yes) · 1 Verification FAIL · 1 stop-list item
 ```
 
 ## Examples
@@ -182,7 +182,7 @@ reports in three lines. Nothing on the stop-list, so nothing is put back to the 
 **`/plan-finish` on a half-run plan** — row 6 `🟡` with its file half-written, row 7 `⬜`, one other
 file nothing claims, one Verification item failing. Lists that file as *not committed — unclaimed*;
 leaves row 6's file uncommitted, listed with row 6; runs neither row; reports the FAIL
-and fixes nothing: `not done — open: 6, 7 → /plan-continue <plan> · 1 Verification FAIL`.
+and fixes nothing: `not done — open: 6, 7 → /plan-build <plan> · 1 Verification FAIL`.
 
 **`/plan-finish` with a stale plan table** — two commits have no Progress row and the README omits a
 file added last commit. All three are mechanical and verifiable: fix them, commit, push, report. This

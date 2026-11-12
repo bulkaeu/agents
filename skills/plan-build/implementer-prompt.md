@@ -1,6 +1,6 @@
 # Implementer prompt
 
-The prompt a `plan-build` or `plan-continue` controller gives a fresh `general-purpose` subagent to
+The prompt a `plan-build` controller gives a fresh `general-purpose` subagent to
 implement **one** row. [DISPATCH.md](DISPATCH.md) says when it is used. The controller fills the three
 placeholders below and adds nothing else: no hints, no pre-judged answers, no summary of what it
 expects to find.

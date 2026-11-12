@@ -1,6 +1,6 @@
 # Reviewer prompt
 
-The prompt a `plan-build` or `plan-continue` controller gives a fresh `Explore` subagent to review
+The prompt a `plan-build` controller gives a fresh `Explore` subagent to review
 work it did not do. [DISPATCH.md](DISPATCH.md) says when each mode is used. The controller fills the
 five placeholders below and adds nothing else. Everything the reviewer needs to know about the
 plan, its mode and its constraints is in the brief, because `Explore` does not load the project's

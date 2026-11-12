@@ -40,7 +40,7 @@ all but name. (The two offers below are not exceptions: `plan-finish`'s repo-onl
 new-plan option name no candidate, so neither previews nor ranks one.)
 
 **The last rung picks a plan only for the read-only skills**, `plan-status` and `plan-summary`.
-The five that edit or execute — `plan-add`, `plan-review`, `plan-build`, `plan-continue`,
+The four that edit or execute — `plan-add`, `plan-review`, `plan-build`,
 `plan-finish` — list the candidates from rung 4 and stop there instead: executing or editing the
 wrong plan is not a mistake you can take back. `plan-finish` then offers a repo-only audit, which
 needs no plan. `plan-add` can also create, so every list it stops on — last rung or two plausible at
@@ -158,7 +158,7 @@ a run uses its output (`plan-build` §2), never this table from memory.
   run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
 
-**Controller** — the session that runs `/plan-build` or `/plan-continue` and dispatches the tiers:
+**Controller** — the session that runs `/plan-build` and dispatches the tiers:
 
 - **Claude Code:** the session's own model.
 - **Cursor:** the session's own model.

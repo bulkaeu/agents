@@ -1,7 +1,7 @@
 # The stop-list
 
-The one list of things a plan skill must not do without an explicit yes. `plan-build`,
-`plan-continue` and `plan-finish` all cite this file; none of them keeps its own copy, because two
+The one list of things a plan skill must not do without an explicit yes. `plan-build`
+and `plan-finish` both cite this file; neither keeps its own copy, because two
 copies of a safety list drift and the drift is silent.
 
 **Exhaustive.** Everything not listed here is work, not a question. Inventing a reason to ask costs
