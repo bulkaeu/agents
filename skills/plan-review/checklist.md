@@ -48,8 +48,9 @@ the plan to that file, not to a paraphrase of it.
       `BLOCKED — wait for user: …` marker, in either spelling *Row markers* accepts; so does every
       step that applies a migration, deploys, publishes, sends or deletes data. A `hand-off row`
       says what resumes the plan; a `(⏭️ if …)` names a condition someone can check; `review: deep`
-      and `review: default` are used as *Row markers* defines them. A marker spelled any other way
-      is not parsed
+      and `review: default` are used as *Row markers* defines them; every step that needs the
+      user's display or input devices until it finishes carries `needs: screen`, and one without it
+      is a finding. A marker spelled any other way is not parsed
 - [ ] **Done-states** — every row names an observable done-state (*Terms*): a file, a count, an
       exit code, a command's output — something an executor can check without asking. "Improve X"
       with no check is a finding

@@ -1,7 +1,7 @@
 # Resuming a started plan — reconcile, then resume
 
-Read this when the plan has already started: any row is `🟡` or `✅`, or a `⛔` row's Notes record
-a run's blocker — an author-parked `⛔` or a `⏭️` does not count. A run that crashed, or a session
+Read this when the plan has already started — *Started* as `CONVENTIONS.md` defines it, the one test
+every skill uses; this file keeps no copy of it. A run that crashed, or a session
 that wandered off, leaves a table saying one thing and a repository saying another. **Resuming from a
 table that lies re-does finished work or skips unfinished work**, and both look like progress at the
 time. So a resumed run earns its keep before it executes a single step: it makes the table true
@@ -92,7 +92,7 @@ run left, but a `✅` that reconciliation demoted to `⬜` comes before it and r
 the `🟡` would skip it for good. Then the loop in `EXECUTION.md`, unchanged: `🟡` → work → verify →
 `✅` with Notes, parking what `RULES.md` says to park, final review, close-out and one question at
 the end (`CLOSEOUT.md`) — unless a hand-off row ends the run first. Record a run base only if the
-Run log has none (`DISPATCH.md`).
+Run log has none (`EXECUTION.md`, *The loop*).
 
 **Partial work on a `🟡` code row is kept, not discarded.** A fresh implementer gets a brief that
 names the partial files as its starting point and finishes the row; its diff, from the recorded base

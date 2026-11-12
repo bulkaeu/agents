@@ -43,7 +43,8 @@ the user is working on).
 - **Rows stay in execution order.** A step added mid-run goes where it actually ran, not next to the
   row that inspired it. Appending `E5` beside `E2` because they are both verification produces a
   table that reads `E1 E2 E5 E3 E4` — every reader then has to reconstruct the real sequence, and
-  `/plan-summary`'s "last rows" window shows the wrong ones. Renumber rather than misplace.
+  `/plan-summary`'s "last rows" window shows the wrong ones. Suffix the id (`3a`) once the plan has
+  started; renumber only an unstarted plan.
 - **Steps are atomic.** One verb, one done-state. `plan-atomic-todos.md` owns what atomic means;
   this rule owns the table it goes in.
 - **Notes are mandatory for `⛔` and `⏭️`.** A blocked row without a blocker, or a skip without a
@@ -110,8 +111,8 @@ end is a changelog, not a progress tracker, and it was useless during the only w
   same in the body and completely different to a reader six weeks later.
 - Once a plan has started, never delete a row to "clean up". Abandoned work becomes `⏭️` with the
   reason — the history of what was *not* done is worth as much as what was. A plan that has not
-  started (every row `⬜`, nothing in flight, no `## Run log`) has no history yet: a replaced row is
-  rewritten or removed, and the table renumbered.
+  started — no `🟡` or `✅` row, no `⛔` a run parked, no `## Run log`; an author's pending-ticket `⛔`
+  does not count — has no history yet: a replaced row is rewritten or removed, and the table renumbered.
 
 If a turn ends with the table disagreeing with what actually happened, that is a defect to fix
 before anything else, not a tidy-up for later. The `Stop` hook in `~/.claude/settings.json` counts

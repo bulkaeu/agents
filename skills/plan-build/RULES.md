@@ -34,9 +34,7 @@ peer's work.
 
 ## 3. The stop-list
 
-`STOPS.md`, in full — including its evidenced-action clause: a `BLOCKED — wait for user` row whose
-awaited action is already evidenced is verified and ticked, not parked. Everything not on that list
-is work, not a question.
+`STOPS.md`, in full, its *Evidenced action* clause included. Everything not on it is work, not a question.
 
 ## 4. A harness prompt is not a stop-list item
 
@@ -64,7 +62,8 @@ session's sequencer files and dirty tree alone (`shared-state-between-agents.md`
 Name what did not run, and why. "Tests pass" is not a result; the counts are.
 
 **And a check that already ran on this tree is not run again.** A result is evidence about one tree.
-Every slow check goes through `bash scripts/check-run.sh run <file> --repo <repo>... -- <command>`:
+Every slow check goes through
+`bash "${CLAUDE_SKILL_DIR}/scripts/check-run.sh" run <file> --repo <repo>... -- <command>`:
 a test suite, a build, anything over about ten seconds. A quick check (a grep, a count) is cheaper
 to re-run than to record. The script writes one record per file, with the exit status and each
 repo's tree identity: commits, edits and untracked files. Any environment variable that changes

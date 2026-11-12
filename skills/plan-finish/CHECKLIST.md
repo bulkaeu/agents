@@ -79,7 +79,7 @@ Unpushed commits, without erroring on a branch that has no upstream:
 
 ```bash
 if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
-  tip=$(git rev-parse HEAD); git log --oneline '@{u}'..$tip   # the push gate (SKILL.md §3) pushes $tip
+  git rev-parse HEAD; git log --oneline '@{u}'..HEAD   # the push gate (SKILL.md §3) pushes that sha
 elif git rev-parse origin/HEAD >/dev/null 2>&1; then
   git log --oneline origin/HEAD..
 else
@@ -93,7 +93,11 @@ and **real work** (committed if claimed, else listed *not committed — unclaime
 ## Area 5 — Docs
 
 ```bash
-# <plan-start>: the Run log's `run base` sha for this repo, else `git merge-base HEAD origin/HEAD`
+# <plan-start>: the Run log's `run base` sha for this repo, else the merge-base with the default branch:
+default="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')"
+[ -n "$default" ] ||   # origin/HEAD unset in this clone: ask the remote, read-only
+  default="$(git ls-remote --symref origin HEAD | awk '/^ref:/ { sub("refs/heads/", "", $2); print $2 }')"
+git merge-base HEAD "origin/$default"         # run with the lines above, in one call
 git diff --name-only <plan-start>..HEAD       # never main..HEAD — empty on main
 ```
 

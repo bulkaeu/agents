@@ -8,22 +8,23 @@ on those rows: code it wrote would skip the review that is the point of this fil
 
 - The run directory · 1 Base · 2 Brief · 3 Agents and models · 4 Filling a prompt · 5 Statuses
 - 6 Review · 7 Fix loop · 8 Rulings · 9 Record
-- The run base · The final review · Fallback
+- The final review · Fallback
 
 ## The run directory
 
-`bash scripts/row-snapshot.sh dir <plan>` alone computes it: `~/.claude/plan-runs/<plan stem>-<path hash>/`.
-On creating it, log `run dir: <the absolute path dir prints>` in the Run log; a legacy `<plan stem>`
-directory, recorded or named by `dir` on stderr, is kept: log it. Each dispatched row gets `rows/<row id>/`:
-the base, then per pass `<n>` `brief-<n>.md`, `report-<n>.md`, `diff-<n>.patch`, `impl-checks-<n>-<k>.txt`,
-`checks-<n>.txt`, `review-<n>.md` — pass 1 the first attempt, each fix round adding one; the script numbers
-the diffs, you the rest. Temporary files the run or its helpers make go under `<run directory>/scratch/`,
-so close-out can measure them. All of it lives outside every repository, so none can reach a commit.
+`bash "${CLAUDE_SKILL_DIR}/scripts/row-snapshot.sh" dir <plan>` alone computes it:
+`~/.claude/plan-runs/<plan stem>-<path hash>/`, logged as `run dir:` with the run base (`EXECUTION.md`,
+*The loop*); a legacy `<plan stem>` directory, recorded or named by `dir` on stderr, is kept: log it.
+Each dispatched row gets `rows/<row id>/`: the base, then per pass `<n>` `brief-<n>.md`, `report-<n>.md`,
+`diff-<n>.patch`, `impl-checks-<n>-<k>.txt`, `checks-<n>.txt`, `review-<n>.md` — pass 1 the first attempt,
+each fix round adding one; the script numbers the diffs, you the rest. Temporary files the run or its
+helpers make go under `<run directory>/scratch/`, so close-out can measure them. All of it lives outside
+every repository, so none can reach a commit.
 
 ## 1. Base — once per repository in scope, before the implementer starts
 
 ```bash
-bash scripts/row-snapshot.sh base <plan> <row id> --repo <repo> [--repo <repo>]...
+bash "${CLAUDE_SKILL_DIR}/scripts/row-snapshot.sh" base <plan> <row id> --repo <repo> [--repo <repo>]...
 ```
 
 It records a commit per repo plus a copy of every untracked file. **Never use `HEAD~1` as a base**:
@@ -107,7 +108,7 @@ with `none`. Add nothing: no hints, no expected answers, no pre-judged findings.
 ## 6. Review
 
 ```bash
-bash scripts/row-snapshot.sh diff <plan> <row id> --repo <repo>... [--path <path>]...
+bash "${CLAUDE_SKILL_DIR}/scripts/row-snapshot.sh" diff <plan> <row id> --repo <repo>... [--path <path>]...
 ```
 
 `diff` can exit 3 too: a recorded base is not an ancestor of `HEAD`, or no repository's status is `changed`. A
@@ -165,34 +166,25 @@ ruling that raises the bar is its opposite. One that lowers the bar is not a rul
 ## 9. Record
 
 Only the controller writes the table and commits. Before the tick: pass `EXECUTION.md`'s
-verification gate — the done-state check run fresh, or cited from a `checks-<n>.txt` that
-`check-run.sh current` accepts — every claimed file present, every claimed sha in `git log`. Then
-`✅` with Notes carrying that evidence and a review token, its path its own backticked span so
-`table-claims.sh` can check it: review: `rows/<row id>/review-<n>.md` PASS.
-
-## The run base — per repository
-
-The first run of a plan that records one writes it before its first row:
-
-```bash
-bash scripts/row-snapshot.sh base <plan> run --repo <repo>...
-```
-
-and lists each repo's sha in the Run log as `run base: <repo> <sha>`. **A later resume never
-overwrites it** — if the Run log already has one, it stands. A repository that joins the run
-later, such as a worktree, is based alone: `base <plan> run --repo <it>`.
+verification gate — the done-state check run fresh, or cited from an `impl-checks-<n>-<k>.txt` or
+`checks-<n>-<k>.txt` record that `check-run.sh current` accepts (never the concatenated `checks-<n>.txt`) —
+every claimed file present, every claimed sha in `git log`. Then `✅` with Notes carrying that
+evidence and a review token, its path its own backticked span so `table-claims.sh` can check it:
+review: `rows/<row id>/review-<n>.md` PASS.
 
 ## The final review
 
 Before close-out, `row-snapshot.sh diff <plan> run --repo …` is the whole run as one diff. With no run base
 recorded, it falls back to the merge-base with the remote default branch; say so in the Run log. One fresh
 reviewer in `Mode: run`, briefed on this run's rows, on §3's tiers, with `{checks}` = the plan's
-`## Verification` commands run over the whole run. Medium-or-above findings go to **one** fix subagent, then
-one re-review, both on §3's tiers; no second wave. Record `base <plan> final-fix --repo …` before dispatching
-it; its diff and `paths-<n>.txt` are `diff <plan> final-fix`. Its **Changed**, as an implementer's, is its own
-paths: a foreign path in that diff stops the run as for a row (`EXECUTION.md`). Its commit names only its own
-paths, logged `inline final-fix: <paths>` so `plan-finish` claims them. One still open is parked for the
-closing question, never a ruling. Log `final review: <file> <verdict>`. Run §6's write check after each one.
+`## Verification` items no row's Notes record, run now, plus the recorded ones quoted with their row ids —
+a stage-time check is not re-run, as its fixtures may be gone by design (`plan-finish`, area 3).
+Medium-or-above findings go to **one** fix subagent, then one re-review, both on §3's tiers; no second wave.
+Record `base <plan> final-fix --repo …` before dispatching it; its diff and `paths-<n>.txt` are
+`diff <plan> final-fix`. Its **Changed**, as an implementer's, is its own paths: a foreign path in that
+diff stops the run as for a row (`EXECUTION.md`). Its commit names only its own paths, logged
+`inline final-fix: <paths>` so `plan-finish` claims them. One still open is parked for the closing
+question, never a ruling. Log `final review: <file> <verdict>`. Run §6's write check after each one.
 
 ## Fallback — a host without subagents
 

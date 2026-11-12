@@ -16,6 +16,11 @@ it and does not repeat the stop-list. Dispatched rows follow [DISPATCH.md](DISPA
 
 ## The loop — one row at a time
 
+**Before the first row, record the run base** unless the Run log has a `run base:` line (a resume never
+overwrites it): `bash "${CLAUDE_SKILL_DIR}/scripts/row-snapshot.sh" base <plan> run --repo <repo>...`,
+then log `run dir: <what row-snapshot.sh dir <plan> prints>` and `run base: <repo> <sha>` per repo. A repo
+that joins later, such as a worktree, is based alone: `base <plan> run --repo <it>`.
+
 Rows run in **table order**. For each:
 
 1. **Mark `🟡`.** One `Edit`, icon only.
@@ -35,8 +40,8 @@ names its sub-step — dispatched, reported, in review, fix round *n* — until 
 (rule 5). A turn never ends while a dispatched helper is still running unless its last line says
 which row, which helper, and that the run continues when it reports: silence reads as a stall.
 
-A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it get
-`⛔` *"depends on N"* — then the loop **continues** with the rest (rule 2), bar one: no usable report.
+A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it
+`⛔` *"depends on N"* — then the loop **continues** (rule 2), bar `STOPS.md`'s three safety halts.
 
 **A `needs: screen` row is deferred while any other runnable row remains**: it stays `⬜`, the Run log
 gets `deferred: <row id> — needs: screen`, and the loop goes on with every row that does not depend on
@@ -44,7 +49,7 @@ it. When only deferred rows and their dependents are left, the run asks once: th
 they need the screen until they finish. That ask is `STOPS.md`'s stop for a step the plan marks as
 waiting on the user, batched so the user is interrupted once. On yes, they run back to back in table
 order, then their dependents. On no, or no answer, they park with *needs: screen* as the blocker,
-their dependents with *depends on N*, and the run closes out.
+their dependents with *depends on N*, and the run closes out; the report lists them, not asked again.
 
 **A dispatched row acts only on its own paths**: the union of **Changed** in every `report-<n>.md` it has, all
 rounds, symlinks resolved as in `paths-<n>.txt` (`/tmp` is `/private/tmp` on macOS). A **foreign path**, in
@@ -106,7 +111,9 @@ A `## Run log` section after the plan's body, written by the controller as thing
 in the file, so it survives a context summary. It holds:
 
 - a header per run: the date and start time, the `tiers:`, `disk:` and any `dirty at start:` lines
-  (`SKILL.md` §2), the starting commits, the run base;
+  (`SKILL.md` §2), the starting commits, the `run dir:` and `run base:` lines (*The loop*);
+- an `inherit` line, once per run, where a tier falls back to it (`CONVENTIONS.md`, *Model tiers*);
+- per dispatched pass, `<row id> · implementer <model> · reviewer <model>` (standing order 7);
 - every `deferred: <row id> — needs: screen` line (*The loop*);
 - `created: <path or process> — <what>` when the run makes anything outside the repositories that
   outlives its row — a worktree, a toolchain, a cache, a background process, a folder under home;
@@ -114,15 +121,10 @@ in the file, so it survives a context summary. It holds:
 - every commit the run makes — dispatched row, commit row, close-out or fix wave — as
   `commit: <short sha> <subject>`, in the Run log edit right after that commit;
 - every inline row that changes files, `inline <row id>: <paths>`;
-- every model or effort step-up with its reason, and, on a row carrying a `review:` marker, `deep` or
-  `default`, the reviewer's tier and reason for every review of that row, whether or not the marker
-  changed anything — one line per review, naming the row and its `review-<n>.md` (`DISPATCH.md`
-  §3). It is also the step-up's line when there is one, so a fix loop whose tier changes (round 3,
-  a stall) still shows which review ran on which tier:
-  `<row id> · review-<n>.md — reviewer on the strongest tier: review: deep marker`,
-  `<row id> · review-<n>.md — reviewer on the default tier: review: default holds a step that
-  deletes data`, `<row id> · review-<n>.md — reviewer on the default tier: review: default marker,
-  step not risky`, `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
+- every model or effort step-up with its reason, and, on a row carrying a `review: deep` or
+  `review: default` marker, one line per review, changed or not, naming its `review-<n>.md` and the
+  reviewer's tier and reason (`DISPATCH.md` §3) — also the step-up's line, so a tier change in a fix
+  loop shows: `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
   review: default does not cancel`;
 - deferred findings, the Low and Very Low ones, one line each with `file:line`;
 - the final review's file and verdict.

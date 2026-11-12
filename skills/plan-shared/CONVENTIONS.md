@@ -19,7 +19,7 @@ read them.
 
 ## Resolving the plan — the ladder
 
-In order, stopping at the first hit:
+In order, stopping at the first hit. A `<plan stem>-history.md` is never a candidate: it is its plan's.
 
 1. A path or `@`-mention in the invocation.
 2. The session's active plan file, or the only plan touched this session.
@@ -75,9 +75,6 @@ Markers live in the Step cell's text. The skills parse exactly these:
 | `needs: screen` | The step needs the user's display or input devices until it finishes — a windowed capture, a GUI the run drives, a playtest. `plan-build` defers it while other rows can run, then asks once for every such row (`EXECUTION.md`, *The loop*); a deferred row stays waiting |
 | `review: default` | The row's reviewer keeps its default tier and effort even when the controller would judge the step risky. It cancels only that risk step-up: fix round 3 and a stalled fix loop still step the reviewer up, and a risky row's implementer still steps up. `review: deep` on the same row wins. Its reviews are logged per `EXECUTION.md`, *The Run log* |
 
-**A pending ticket is author-parked.** `plan-ticket-tracking.md`'s `**Ticket:** pending` puts a `⛔`
-row in a brand-new plan, parked by the author, not by a run, so it does not make the plan a resume.
-
 ## Closed, parked, open
 
 These replace "resolved", which meant three things.
@@ -93,15 +90,17 @@ what the closing question is for — but never with rows open, except behind a h
 
 ## Terms
 
+- **Started** — a plan with a `🟡` or `✅` row, a `⛔` whose Notes record a run's blocker, or a
+  `## Run log`. A `⛔` its author wrote before any run, usually the pending-ticket row
+  `plan-ticket-tracking.md` requires, is *author-parked*: it leaves the plan unstarted.
 - **Row id** — the first cell's id (`A1`, `12`, `§2.1`). Reports cite rows by id, never by ordinal.
 - **Step id** — the kebab-case name in backticks at the start of the Step cell.
 - **Done-state** — what the step names as observable proof it finished: a count, a file, an exit
   code. A step with none is under-specified; say so rather than inventing one.
 - **Auditable Note** — carries at least one thing you could go and check: a path, count, sha,
   version, size or timing. `Wrote out/alpha.txt, 6 B` is auditable; `Wrote the file` is not.
-- **Run log** — the optional `## Run log` section after the body: rulings, deferred findings, review
-  records. It survives compaction because it is in the file. Headers of finished runs, with their lines,
-  may move to the plan's `<plan stem>-history.md` (`plan-add` step 5); the latest header stays.
+- **Run log** — the optional `## Run log` after the body, which survives compaction by being in the file.
+  Finished runs' headers and lines may move to `<plan stem>-history.md` (`plan-add`); the latest stays.
 - **Repository scope** — every repo the plan touches: its own paths, the cwd, and anything in
   `git worktree list`. **No repository in scope is a state, not an error.**
 

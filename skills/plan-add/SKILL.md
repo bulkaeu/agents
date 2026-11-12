@@ -23,11 +23,14 @@ left standing over work the addition invalidated. This skill guards those three,
 - **One topic, one plan file.** Never a second plan for a topic that has one (`no-plan-copies.md`).
   A genuinely different topic earns a plan of its own — that is not a copy of this one.
 - **Never delete a row once the plan has started.** Unwanted work becomes `⏭️` with the reason and
-  the superseding row's id: what was *not* done is history too. A plan that has not started — every
-  row `⬜`, nothing in flight, no `## Run log` — has none yet: a row the addition replaces is rewritten
-  or removed, and the table renumbered, leaving no `⏭️` row, no earlier-revisions table, no trace in Notes.
+  the superseding row's id: what was *not* done is history too. A plan not yet *started* (`CONVENTIONS.md`,
+  *Terms*) has none: a row the addition replaces is rewritten or removed, and the table renumbered,
+  leaving no `⏭️` row, no earlier-revisions table, no trace in Notes.
 - **Never invent a done-state.** A step whose proof you cannot name is under-specified: say so and
   ask, rather than write an observable-sounding sentence nobody can check.
+- **Facts stated to the user are read, not recalled.** A fact about the machine or the repository
+  that reaches a question, the Summary or a row — free disk, an OS version, whether a tool is
+  installed — was read by a command in this session, interview or not: a remembered one is a guess.
 - **Plan edits go through `Edit`/`Write`, never Bash** (`ui-rendered-files-use-write-tool.md`): a
   `sed -i` leaves the rendered panel stale.
 - **This skill authors; it never executes.** No step runs here, however small. It ends pointing at
@@ -100,7 +103,6 @@ before writing any of them. Another session may be inside the very step you are 
 unfinished. Announcing before you change shared state is the rule (`shared-state-between-agents.md`);
 announcing after it is a collision report. **Your own writes never trigger it** — the only stat that
 counts is the one taken before the first of them, and the guard is not re-evaluated between edits.
-
 **The guard holds in plan mode.** `plan-mode-edit-plans.md` frees plan edits from asking permission,
 not from another session's work in flight: the guard waits on a fact about the tree.
 
@@ -136,15 +138,8 @@ a tree the addition has not landed in, so the check passes and the reopen bought
 makes the order true, and the out-of-sequence ids that result are correct rather than a defect: the
 position sequences, the id only identifies ([MATCHING.md](MATCHING.md) §6). **A superseded row is not
 moved** — a `⏭️` never runs, so its position carries nothing.
-
 Every write here is under step 4's guard, a move included, evaluated before the first table write of
 the whole change: if it stopped you, these reopens were in what you printed.
-
-**A plan over 400 KiB after these writes moves its closed history out**: the app stops rendering a
-plan near 512 KiB. To `<plan stem>-history.md` beside it go body sections only closed rows cite,
-review-cycle logs older than the latest, and finished runs' Run log headers with their lines. Never
-moved: the Summary, the Progress table or any row in it, a section an open or parked row cites, the
-latest Run log header. The plan keeps one pointer line to that file, part of the plan and not a copy.
 
 ## 6. Update the Summary and the ticket
 
@@ -161,7 +156,7 @@ latest Run log header. The plan keeps one pointer line to that file, part of the
 ## 7. Report, then review — inline, not by invocation
 
 First the report, and keep it short: the rows added with their ids, the rows reopened with why,
-whether the Summary or any history moved, and the pointer: `/plan-build`, which starts or resumes it.
+whether the Summary moved, and the pointer: `/plan-build`, which starts or resumes it.
 
 Then **review the whole plan, not only the new rows**: read `${CLAUDE_SKILL_DIR}/../plan-review/SKILL.md`
 — on a host that does not set that variable, the same relative path from this file's own directory —
@@ -176,6 +171,12 @@ and waited on as step 4 requires; every other plan edit in the loop goes in unan
 **`/plan-review` cannot be invoked.** Its `disable-model-invocation: true` hides it from the model,
 so reading its file is the only way to get its cycle — one of the one-hop cross-skill reads the
 README's contributing section names. An edit that "fixes" this into a call breaks the skill silently.
+
+**Last, a plan over 400 KiB moves its closed history out** (the app stops rendering near 512 KiB) and reports
+what moved in one more line. Appended to `<plan stem>-history.md` beside it, created if absent, never
+rewritten: body sections only closed rows cite, review-cycle logs older than the latest, finished runs' Run
+log headers with their lines. Never moved: the Summary, the Progress table, a section an open or parked row
+cites, the latest Run log header. The plan keeps one pointer line to that file, part of it, not a copy.
 
 ## Examples
 

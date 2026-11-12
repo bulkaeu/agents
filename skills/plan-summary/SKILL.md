@@ -43,7 +43,8 @@ Rows, icons and legacy tables are read as `CONVENTIONS.md` describes — includi
 put the icon in a `Status` column. Do not offer to convert one: the summary is read-only, and a
 working table in an old shape is not a defect.
 
-Tally each state. **Current step** = the `🟡` row; if none, the first `⬜`. If every row is `✅`/`⏭️`,
+Tally each state. **Current step** = the `🟡` row; if none, the first `⬜`; if neither, but some row
+is `⛔`, *Where we are* says `nothing in flight — N parked` and names them. If every row is `✅`/`⏭️`,
 the plan is complete — one line says so **in place of the Where-we-are section, with no
 `## Where we are` header at all**. A header wrapping the "complete" line is the section the spec
 said not to print.

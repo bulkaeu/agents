@@ -66,7 +66,8 @@ Field rules, so two runs on the same plan match:
   link, `[ABC-123](<url>)`. A plan whose ticket line says `none` renders `no ticket`; `pending`
   renders `ticket pending`; no ticket line at all renders `no ticket field`.
 - **`Doing`** is the `🟡` row; with no `🟡` it is the first `⬜`, and the clause says so — *waiting,
-  nothing in flight* — because "Doing" otherwise overstates.
+  nothing in flight* — because "Doing" otherwise overstates. With no `🟡`, no `⬜` and some `⛔`, it
+  is `Doing: nothing — N parked`.
 - **`Next`** lists the rows *after* `Doing`, by **row id** (`CONVENTIONS.md`), never re-listing
   `Doing` itself. Ids, not ordinals: `1)` `2)` tells the reader nothing they can look up.
 

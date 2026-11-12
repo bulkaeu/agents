@@ -26,18 +26,19 @@ the user the time these skills exist to save.
 | **A foreign path** in a dispatched row's diff — in its `paths-<n>.txt`, in no report's **Changed** (`plan-build/EXECUTION.md`) | Likely a peer's work: never restored, removed or committed. **Halts the run**. A path in `outside-<n>.txt`, beyond the row's `--path` scope in a shared checkout, is left alone the same way but does not halt |
 | **No usable report** from a dispatched row — a crash, or no **Changed** | Its own paths are unknown, so nothing in the tree is safe to restore. **Halts the run** |
 | A row's `diff` exits 3 because its base is **not an ancestor** of `HEAD` | History moved under the run and no paths file exists. **Halts the run** |
-| **A commit in `'@{u}'..$tip`** that the Run log does not record and the user did not name | Pushing would publish someone else's commit. Stops the push; a yes covers the shas shown and no others |
+| **A commit in `'@{u}'..<sha>`** that the Run log does not record and the user did not name | Pushing would publish someone else's commit. Stops the push; a yes covers the shas shown and no others |
+| **Deleting what the plan made outside its repositories** — a toolchain, cache or home folder from a `created:` line, or uncited media in the run directory | Large and slow to rebuild: measured and asked in the one batch (`plan-finish/CLEANUP.md`) |
 
 **What stays ordinary:** `git add` and `git commit` of work in scope, by explicit path; pushing to a
 branch's **existing upstream** when no push row is parked and
 the upstream branch's name equals the local branch's — compare `git rev-parse --abbrev-ref @{u}`,
 minus its remote, with `git branch --show-current`. A mismatch, usually a worktree branch still
-tracking `main`, is a stop: offer `git push -u origin HEAD:<branch>`. The push names the sha that
-was listed, never a moving `HEAD`: take `tip=$(git rev-parse HEAD)`, print
-`git log --oneline '@{u}'..$tip`, then push `git push origin $tip:<branch>`, so a commit landing after
-the listing is not carried. Writing under `~/` — scratch files, fixtures, caches — is ordinary too,
-being reversible and local. "Touches anything outside this checkout" is deliberately *not* a stop:
-it would park every step that writes a temp file.
+tracking `main`, is a stop: offer `git push -u origin HEAD:<branch>`. The push names the listed sha,
+never a moving `HEAD`: print `git rev-parse HEAD` and `git log --oneline '@{u}'..<sha>`, then push
+`git push origin <sha>:<branch>` with the sha pasted in, so a later commit is not carried. Never a shell
+variable: zsh reads `$tip:r…` as a modifier, and one lost between calls makes it `:<branch>`, a delete.
+Writing under `~/` — scratch, fixtures, caches — is ordinary too, being reversible and local.
+"Touches anything outside this checkout" is not a stop: it would park every step writing a temp file.
 
 **"Reversible and local" is the test, never "the plan said so".** A step that deploys, migrates,
 publishes, sends or deletes data stops whether or not its author marked it `BLOCKED`. An author who

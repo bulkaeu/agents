@@ -43,13 +43,13 @@ Independence comes from a reviewer that did not write the plan, dispatched by th
   plan as `plan-review/write-check-<n>.snapshot`, beside the review saved below — git cannot restore a
   plan's uncommitted edits, wherever it lives. Never edited, never a second plan (`no-plan-copies.md`).
 - **Dispatch one fresh `Explore` subagent** with [reviewer-prompt.md](reviewer-prompt.md): the text
-  below its `---` line, `{plan}` and `{checklist}` replaced with the paths of the plan and
-  [checklist.md](checklist.md), nothing added. The prompt resolves paths across the scope. Set its
-  model **explicitly**, on every host: the strong tier at the row reviewer's default effort, and the
-  strongest only when a row carries `review: deep` or the plan has a `BLOCKED — wait for user` row for
-  a migration or deploy. Tiers per host: [DISPATCH.md](../plan-build/DISPATCH.md) §3, `CONVENTIONS.md`.
-- **Save its reply verbatim** as `$(row-snapshot.sh dir <plan>)/plan-review/review-<n>.md`, `<n>`
-  the next free number — outside every repository, and never over an earlier cycle's review.
+  below its `---` line, `{plan}`, `{checklist}` and `{run_dir}` replaced with the paths of the plan,
+  [checklist.md](checklist.md) and the run directory, nothing added. Its model is set **explicitly** on
+  every host ([DISPATCH.md](../plan-build/DISPATCH.md) §3): the strong tier at the row reviewer's default
+  effort, the strongest only for a `review: deep` row or a `BLOCKED — wait for user` migration or deploy.
+- **Save its reply verbatim** as `<run dir>/plan-review/review-<n>.md`, `<n>` the next free number,
+  never over an earlier cycle's; `bash "${CLAUDE_SKILL_DIR}/../plan-build/scripts/row-snapshot.sh" dir <plan>`
+  prints the run directory, outside every repository.
 - **Run the write check** (`DISPATCH.md` §6): every note against the present, plus the scratchpad and the
   review's directory — anything the controller did not write. Any write is a finding; list stray files and
   ask, removing them only on the user's yes. A changed plan: print the diff and wait, naming the Progress

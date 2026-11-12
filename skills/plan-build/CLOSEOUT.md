@@ -43,8 +43,14 @@ execute → park what must be parked → final review → fix wave → close out
        → on no: they stay blocked
 ```
 
-`plan-finish`'s own *"not done — N items"* ask is **folded into that one question**. A run that
+`plan-finish`'s own *"not done — N items"* ask is **folded into that one question**. Rows parked by a
+no to the `needs: screen` ask (`EXECUTION.md`) are listed in the report, not asked again. A run that
 ends at a hand-off row does none of this; the resuming run does it at the true end.
+
+**A plan over 400 KiB at close-out moves its closed history out** as `plan-add/SKILL.md` step 7 says —
+the app stops rendering a plan near 512 KiB. The move comes after the fix wave and just before
+`plan-finish`'s audit begins, so the audit commits `<plan stem>-history.md` with the plan file as the
+run's own path, never as an unclaimed dirty file.
 
 ## The report
 

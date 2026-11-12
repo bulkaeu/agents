@@ -100,10 +100,8 @@ disk, not by `git log`. **No repository in scope is a state, not an error**: con
 **On Codex**, pre-flight also prints a one-line reminder when the session's own model or effort
 differs from the `plan-run` profile (`CONVENTIONS.md`, *Model tiers*, Controller). It never stops.
 
-**Started** means any row is `🟡` or `✅`, or a `⛔` row's Notes record a run's blocker. Author-parked
-rows do not count: a `⛔` the plan's author wrote before any run — the pending-ticket row
-`plan-ticket-tracking.md` requires is the usual one — is listed as already parked, and an unstarted run
-starts at the first `⬜`.
+**Started** is `CONVENTIONS.md`'s term. An author-parked `⛔` is listed as already parked, and an
+unstarted run starts at the first `⬜`.
 
 ## 3. `--dry-run`
 
@@ -141,7 +139,8 @@ Report shape — follow it, so two runs on the same plan are comparable:
 ```
 /plan-build --dry-run · <plan file>
 Verdict:  would run from row <n>   |   REFUSED — <why>
-Pre-flight: table <pass/fail> · started no · concurrency pass · <n> foreign dirty paths | no repo · scope <…>
+Pre-flight: table <pass/fail> · started no · concurrency <pass, or the colliding paths>
+            · <n> foreign dirty paths · scope <…>   (no repo in scope: concurrency no repo, no count)
 Tiers:    <tiers.sh's line, or its error>   (the floor's per-tier counts below use these models)
 Parked:   row <n> <step-id> — already parked by the author: <its Notes>
 Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
@@ -162,8 +161,8 @@ A clean dry-run is not clearance. Nothing written.
 
 ## 4. Execute
 
-Per [EXECUTION.md](EXECUTION.md): record the run base, then `🟡` → work (dispatched or inline) →
-verify → `✅` with Notes, one row at a time, parking what rule 3 says to park.
+Per [EXECUTION.md](EXECUTION.md): the run base unless the Run log has one, then `🟡` → work
+(dispatched or inline) → verify → `✅` with Notes, one row at a time, parking what rule 3 says to park.
 
 ## 5. Review, close out, ask, report
 
@@ -177,8 +176,8 @@ the one question.
 
 **A fresh 12-row plan** — pre-flight clean, twelve rows worked in order: five code rows each built by
 an implementer, passed by a reviewer and committed; seven inline. Final review PASS, checks green,
-close-out applied from `plan-finish/CHECKLIST.md`, no parked rows. Report is one line plus any
-rulings. The user was asked nothing after the initial approval.
+close-out applied from `plan-finish/CHECKLIST.md`, no parked rows. Report is one line, any rulings,
+and the stats line. The user was asked nothing after the initial approval.
 
 **A reviewer catches a defect** — row 4's reviewer finds a CONFIRMED path traversal the step's
 "copy verbatim" would ship. One fix round under a logged ruling, a re-review reports it ADDRESSED,

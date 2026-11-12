@@ -77,7 +77,7 @@ read the artifact or re-answer the done-state, then decide.
   addition does not touch is noise the column cannot filter back out.
 - **One row, one outcome.** Where test 3 holds alongside test 1 or test 2, supersede wins —
   reopening a step you have just decided against asks someone to redo work you do not want.
-- **A plan that has not started keeps no history** — every row `⬜`, nothing in flight, no `## Run log`.
+- **A plan that has not started keeps no history** — *started* as `CONVENTIONS.md`'s *Terms* defines it.
   Nothing is closed, so nothing reopens; a row test 3 retires is rewritten or removed outright and the
   table renumbered (§6), leaving no `⏭️` row, no earlier-revisions table and no trace in Notes.
 

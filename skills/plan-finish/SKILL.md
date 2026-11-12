@@ -50,13 +50,14 @@ Anything reversible, in scope, and implied by the word *finish* — never the pl
 - Scratch files, decoys, and probes **this skill or this plan created**.
 - Doc drift it can verify mechanically — a stale count, a missing table row, a renamed path.
 - `git add` and `git commit` of **claimed paths** only, by explicit path, never `git add -A` or `.`: the plan
-  file, always — no `commit:` releases it; a closed row's own paths (`plan-build`'s `EXECUTION.md`) and the
-  Run log's `inline <row id>: <paths>`, each until a logged `commit:` holds them; its own writes — never to a
-  file dirty and unclaimed when it began (*dirty at start*): drift or a red check's cause is reported, not
-  fixed. Run the `plan-build` `SKILL.md` §2 *Concurrency* check first: a leftover sequencer stops the commit.
-  Any other dirty path — a legacy row with no report, a later hunk on a path a `commit:` holds, a peer's file
-  — is *not committed — unclaimed*: listed, committed if the user names it; in repo-only mode, its fixes only.
-  Staged, `git diff --cached --name-only` shows only named paths; an open row's files stay, listed.
+  file and its `<plan stem>-history.md`, always — no `commit:` releases them; a closed row's own paths
+  (`plan-build`'s `EXECUTION.md`) and the Run log's `inline <row id>: <paths>`, each until a logged `commit:`
+  holds them; its own writes — never to a file dirty and unclaimed when it began (*dirty at start*): drift or
+  a red check's cause is reported, not fixed. Run the `plan-build` `SKILL.md` §2 *Concurrency* check first: a
+  leftover sequencer stops the commit. Any other dirty path — a legacy row with no report, a later hunk on a
+  path a `commit:` holds, a peer's file — is *not committed — unclaimed*: listed, committed if the user names
+  it; in repo-only mode, its fixes only. Staged, `git diff --cached --name-only` shows only named paths; an
+  open row's files stay, listed.
 - `git push` of those commits to the current branch's existing upstream.
 
 ### What it stops for
@@ -74,8 +75,7 @@ offer a repo-only audit, and stop — the user names a plan, or takes the audit.
 A repo audit skips area 3 and the Progress check in area 5, and its report is labelled *no plan —
 repo audit only*. "Is this change done?" is a first-class way to invoke this skill.
 
-Then list every repo the work touched, as `plan-build`'s `SKILL.md` §2 *Repository scope* does. A
-plan that spanned three repos needs three audits, not one.
+Then list every repo the work touched (`plan-build`'s `SKILL.md` §2 *Repository scope*): one audit per repo.
 
 ## 2. Audit, in order
 
@@ -115,10 +115,10 @@ Work through the non-green areas in this order, verifying after each:
    per `plan-ticket-tracking.md`; no ticket, no prefix, never an invented one. Right after each commit,
    log `commit: <short sha> <subject>` in the Run log. Push only to an **existing upstream** of the same
    name (`plan-shared/STOPS.md`); none is a new destination: stop, offer the exact `git push -u` line.
-   Push the listed sha, never a moving `HEAD`: take `tip=$(git rev-parse HEAD)`, print
-   `git log --oneline '@{u}'..$tip` — `@{u}..HEAD` frozen at `$tip` — push `git push origin $tip:<branch>`;
-   a later commit is not carried. A listed commit neither so logged nor named by the user this session
-   stops the push with the list, and a yes covers only the shas shown. Repo-only mode always lists and asks.
+   Push the listed sha, pasted in, never a variable or a moving `HEAD` (`STOPS.md`): print
+   `git rev-parse HEAD`, then `git log --oneline '@{u}'..<sha>` (`@{u}..HEAD` frozen), and push
+   `git push origin <sha>:<branch>`. A listed commit neither so logged nor named by the user this session
+   stops the push with the list; a yes covers only the shas shown. Repo-only mode always lists and asks.
 
    **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.
 4. **Cleanup.** Apply [CLEANUP.md](CLEANUP.md): measure what the plan left, with sizes; delete, ask once
@@ -166,13 +166,13 @@ Not done — 1 stop-list item: 2 merged branches are deletion candidates this sk
   git branch -d feature/old-thing feature/other
 ```
 
-End with a one-line verdict. **done** only when every row is closed, no Verification item fails, and
-nothing on the stop-list is outstanding. Otherwise **not done**, naming each kind apart and leaving
-out the empty ones — open rows with the command that runs them, parked rows with their blockers. The
-stop-list number counts only stop-list items; an item you could have fixed belongs fixed, not counted:
+End with a one-line verdict. **done** only when every row is closed, no Verification item fails,
+nothing on the stop-list is outstanding and no clean-up item awaits an answer. Otherwise **not done**,
+naming each non-empty kind apart — open rows with the command that runs them, parked rows with their
+blockers, clean-up items asked (not also counted as stop-list items); anything fixable is fixed, not counted:
 
 ```
-not done — open: 6, 7 → /plan-build <plan> · parked: 4 (needs yes) · 1 Verification FAIL · 1 stop-list item
+not done — open: 6, 7 → /plan-build <plan> · parked: 4 (needs yes) · 1 Verification FAIL · clean-up: 2 asked
 ```
 
 ## Examples
