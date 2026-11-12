@@ -28,7 +28,8 @@ below are the disagreements that actually exist; each names the failure mode and
   commit or push only when asked. **That includes a commit made as a by-product of something else** —
   a `.gitignore` edit committed as a precondition of a setup step, say. Say what the commit would
   contain before making it; a commit nobody was told about is the same unasked write whether it was
-  the point of the step or incidental to it.
+  the point of the step or incidental to it. The one push that needs no asking is a dedicated plans
+  repository's (`plans-live-in-a-plans-repo.md`).
 - **Worktrees.** The project's declared worktree convention — in its own `AGENTS.md` / `CLAUDE.md` —
   wins over a skill's `.worktrees/` default; if the project declares none, ask before creating one.
   Sessions may share the checkout, so `shared-state-between-agents.md` governs the branch, the index
