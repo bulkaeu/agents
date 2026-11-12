@@ -105,8 +105,11 @@ A subagent's claim clears none of these (rule 9).
 A `## Run log` section after the plan's body, written by the controller as things happen — it is
 in the file, so it survives a context summary. It holds:
 
-- a header per run: the date and start time, the `tiers:` line (`SKILL.md` §2), the starting commits,
-  the run base;
+- a header per run: the date and start time, the `tiers:`, `disk:` and any `dirty at start:` lines
+  (`SKILL.md` §2), the starting commits, the run base;
+- every `deferred: <row id> — needs: screen` line (*The loop*);
+- `created: <path or process> — <what>` when the run makes anything outside the repositories that
+  outlives its row — a worktree, a toolchain, a cache, a background process, a folder under home;
 - every ruling, `R<n> · <row id> · <what> — <why> — <cost if wrong>`;
 - every commit the run makes — dispatched row, commit row, close-out or fix wave — as
   `commit: <short sha> <subject>`, in the Run log edit right after that commit;

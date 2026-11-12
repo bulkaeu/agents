@@ -6,8 +6,7 @@ on those rows: code it wrote would skip the review that is the point of this fil
 
 ## Contents
 
-- The run directory
-- 1 Base · 2 Brief · 3 Agents and models · 4 Filling a prompt · 5 Statuses
+- The run directory · 1 Base · 2 Brief · 3 Agents and models · 4 Filling a prompt · 5 Statuses
 - 6 Review · 7 Fix loop · 8 Rulings · 9 Record
 - The run base · The final review · Fallback
 
@@ -17,8 +16,9 @@ on those rows: code it wrote would skip the review that is the point of this fil
 On creating it, log `run dir: <the absolute path dir prints>` in the Run log; a legacy `<plan stem>`
 directory, recorded or named by `dir` on stderr, is kept: log it. Each dispatched row gets `rows/<row id>/`:
 the base, then per pass `<n>` `brief-<n>.md`, `report-<n>.md`, `diff-<n>.patch`, `impl-checks-<n>-<k>.txt`,
-`checks-<n>.txt`, `review-<n>.md` — pass 1 the first attempt, each fix round adding one. The script numbers
-the diffs; number the rest to match. All of it lives outside every repository, so none can reach a commit.
+`checks-<n>.txt`, `review-<n>.md` — pass 1 the first attempt, each fix round adding one; the script numbers
+the diffs, you the rest. Temporary files the run or its helpers make go under `<run directory>/scratch/`,
+so close-out can measure them. All of it lives outside every repository, so none can reach a commit.
 
 ## 1. Base — once per repository in scope, before the implementer starts
 

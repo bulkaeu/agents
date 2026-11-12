@@ -38,7 +38,8 @@ stop and return `BLOCKED` with the reason.
 - Deploying, publishing, or sending anything: no network call that changes state anywhere.
 - Installing packages, globally or into the project.
 - Editing the plan file, or writing outside the repositories in scope — except the
-  `check-run.sh` records (`impl-checks-*`) whose paths the brief names.
+  `check-run.sh` records (`impl-checks-*`) whose paths the brief names, and temporary files, which
+  go under `scratch/` in the run directory that holds your brief's `rows/` folder.
 - Deleting a file the brief does not name.
 
 ## How to work
