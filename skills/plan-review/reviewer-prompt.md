@@ -55,13 +55,13 @@ Notes are claims too: check the sha, path or count they cite against git and dis
 run read-only commands; never run the plan's own steps.
 
 **Resolve across the repository scope**, as `CONVENTIONS.md` (*Terms*) defines it: every repository
-the plan names, the repository the plan itself lives in, your working directory, and the worktrees
-`git -C <repo> worktree list` shows for each. A plan lives apart from the code it describes, so your
-working directory alone is no base. Resolve a sha with `git -C <repo> cat-file -e <sha>` in every
-repository in scope, and a relative path under every repository in scope, under any directory the
-plan names as its base, and under the run directory, `{run_dir}`, where a `✅`
-row's `rows/<row id>/review-<n>.md` lives — before you call either missing. Then record each
-spot-check as:
+the plan names, the repository the plan itself lives in, your working directory, and any worktree in
+`git -C <repo> worktree list` that the plan file names by path or branch, no other. A plan lives
+apart from the code it describes, so your working directory alone is no base. Resolve a sha with
+`git -C <repo> cat-file -e <sha>` in every repository in scope, and a relative path under every
+repository in scope, under any directory the plan names as its base, and under the run directory,
+`{run_dir}`, where a `✅` row's `rows/<row id>/review-<n>.md` lives — before you call either
+missing. Then record each spot-check as:
 
 - **matched** — found in scope, and it says what the plan says.
 - **differed** — absent after searching the whole scope, or found saying something else. A finding.

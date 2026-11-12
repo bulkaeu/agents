@@ -7,14 +7,16 @@ table that lies re-does finished work or skips unfinished work**, and both look 
 time. So a resumed run earns its keep before it executes a single step: it makes the table true
 first, and says what it corrected.
 
-The files this one names sit beside it in the `plan-build` directory, except `STOPS.md` and
-`CONVENTIONS.md`, which are in `plan-shared`.
+The files this one names sit in the `plan-build` directory, beside it or under `scripts/`, except
+`STOPS.md`, `CONVENTIONS.md` and `scripts/table-claims.sh`, which are in `plan-shared`.
+`${CLAUDE_SKILL_DIR}` is `plan-build/`; where unset, this file's directory.
 
 ## Dirty paths a resumed run owns
 
 Before reconciling, run the repository-scope, concurrency and tiers checks (`SKILL.md` §2): a
 collision means stop and report, not clean up, and a `tiers.sh` error means stop. Their output —
 `dirty at start` included — opens this run's Run log header, even when an earlier header already has one.
+A `--dry-run` runs the same checks and writes no header: what they found goes in its report.
 
 A dirty path is this run's own only if it is the plan file, an own path of the in-flight `🟡` row, or
 an own path of a closed (`✅`) row that no commit on a Run log `commit:` line holds yet (a crash before
@@ -60,14 +62,19 @@ by design left no commit and no artifact; reverting it would re-enter the hand-o
 
 **`STOPS.md`'s evidenced-action clause matters most here.** A `BLOCKED — wait for user` row whose
 awaited action is already evidenced — in this session's context, or on disk — is verified and
-ticked, not parked. The marker gates the action, not the bookkeeping after it.
+ticked, not parked. The marker gates the action, not the bookkeeping after it. This run's own output
+is never that evidence: a row that waits for the user to run something is not ticked by the run
+doing it in their place.
 
 ## `--dry-run` on a started plan
 
 Reconcile and report, **write nothing**. Corrections are *proposed* (`row 3: ✅ → ⬜, claims x, x
-absent`), never applied. Then the *will park* list — rows carrying the explicit `BLOCKED` marker,
-dependents excluded — after the reconciliation report, and the *will defer* list, rows carrying
-`needs: screen`. A clean dry-run is not clearance.
+absent`), never applied. Then three lists, after the reconciliation report: *parked*, the rows already
+`⛔` that reconciling keeps parked; *will park*, the open rows (`⬜`, `🟡`) carrying the explicit
+`BLOCKED` marker, dependents excluded; and *will defer*, the open rows carrying `needs: screen`. A
+closed or parked row is never in *will park*, marker or not: state comes from the icon. Each list,
+and `Resume at`, reads the table as the proposed corrections would leave it. A clean dry-run is not
+clearance.
 
 **`--dry-run` ends here. It does not execute — Resume does not run.** The section that follows is
 the real-run path; a dry run stops at this report and never enters the loop.
@@ -77,14 +84,23 @@ Report shape — follow it, so two runs on the same plan are comparable:
 ```
 /plan-build --dry-run · <plan file>
 Scope:    <repos in scope, or "no repo">
-Pre-flight: concurrency pass · <n> foreign dirty paths   |   REFUSED — collision: <the colliding paths>
+Tiers:    <tiers.sh's line, or its error>
+Pre-flight: concurrency pass · foreign dirty paths: <repo> <n>, …   |   REFUSED — collision: <paths>
 Reconcile: <N> correction(s) proposed, 0 applied
   row <n>: <icon> → <icon> — <what the table claims>; <what is on disk>
+Parked:   row <n> <step-id> — <the blocker in its Notes>
 Will park: row <n> <step-id> — <the marker, quoted>
 Will defer: row <n> <step-id> — needs: screen
-Resume at: row <n>
+Resume at: row <n>   |   none — no open row
+A clean dry-run is not clearance: stops other than the markers are recognised at execution.
 Nothing written.
 ```
+
+A list with nothing in it prints `none` after its label; with no repo in scope, `Pre-flight:` reads
+`concurrency no repo` and carries no count. A refusal, for a collision or a `tiers.sh` error, prints
+the lines down to `Pre-flight:` (`Pre-flight: REFUSED — tiers` for the error, which `Tiers:` carries),
+then the last two lines; it does not reconcile. Print the lines as shaped, with no added
+parentheticals; anything else worth saying goes under `Reconcile:` as an `observation:` line.
 
 ## Resume
 
