@@ -26,7 +26,8 @@ Read each file when first needed, not before: an early read spends context the r
 | At invocation | This file; [RULES.md](RULES.md) and [the stop-list](../plan-shared/STOPS.md), the safety surface this file assumes; [CONVENTIONS.md](../plan-shared/CONVENTIONS.md), shared terms and the plan ladder; [EXECUTION.md](EXECUTION.md), the loop |
 | The plan is started (§2) | [RESUME.md](RESUME.md), which reconciles it before the loop |
 | The first row classified as dispatch | [DISPATCH.md](DISPATCH.md), how a code row is built and reviewed, and its two prompts beside it |
-| The last row closes, or a `--dry-run` | [CLOSEOUT.md](CLOSEOUT.md); a dry run also reads `DISPATCH.md` §3 for its per-tier counts |
+| The last row closes | [CLOSEOUT.md](CLOSEOUT.md) |
+| A `--dry-run` of an unstarted plan | `DISPATCH.md` §3 only, for its per-tier counts |
 
 ## Standing orders
 
@@ -81,6 +82,7 @@ All five, before any work:
 summary. It reads `CONVENTIONS.md`'s table from disk; put its one-line output in the run's Run log header
 verbatim, beside `disk: <N> GiB free` from `df -Pk "$HOME"` (close-out's clean-up baseline). The tiers line,
 not an earlier read of the table and not a previous run's header, is what every dispatch in this run uses.
+Where the variable `CLAUDE_SKILL_DIR` is unset, use this file's directory, in every file of this skill.
 
 **Concurrency** (`shared-state-between-agents.md`), in every repo in scope, asks whether this run would
 collide with another session, not whether one is there. It stops, naming the paths, for exactly two
@@ -93,9 +95,9 @@ resumed run owns is in [RESUME.md](RESUME.md). Every other path `git status --sh
 Rows already leave a path dirty at their base alone, so for the whole run a foreign path is never staged,
 restored, committed or cleaned; its repo is shared, so its rows get `DISPATCH.md` §6's `--path` scope.
 
-**Repository scope**: list every repo the plan touches — the plan's own paths, the cwd, and anything in
-`git worktree list` — and check each. Rows whose artifacts live outside any repository are verified on
-disk, not by `git log`. **No repository in scope is a state, not an error**: concurrency reads *no repo*.
+**Repository scope** is `CONVENTIONS.md`'s term: list those repos and check each. Rows whose artifacts
+live outside any repository are verified on disk, not by `git log`. **No repository in scope is a state,
+not an error**: concurrency reads *no repo*.
 
 **On Codex**, pre-flight also prints a one-line reminder when the session's own model or effort
 differs from the `plan-run` profile (`CONVENTIONS.md`, *Model tiers*, Controller). It never stops.
@@ -109,7 +111,7 @@ Pre-flight only on an unstarted plan; on a started one, reconcile-and-report in
 [RESUME.md](RESUME.md)'s shape instead. An unstarted plan prints:
 
 - the **verdict** — would run from row *N*, or refuses because … (a collision, with its paths);
-- the ***will park*** list — rows whose step text carries the explicit `BLOCKED` marker, printed on
+- the ***will park*** list — open rows whose step text carries the explicit `BLOCKED` marker, printed on
   both verdicts including a refusal — and, before it, any author-parked `⛔` rows as *already
   parked*;
 - the ***will defer*** list — rows carrying `needs: screen` (`EXECUTION.md`, *The loop*);
@@ -119,8 +121,7 @@ Pre-flight only on an unstarted plan; on a started one, reconcile-and-report in
   judged from its step text, markers included, and the final review's tier as the table predicts it;
 - and **writes nothing**.
 
-Rows that merely *depend* on a marked row are not listed: dependent parking is an execution-time
-consequence of rule 2, and a dry run is a text scan, not a simulation.
+Rows that merely *depend* on a marked row are not listed: a dry run is a text scan, not a simulation.
 
 State plainly, every time, that the other stop-list categories — deploys, migrations, sends, deletions,
 judgement calls — are recognised at execution time from what a step actually does. **A clean
@@ -140,8 +141,8 @@ Report shape — follow it, so two runs on the same plan are comparable:
 /plan-build --dry-run · <plan file>
 Verdict:  would run from row <n>   |   REFUSED — <why>
 Pre-flight: table <pass/fail> · started no · concurrency <pass, or the colliding paths>
-            · <n> foreign dirty paths · scope <…>   (no repo in scope: concurrency no repo, no count)
-Tiers:    <tiers.sh's line, or its error>   (the floor's per-tier counts below use these models)
+            · foreign dirty paths: <repo> <n>, … · scope <…>   (no repo: concurrency no repo, no count)
+Tiers:    <tiers.sh's line, or its error>
 Parked:   row <n> <step-id> — already parked by the author: <its Notes>
 Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
            (dependents are not listed; they park at execution under rule 2)
