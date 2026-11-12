@@ -20,9 +20,9 @@ run changed any file in the plan's repositories.
 **Close-out** applies `plan-finish` inline. These skills cannot invoke `/plan-finish`: it sets
 `disable-model-invocation: true`, which hides it from the model entirely. So:
 
-1. Read `plan-finish/SKILL.md` and `plan-finish/CHECKLIST.md` from the sibling skill directory —
-   `${CLAUDE_SKILL_DIR}/../plan-finish/`, or the same relative path on a host that does not set that
-   variable.
+1. Read `plan-finish/SKILL.md`, `plan-finish/CHECKLIST.md` and `plan-finish/CLEANUP.md` from the
+   sibling skill directory — `${CLAUDE_SKILL_DIR}/../plan-finish/`, or the same relative path on a host
+   that does not set that variable.
 2. Apply them **verbatim** — the audit, the fix-by-default posture, the per-ecosystem command tables.
 3. **Name the file you applied** in the report, so a reader can tell an applied checklist from a
    remembered one.
@@ -31,14 +31,14 @@ run changed any file in the plan's repositories.
 `plan-finish`'s own stop-list governs this stage, and `RULES.md` rule 3 applies here as everywhere.
 **Outside a git repository**, the commit and cleanup areas report *no repo* rather than being
 skipped silently. **Cleanup deletes scratch, never deliverables**: a file a row exists to create is
-the plan's output and stays; scratch is what the run made incidentally. The run directory holds the
-reviews and is not scratch.
+the plan's output and stays; scratch is what the run made incidentally. In the run directory, the
+records stay, `scratch/` goes, uncited media is asked about.
 
 ## Order, stated once
 
 ```
 execute → park what must be parked → final review → fix wave → close out
-       → one question covering the parked set → report, ending with "Rulings I made"
+       → one question covering the parked set → report, ending with "Rulings I made", then the stats line
        → on yes: run the rows that yes releases, then review and close out again
        → on no: they stay blocked
 ```
@@ -48,10 +48,11 @@ ends at a hand-off row does none of this; the resuming run does it at the true e
 
 ## The report
 
-Scale it to what happened. A clean run is a line:
+Scale it to what happened. A clean run is its one-line summary plus the stats line:
 
 ```
 done · 12/12 · 5 rows reviewed, final review PASS · checks green · committed a1b2c3d
+Run: 2h 14m · helpers 11 (standard 9 · strong 2 · strongest 0) · first-pass reviews 4/5
 ```
 
 When rows parked, they are the news — lead with them, name the blocker, and give the exact command

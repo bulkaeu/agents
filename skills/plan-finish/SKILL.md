@@ -36,8 +36,7 @@ Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it befor
 - **One approval covers a batch** — except `STOPS.md`'s asked-alone set, each asked alone. Otherwise ask once
   for the whole set: "these four things" → one yes → all four. Never turn six worktrees into six prompts.
 - **A harness prompt is not a stop** (`STOPS.md`): answer the hook and continue.
-- **A check you did not run is not a check that passed.** If tooling is missing or a script does not
-  exist, say so by name. Never let an unrun check read as green.
+- **A check you did not run is not a check that passed.** Name a missing tool or script; never green.
 - **Report what the commands actually said.** Real counts, real failures. "Tests pass" is not a result.
 
 ### What it fixes without asking
@@ -87,7 +86,7 @@ plan that spanned three repos needs three audits, not one.
 | 3 | Verification | Does each of the plan's `## Verification` items pass — by its recorded result, or run now? |
 | 4 | Commits | Is anything uncommitted, unpushed, or stashed? |
 | 5 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Which Progress rows are closed, parked, open — **and does every commit have a row?** Does the plan's `**Ticket:**` still match the plan's state? Read the ticket's state from the tracker in the same turn as the report — never carried from an earlier read, the conversation or memory — and say when a merged pull request closed it by itself |
-| 6 | Cleanup | Merged branches, stale worktrees, `*.orig`/`*.rej`, scratch files the plan created? |
+| 6 | Cleanup | What did this plan leave on disk, with sizes, and is each item deleted, asked about or kept on purpose? |
 
 **Area 2 follows the [global scope rule](../../claude/CLAUDE.md#finishing-a-plan):** text-only work gets
 document checks; implementation (including executable input) gets the required full suite. Explicit requests
@@ -122,16 +121,16 @@ Work through the non-green areas in this order, verifying after each:
    stops the push with the list, and a yes covers only the shas shown. Repo-only mode always lists and asks.
 
    **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.
-4. **Cleanup.** Delete what this plan created; leave anything else alone. Worktrees come out before
-   the branches they hold, or git refuses the branch and leaves a dangling registration.
+4. **Cleanup.** Apply [CLEANUP.md](CLEANUP.md): measure what the plan left, with sizes; delete, ask once
+   or keep each item. Area 6 is green only when every measured item is classified and nothing waits on an
+   answer. Worktrees come out before the branches they hold, or git refuses the branch.
 5. **Close the plan.** Confirm the table agrees with what happened, no row claiming more than the
    evidence shows. Closing is bookkeeping by the ledger rule above, never doing rows: a row is ticked
    only if its step demonstrably ran; every other row stays open and goes in the report.
 
    **Update each row as its step finishes, not all of them here.** `plan-progress-section.md` forbids
-   batching a phase's rows into one edit at a boundary — the table records what was true *when*. This
-   step is the **checkpoint** that confirms nothing was missed, not the moment to write six rows.
-   Notes go in with the icon, `Edit`/`Write` and never Bash, per `ui-rendered-files-use-write-tool.md`.
+   batching a phase's rows at a boundary: the table records what was true *when*. This is the **checkpoint**.
+   Notes go in with the icon, by `Edit`/`Write` and never Bash (`ui-rendered-files-use-write-tool.md`).
 
 If a stop-list item blocks a step, do the rest first, then raise it, never leaving the fixable ones undone.
 
@@ -146,7 +145,7 @@ done · 6/6 green · nothing outstanding
 **When you fixed things**, lead with them — that is the news:
 
 ```markdown
-Fixed: added 2 missing Progress rows · deleted 1 scratch file · committed and pushed (a1b2c3d)
+Fixed: added 2 missing Progress rows · deleted run scratch (2.4 GB) · committed and pushed (a1b2c3d)
 Not committed — unclaimed: src/retry.ts, README.md — no closed row or Run-log line claims them
 
 | Area | Status | Detail |
@@ -155,6 +154,9 @@ Not committed — unclaimed: src/retry.ts, README.md — no closed row or Run-lo
 | Verification | ✅ | 2 items · PASS recorded in row B3's Notes, not re-run · PASS run now, `bash check.sh` exit 0 |
 | Commits | ✅ | was 3 modified + 1 untracked; committed as a1b2c3d, pushed |
 | Docs | ✅ | was: README omitted 3 files added last commit; fixed |
+| Cleanup | ✅ | 4 items · deleted: `scratch/` 2.4 GB, worktree 140 MB · kept: run records 18 MB, a cited capture 2 MB |
+
+disk: 41 GiB free now · 44 GiB at the run's start · 3 GiB less, 0.02 GiB of it this plan's
 ```
 
 **When something stopped you**, that goes last and alone, with the exact command:
@@ -185,8 +187,7 @@ leaves row 6's file uncommitted, listed with row 6; runs neither row; reports th
 and fixes nothing: `not done — open: 6, 7 → /plan-build <plan> · 1 Verification FAIL`.
 
 **`/plan-finish` with a stale plan table** — two commits have no Progress row and the README omits a
-file added last commit. All three are mechanical and verifiable: fix them, commit, push, report. This
-is the case that must never come back as "shall I?".
+file added last commit. All three are mechanical and verifiable: fix, commit, push, report — never "shall I?".
 
 **`/plan-finish` in a repo with no plan** — audits the working tree, labels the report *no plan — repo
 audit only*, fixes what it finds, and commits only its own fixes and what the user names.
@@ -194,7 +195,6 @@ audit only*, fixes what it finds, and commits only its own fixes and what the us
 **Red suite** — 2 failing specs, obvious cause: fix, re-run, report the new result, continue. A cause
 *dirty at start* is reported, not fixed; one not obvious stops with the failing names and what you tried.
 
-**Merged branches present** — finishes everything else first (commit, push, the plan's table, its own
-scratch files), *then* raises the branches, because it did not create them. One batch question with
-the exact `git branch -d` line, not one prompt per branch. Note `--merged` lists branches merged into
-the *current* branch, which is not proof they are merged upstream, so present them as candidates.
+**Merged branches present** — finishes everything else first, *then* raises the branches it did not
+create: one batch question with the exact `git branch -d` line, not one prompt per branch. `--merged` lists
+branches merged into the *current* branch, not proof they are merged upstream: present them as candidates.
