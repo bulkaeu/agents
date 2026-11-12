@@ -79,7 +79,7 @@ a resume.
 ## Once a ticket exists
 
 - **Every commit for that plan starts with the identifier** — `ABC-123: <what changed>`, including
-  commits an executing skill (`/plan-build`, `/plan-continue`, `/plan-finish`) makes on the plan's
+  commits an executing skill (`/plan-build`, `/plan-finish`) makes on the plan's
   behalf. No ticket means no prefix; this rule never invents one.
 - **Never invent or guess an identifier.** Resolve it through the tracker and use what comes back. A
   wrong id silently attaches work to someone else's ticket.

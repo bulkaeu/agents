@@ -43,7 +43,8 @@ the user is working on).
 - **Rows stay in execution order.** A step added mid-run goes where it actually ran, not next to the
   row that inspired it. Appending `E5` beside `E2` because they are both verification produces a
   table that reads `E1 E2 E5 E3 E4` — every reader then has to reconstruct the real sequence, and
-  `/plan-summary`'s "last rows" window shows the wrong ones. Renumber rather than misplace.
+  `/plan-summary`'s "last rows" window shows the wrong ones. Suffix the id (`3a`) once the plan has
+  started; renumber only an unstarted plan.
 - **Steps are atomic.** One verb, one done-state. `plan-atomic-todos.md` owns what atomic means;
   this rule owns the table it goes in.
 - **Notes are mandatory for `⛔` and `⏭️`.** A blocked row without a blocker, or a skip without a
@@ -54,13 +55,14 @@ the user is working on).
 
 ### Markers the executing skills read
 
-`/plan-build` and `/plan-continue` run a table unattended, so a few words in the Step cell carry
+`/plan-build` runs a table unattended, so a few words in the Step cell carry
 meaning. Write them exactly:
 
 | Marker | Use it for |
 | --- | --- |
 | `BLOCKED — wait for user: <what>` | A step that needs the user's action or explicit yes — an apply, a cutover, a run only they can do. `BLOCKED — wait for user confirmation: <what>` is the same marker |
-| `hand-off row` | A step that prints work for the user to do outside the run; the run ends there and resumes with `/plan-continue` |
+| `hand-off row` | A step that prints work for the user to do outside the run; the run ends there and resumes with `/plan-build <plan path>` |
+| `needs: screen` | A step that needs your display or input devices until it finishes — a windowed capture, a GUI the run drives, a playtest. The run defers it, works every row that does not depend on it, then asks you once for the screen |
 | `(⏭️ if <condition>)` | A skip you allow in advance — "fix the findings (`⏭️` if the check was clean)" |
 
 **Closed, parked, open.** `✅` and `⏭️` rows are *closed*; `⛔` rows are *parked*; `⬜` and `🟡` are
@@ -74,6 +76,9 @@ meaning. Write them exactly:
 - **`## Run log`** — written by an executing skill, not by hand: rulings it made on your behalf,
   review findings it deferred, the run's starting commits. It lives in the file so it survives a
   long run's context being summarised.
+- **`<plan stem>-history.md`** — beside a plan past 400 KiB (the app stops rendering one near
+  512 KiB), `plan-add` moves closed history here. It is part of its plan, not a second plan: the
+  Summary and the Progress table never leave the plan, which keeps one pointer line to this file.
 
 ## Keeping it current — this is the part that gets skipped
 
@@ -104,8 +109,10 @@ end is a changelog, not a progress tracker, and it was useless during the only w
   heredoc lands the bytes but leaves the rendered panel showing the stale table.
 - **A step you are told to skip still gets a row edit.** Silent omission and `⏭️ (reason)` look the
   same in the body and completely different to a reader six weeks later.
-- Never delete a row to "clean up". Abandoned work becomes `⏭️` with the reason — the history of
-  what was *not* done is worth as much as what was.
+- Once a plan has started, never delete a row to "clean up". Abandoned work becomes `⏭️` with the
+  reason — the history of what was *not* done is worth as much as what was. A plan that has not
+  started — no `🟡` or `✅` row, no `⛔` a run parked, no `## Run log`; an author's pending-ticket `⛔`
+  does not count — has no history yet: a replaced row is rewritten or removed, and the table renumbered.
 
 If a turn ends with the table disagreeing with what actually happened, that is a defect to fix
 before anything else, not a tidy-up for later. The `Stop` hook in `~/.claude/settings.json` counts

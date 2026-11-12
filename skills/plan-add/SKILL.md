@@ -1,11 +1,12 @@
 ---
 name: plan-add
 description: >-
-  Adds new work to a plan that already exists — resolving the plan, matching the
-  addition against the rows already there, writing atomic rows where they will
-  actually run, and reopening the closed rows the addition invalidates. It
-  authors and never executes: it ends by pointing at /plan-build or
-  /plan-continue. Use when the user invokes /plan-add, or asks to add a step to
+  Adds new work to a plan that already exists — resolving the plan, interviewing
+  the user first when a decision that changes what gets built is still open,
+  matching the addition against the rows already there, writing atomic rows where
+  they will actually run, and reopening the closed rows the addition invalidates.
+  It authors and never executes: it ends by pointing at /plan-build, which starts
+  or resumes the plan. Use when the user invokes /plan-add, or asks to add a step to
   a plan, fold new scope into one, or extend a plan that is already running.
 disable-model-invocation: true
 argument-hint: "<what to add> [optional plan path]"
@@ -13,23 +14,27 @@ argument-hint: "<what to add> [optional plan path]"
 
 # Plan add — new scope, into the plan that already exists
 
-Scope arrives after the plan is written. Writing the new steps is the easy part; the three things
-that go wrong are a second plan file for the same topic, a row appended at the end that should have
-run third, and a `✅` left standing over work the addition just invalidated. This skill does those
-three on purpose, in that order, and hands the plan back to an executor rather than running it.
+Scope arrives after the plan is written. Writing the new steps is the easy part; what goes wrong is a
+second plan file for the same topic, a row appended at the end that should have run third, and a `✅`
+left standing over work the addition invalidated. This skill guards those three, in that order.
 
 ## Hard rules
 
 - **One topic, one plan file.** Never a second plan for a topic that has one (`no-plan-copies.md`).
   A genuinely different topic earns a plan of its own — that is not a copy of this one.
-- **Never delete a row.** Work no longer wanted becomes `⏭️` with the reason and the id of the row
-  that superseded it. The history of what was *not* done is worth as much as what was.
+- **Never delete a row once the plan has started.** Unwanted work becomes `⏭️` with the reason and
+  the superseding row's id: what was *not* done is history too. A plan not yet *started* (`CONVENTIONS.md`,
+  *Terms*) has none: a row the addition replaces is rewritten or removed, and the table renumbered,
+  leaving no `⏭️` row, no earlier-revisions table, no trace in Notes.
 - **Never invent a done-state.** A step whose proof you cannot name is under-specified: say so and
-  ask, rather than writing an observable-sounding sentence nobody can actually check.
-- **Plan edits go through `Edit`/`Write`, never Bash** (`ui-rendered-files-use-write-tool.md`). A
-  `sed -i` lands the bytes and leaves the rendered panel showing the stale table.
+  ask, rather than write an observable-sounding sentence nobody can check.
+- **Facts stated to the user are read, not recalled.** A fact about the machine or the repository
+  that reaches a question, the Summary or a row — free disk, an OS version, whether a tool is
+  installed — was read by a command in this session, interview or not: a remembered one is a guess.
+- **Plan edits go through `Edit`/`Write`, never Bash** (`ui-rendered-files-use-write-tool.md`): a
+  `sed -i` leaves the rendered panel stale.
 - **This skill authors; it never executes.** No step runs here, however small. It ends pointing at
-  `/plan-build`, or `/plan-continue` for a plan already under way.
+  `/plan-build`, which starts the plan or resumes one already under way.
 
 ## 1. Resolve the plan — or start one
 
@@ -41,19 +46,17 @@ same shape as `plan-finish`'s repo-only offer.
 **Exactly two paths lead to creation.**
 
 - **The invocation names a path that does not exist.** That is the one signal this skill acts on by
-  itself. Every later rung returns an existing file whenever any plan is around, so nothing else in
-  the ladder can mean *new*.
+  itself. Every later rung returns an existing file when any plan is around, so no other rung means *new*.
 - **The user takes the offer**, on whichever list this skill stopped at, and names where the plan
   goes. That is a choice, not a signal — never read it into silence.
 
-Either way, write the new plan with its `**Ticket:**` line, `## Summary` and `## Progress` table
-(`plan-progress-section.md`, `plan-ticket-tracking.md`), **with the body sections its rows cite, per
-step 4**: at the named path in the first case, at the path the user names in the second. **The plan
-is written at the path it belongs, in plan mode too** (`plans-live-in-a-plans-repo.md`). Plan mode
-auto-permits one file, the harness's own designated session plan, so a write anywhere else may
-prompt: answer the prompt, and never divert the content into that file (`plan-mode-edit-plans.md`).
-Diverting leaves the named path empty, so the next invocation sees a missing path again and creates
-a second plan for the same topic.
+Either way, write the new plan after step 2's interview and step 4's rows: its `**Ticket:**` line,
+`## Summary`, `## Progress` (`plan-progress-section.md`, `plan-ticket-tracking.md`), the body sections
+its rows cite and, if the interview ran, `## Decisions` in the format the close of
+[INTERVIEW.md](INTERVIEW.md) gives — at the named path, or the one the user names. **It goes where it
+belongs, in plan mode too** (`plans-live-in-a-plans-repo.md`). Plan mode auto-permits only the
+harness's session plan, so a write elsewhere may prompt: answer it, and never divert the content into
+that file (`plan-mode-edit-plans.md`) — the named path stays empty, and the next run makes a second plan.
 
 Read the whole plan once resolved, and note its mtime — step 4's guard compares against it.
 
@@ -63,12 +66,16 @@ The argument is the work. With no argument, use what this conversation has alrea
 neither, ask once — one question, then proceed on the answer.
 
 **Where the addition touches code, dispatch one `Explore` subagent** on the standard tier
-([DISPATCH.md](../plan-build/DISPATCH.md) §3) to confirm that the files, commands and checks the new
-rows will name actually exist. A done-state citing a script that is not there is worse than a vague
-one: it reads as verified, and fails at the moment someone trusts it.
+([DISPATCH.md](../plan-build/DISPATCH.md) §3) to confirm the files, commands and checks the new rows
+will name exist. A done-state citing a missing script reads as verified, and fails when trusted.
 
-**A purely editorial addition skips the dispatch and says so in the report.** A silent skip is
-indistinguishable from having forgotten.
+**A purely editorial addition skips the dispatch and says so in the report.** A silent skip looks forgotten.
+
+**When a decision that changes what gets built is still open, run the interview before any table
+write**: read [INTERVIEW.md](INTERVIEW.md) and follow it. A new plan from a request with no agreed
+design, and an addition that contradicts what the plan already decided, are its common cases, not
+the whole list: an addition that opens such a decision without contradicting anything runs it too.
+**Otherwise skip it and say so in the report**, as the dispatch skip above does.
 
 ## 3. Match the addition against the existing rows
 
@@ -96,10 +103,8 @@ before writing any of them. Another session may be inside the very step you are 
 unfinished. Announcing before you change shared state is the rule (`shared-state-between-agents.md`);
 announcing after it is a collision report. **Your own writes never trigger it** — the only stat that
 counts is the one taken before the first of them, and the guard is not re-evaluated between edits.
-
-**The guard holds in plan mode.** `plan-mode-edit-plans.md` frees plan edits from asking permission;
-it does not free them from another session's work in flight. What this guard waits on is a fact
-about the tree, not a permission to write.
+**The guard holds in plan mode.** `plan-mode-edit-plans.md` frees plan edits from asking permission,
+not from another session's work in flight: the guard waits on a fact about the tree.
 
 Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that done-state observable
 — a file that exists, a count, an exit code, a command's output.
@@ -111,22 +116,21 @@ Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that d
   implementer's brief as its **Specification** (`plan-build/DISPATCH.md` §2) — and position is not
   the mapping. Extend the section an existing row already names where the addition belongs in it;
   otherwise write a new section and name it from the row. A row with nothing behind it hands the
-  next `/plan-continue` an implementer whose Specification is empty: the under-specified step the
-  hard rules above forbid.
-- **Renumber only when the plan has not started at all** — every row `⬜`, nothing in flight, no
-  `## Run log`. The moment any row is in flight or closed, insert with a suffixed id — `3a`, `3b` —
-  so existing references keep pointing at the same steps ([MATCHING.md](MATCHING.md) §6).
+  next `/plan-build` an implementer with an empty Specification, the step the hard rules above forbid.
+- **Renumber only while the plan has not started** (hard rule 2's test); once it has, suffix the id
+  — `3a`, `3b` — so references keep pointing at the same steps ([MATCHING.md](MATCHING.md) §6).
 - **Gated work carries the `BLOCKED — wait for user:` marker** (`CONVENTIONS.md`, *Row markers*), on
-  a row of its own. A gate bundled into a step that also does work cannot be parked.
+  a row of its own; a row needing the user's screen until it finishes carries `needs: screen`. A
+  gate bundled into a step that also does work cannot be parked.
 - **Notes stay empty on a new waiting row.** The Notes column records results, never intentions.
 
 ## 5. Reopen what the addition invalidates
 
 **Test 1 or test 2 reopens**: the matched `✅` or `⏭️` goes back to `⬜`. **Test 3 supersedes
-instead** — the row becomes `⏭️`, an open one included, and a superseded row never runs
-([MATCHING.md](MATCHING.md) §3). Either way **its Notes keep the original result** and gain the
-reason and the id of the row that caused the change — the earlier run is evidence, and overwriting
-it destroys the only record of what that step once produced.
+instead** — the row becomes `⏭️`, an open one included, and never runs ([MATCHING.md](MATCHING.md)
+§3). Either way **its Notes keep the original result** plus the reason and the causing row's id: the
+earlier run is evidence, and overwriting it destroys the only record of what that step produced. A
+plan that has not started has nothing to reopen, and a row test 3 retires goes per hard rule 2.
 
 **A reopened row whose causing rows run later moves down to sit after the last of them, keeping its
 id.** Left where it is, it sits above its own causes, and a top-down executor runs it first — against
@@ -134,7 +138,6 @@ a tree the addition has not landed in, so the check passes and the reopen bought
 makes the order true, and the out-of-sequence ids that result are correct rather than a defect: the
 position sequences, the id only identifies ([MATCHING.md](MATCHING.md) §6). **A superseded row is not
 moved** — a `⏭️` never runs, so its position carries nothing.
-
 Every write here is under step 4's guard, a move included, evaluated before the first table write of
 the whole change: if it stopped you, these reopens were in what you printed.
 
@@ -153,45 +156,45 @@ the whole change: if it stopped you, these reopens were in what you printed.
 ## 7. Report, then review — inline, not by invocation
 
 First the report, and keep it short: the rows added with their ids, the rows reopened with why,
-whether the Summary moved, and the pointer — `/plan-build` for a plan that has not started,
-`/plan-continue` for one that has.
+whether the Summary moved, and the pointer: `/plan-build`, which starts or resumes it.
 
-Then **review the whole plan, not only the new rows**: read
-`${CLAUDE_SKILL_DIR}/../plan-review/SKILL.md` — on a host that does not set that variable, the same
-relative path from this file's own directory — and apply its cycle **verbatim**: round 1's
-dispatched reviewer, the fix loop, the closing pass, and the `### Plan review cycle` log it appends.
-New rows change the plan a reviewer would have read. **If that file is missing, say so and stop** —
-do not reconstruct the cycle from memory.
+Then **review the whole plan, not only the new rows**: read `${CLAUDE_SKILL_DIR}/../plan-review/SKILL.md`
+— on a host that does not set that variable, the same relative path from this file's own directory —
+and apply its cycle **verbatim**: round 1's dispatched reviewer, the fix loop, the closing pass, and the
+`### Plan review cycle` log it appends. New rows change the plan a reviewer would have read.
+**If that file is missing, say so and stop** — do not reconstruct the cycle from memory.
 
-**The cycle's edits stay under step 4's guard.** `plan-review` does not ask before plan edits, and
-that settles permission, not concurrency: on a mid-run plan, a fix that touches a row another
-session may be holding is printed and waited on exactly as step 4 requires, and every other plan
-edit in the loop goes in unannounced.
+**The cycle's edits stay under step 4's guard.** `plan-review` not asking settles permission, not
+concurrency: on a mid-run plan, a fix that touches a row another session may be holding is printed
+and waited on as step 4 requires; every other plan edit in the loop goes in unannounced.
 
-**`/plan-review` cannot be invoked.** It sets `disable-model-invocation: true`, which hides it from
-the model entirely, so reading its file and applying it is the only way to get its cycle — one of
-the one-hop cross-skill reads the README's contributing section names. A later edit that "fixes"
-this into a call breaks the skill silently.
+**`/plan-review` cannot be invoked.** Its `disable-model-invocation: true` hides it from the model,
+so reading its file is the only way to get its cycle — one of the one-hop cross-skill reads the
+README's contributing section names. An edit that "fixes" this into a call breaks the skill silently.
+
+**Last, a plan over 400 KiB moves its closed history out** (the app stops rendering near 512 KiB), reporting
+what moved in one line. Appended to `<plan stem>-history.md` beside it, created if absent, never rewritten:
+body sections only closed rows cite, older review-cycle logs, finished runs' Run log headers and lines. Never
+moved: the Summary, the Progress table, a section an open or parked row cites, the latest run header, and any
+`run dir:`, `run base:` or `commit:` line, which later steps read here. One pointer line names the file.
 
 ## Examples
 
 **A verification step, mid-run.** The user wants a smoke check after the deploy row. The plan
-resolves at rung 2; the addition names a script, so one `Explore` run confirms it exists and what it
-prints. No closed row is matched. Rows 1–4 are closed, so the new row goes in as `4a`, in place,
-with the script's exit code as its done-state. Short report, then the review cycle on the whole plan.
+resolves at rung 2; one `Explore` run confirms the named script exists and what it prints. No closed
+row is matched; rows 1–4 are closed, so the new row goes in as `4a`, in place, with the script's exit
+code as its done-state. Nothing is open to decide, so no interview runs. Report, then review.
 
 **An addition that reopens two closed rows.** A schema change makes a column the migration row wrote
 as nullable required, so that row's output is now wrong, and the fixture row's done-state would now
-answer differently — two tests, two matches. Both rows go back to waiting, their original Notes
-intact plus the reason and the id of the row that caused it. One row is in flight, so the guard
-holds before the first table write: print the new rows and the two intended reopens, and wait for
-the yes before writing any of them.
+answer differently — two tests, two matches. Both rows go back to waiting, original Notes intact plus
+the reason and the causing row's id. One row is in flight, so the guard holds before the first table
+write: print the new rows and both reopens, and wait for the yes before writing any of them.
 
 **An addition that does not belong.** The user asks to fold an unrelated refactor into a plan about
 the price loop. No evidence test holds and the two share nothing but a repository. Say so, and offer
 a plan of its own — that is a different topic, not a second file for this one.
 
 **A plan that does not exist yet.** The invocation names a path with no file at it: the one signal
-this skill acts on alone. Write the plan — ticket line, Summary, a Progress table whose rows all
-sit waiting, and the body sections those rows cite — then run the same review cycle over it. Nothing
-executes; the report ends at `/plan-build`.
+this skill acts on alone. With no agreed design, the interview runs first; then write the plan, its
+`## Decisions` included, and run the same review cycle over it. The report ends at `/plan-build`.

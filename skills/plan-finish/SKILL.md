@@ -30,14 +30,13 @@ Command tables for each area live in [CHECKLIST.md](CHECKLIST.md). Read it befor
 - **Audit fully, then act.** Complete the whole audit before changing anything — fixing as you go means acting
   without the full picture. Then *act*: the report is the record of what you did, not a request to start.
 - **Never run an open row.** A `⬜`/`🟡` row (*open*, per `CONVENTIONS.md`) is reported, not run,
-  however small its step: point at `/plan-continue <plan>` (`/plan-build` if none has started), which
+  however small its step: point at `/plan-build <plan>`, which starts or resumes it and
   brings the separate reviewer and the parking this skill lacks.
 - **Fix by default; stop only for `STOPS.md`.** That list is exhaustive — never invent a reason to ask.
 - **One approval covers a batch** — except `STOPS.md`'s asked-alone set, each asked alone. Otherwise ask once
   for the whole set: "these four things" → one yes → all four. Never turn six worktrees into six prompts.
 - **A harness prompt is not a stop** (`STOPS.md`): answer the hook and continue.
-- **A check you did not run is not a check that passed.** If tooling is missing or a script does not
-  exist, say so by name. Never let an unrun check read as green.
+- **A check you did not run is not a check that passed.** Name a missing tool or script; never green.
 - **Report what the commands actually said.** Real counts, real failures. "Tests pass" is not a result.
 
 ### What it fixes without asking
@@ -51,13 +50,14 @@ Anything reversible, in scope, and implied by the word *finish* — never the pl
 - Scratch files, decoys, and probes **this skill or this plan created**.
 - Doc drift it can verify mechanically — a stale count, a missing table row, a renamed path.
 - `git add` and `git commit` of **claimed paths** only, by explicit path, never `git add -A` or `.`: the plan
-  file, always — no `commit:` releases it; a closed row's own paths (`plan-build`'s `EXECUTION.md`) and the
-  Run log's `inline <row id>: <paths>`, each until a logged `commit:` holds them; its own writes — never to a
-  file dirty and unclaimed when it began (*dirty at start*): drift or a red check's cause is reported, not
-  fixed. Run the `plan-build` `SKILL.md` §2 *Concurrency* check first: a leftover sequencer stops the commit.
-  Any other dirty path — a legacy row with no report, a later hunk on a path a `commit:` holds, a peer's file
-  — is *not committed — unclaimed*: listed, committed if the user names it; in repo-only mode, its fixes only.
-  Staged, `git diff --cached --name-only` shows only named paths; an open row's files stay, listed.
+  file and its `<plan stem>-history.md`, always — no `commit:` releases them; a closed row's own paths
+  (`plan-build`'s `EXECUTION.md`) and the Run log's `inline <row id>: <paths>`, each until a logged `commit:`
+  holds them; its own writes — never to a file dirty and unclaimed when it began (*dirty at start*): drift or
+  a red check's cause is reported, not fixed. Run the `plan-build` `SKILL.md` §2 *Concurrency* check first: a
+  leftover sequencer stops the commit. Any other dirty path — a legacy row with no report, a later hunk on a
+  path a `commit:` holds, a peer's file — is *not committed — unclaimed*: listed, committed if the user names
+  it; in repo-only mode, its fixes only. Staged, `git diff --cached --name-only` shows only named paths; an
+  open row's files stay, listed.
 - `git push` of those commits to the current branch's existing upstream.
 
 ### What it stops for
@@ -75,8 +75,7 @@ offer a repo-only audit, and stop — the user names a plan, or takes the audit.
 A repo audit skips area 3 and the Progress check in area 5, and its report is labelled *no plan —
 repo audit only*. "Is this change done?" is a first-class way to invoke this skill.
 
-Then list every repo the work touched, as `plan-build`'s `SKILL.md` §2 *Repository scope* does. A
-plan that spanned three repos needs three audits, not one.
+Then list every repo the work touched (`plan-build`'s `SKILL.md` §2 *Repository scope*): one audit per repo.
 
 ## 2. Audit, in order
 
@@ -86,8 +85,8 @@ plan that spanned three repos needs three audits, not one.
 | 2 | Checks | Do the checks applicable to the actual change pass, by name? Full required suite for implementation; documentation checks for text-only work. |
 | 3 | Verification | Does each of the plan's `## Verification` items pass — by its recorded result, or run now? |
 | 4 | Commits | Is anything uncommitted, unpushed, or stashed? |
-| 5 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Which Progress rows are closed, parked, open — **and does every commit have a row?** Does the plan's `**Ticket:**` still match the plan's state? |
-| 6 | Cleanup | Merged branches, stale worktrees, `*.orig`/`*.rej`, scratch files the plan created? |
+| 5 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Which Progress rows are closed, parked, open — **and does every commit have a row?** Does the plan's `**Ticket:**` still match the plan's state? Read the ticket's state from the tracker in the same turn as the report — never carried from an earlier read, the conversation or memory — and say when a merged pull request closed it by itself |
+| 6 | Cleanup | What did this plan leave on disk, with sizes, and is each item deleted, asked about or kept on purpose? |
 
 **Area 2 follows the [global scope rule](../../claude/CLAUDE.md#finishing-a-plan):** text-only work gets
 document checks; implementation (including executable input) gets the required full suite. Explicit requests
@@ -101,7 +100,7 @@ stage-time check — is reported from that row, citing its id; **do not re-run i
 gone by design. Run any other item now: PASS or FAIL, with the command's real output. An item that is
 also one of the repository's own checks falls under area 2 — an obvious cause not *dirty at start* is
 fixed, the check re-run — and area 3 reports the re-run's result, citing the fix. **Any other FAIL is
-reported, never fixed**: a finding for the plan's own rows or `/plan-continue`, not work for this
+reported, never fixed**: a finding for the plan's own rows or `/plan-build`, not work for this
 skill. No `## Verification` section reports *none*, not green. How-to: `CHECKLIST.md`, Verification.
 
 ## 3. Fix what the audit found
@@ -111,29 +110,29 @@ Work through the non-green areas in this order, verifying after each:
 1. **Red checks first.** A commit on top of a failing suite is worse than no commit. Fix an obvious
    cause (one *dirty at start* is reported instead), re-run that check, report the real new result.
 2. **Docs.** Fix the drift you can verify. Re-run `format:check` afterwards if it globs markdown.
-3. **Commit**, then **push**. The commit message describes *the change*, not the plan step — `git log` is
-   read by people who never saw the plan, so "F7 commit-push-f" tells them nothing. When the plan's
-   `**Ticket:**` line names an identifier, every commit starts with it — `ABC-123: <what changed>`, per
-   `plan-ticket-tracking.md`; no ticket, no prefix, never an invented one. Right after each commit, log
-   `commit: <short sha> <subject>` in the Run log. Push only to an **existing upstream** of the same
-   name (`plan-shared/STOPS.md`); none is a new destination: stop, offer the exact `git push -u` line.
-   Before `git push`, print `git log --oneline @{u}..HEAD`; a commit not so logged nor named by the
-   user this session stops the push with the list. Repo-only mode always lists and asks.
+3. **Commit**, then **push**. The message describes *the change*, not the plan step. A plan's `**Ticket:**`
+   identifier starts every commit — `ABC-123: <what changed>`, per `plan-ticket-tracking.md`; no ticket, no
+   prefix, never an invented one. Log each commit right after it as `commit: <short sha> <subject>` in the Run
+   log. **A dedicated plans repository is pushed with a plain `git push`: no listing, no question**
+   (`plans-live-in-a-plans-repo.md`). Elsewhere push the listed sha, pasted in (`@{u}..HEAD` frozen):
+   `git rev-parse HEAD`, `git log --oneline '@{u}'..<sha>`, `git push <remote> <sha>:<branch>` to `@{u}`'s
+   remote. There a listed commit neither logged, named by the user, nor the plan's own (only the plan and
+   its history file) stops the push; a yes covers only the shas listed; repo-only mode always asks
+   (`STOPS.md`). In both, a parked push row stops, as does a missing same-name upstream: offer `git push -u`.
 
    **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.
-4. **Cleanup.** Delete what this plan created; leave anything else alone. Worktrees come out before
-   the branches they hold, or git refuses the branch and leaves a dangling registration.
+4. **Cleanup.** Apply [CLEANUP.md](CLEANUP.md): measure what the plan left, with sizes; delete, ask once
+   or keep each item. Area 6 is green only when every measured item is classified and nothing waits on an
+   answer. Worktrees come out before the branches they hold, or git refuses the branch.
 5. **Close the plan.** Confirm the table agrees with what happened, no row claiming more than the
    evidence shows. Closing is bookkeeping by the ledger rule above, never doing rows: a row is ticked
    only if its step demonstrably ran; every other row stays open and goes in the report.
 
    **Update each row as its step finishes, not all of them here.** `plan-progress-section.md` forbids
-   batching a phase's rows into one edit at a boundary — the table records what was true *when*. This
-   step is the **checkpoint** that confirms nothing was missed, not the moment to write six rows.
-   Notes go in with the icon, `Edit`/`Write` and never Bash, per `ui-rendered-files-use-write-tool.md`.
+   batching a phase's rows at a boundary: the table records what was true *when*. This is the **checkpoint**.
+   Notes go in with the icon, by `Edit`/`Write` and never Bash (`ui-rendered-files-use-write-tool.md`).
 
-If something on the stop-list blocks a step, do everything else first, then raise it. A blocked item
-never justifies leaving the fixable ones undone.
+If a stop-list item blocks a step, do the rest first, then raise it, never leaving the fixable ones undone.
 
 ## 4. Report what you did
 
@@ -146,7 +145,7 @@ done · 6/6 green · nothing outstanding
 **When you fixed things**, lead with them — that is the news:
 
 ```markdown
-Fixed: added 2 missing Progress rows · deleted 1 scratch file · committed and pushed (a1b2c3d)
+Fixed: added 2 missing Progress rows · deleted run scratch (2.4 GB) · committed and pushed (a1b2c3d)
 Not committed — unclaimed: src/retry.ts, README.md — no closed row or Run-log line claims them
 
 | Area | Status | Detail |
@@ -155,6 +154,9 @@ Not committed — unclaimed: src/retry.ts, README.md — no closed row or Run-lo
 | Verification | ✅ | 2 items · PASS recorded in row B3's Notes, not re-run · PASS run now, `bash check.sh` exit 0 |
 | Commits | ✅ | was 3 modified + 1 untracked; committed as a1b2c3d, pushed |
 | Docs | ✅ | was: README omitted 3 files added last commit; fixed |
+| Cleanup | ✅ | 4 items · deleted: `scratch/` 2.4 GB, worktree 140 MB · kept: run records 18 MB, a cited capture 2 MB |
+
+disk: 41 GiB free now · 44 GiB at the run's start · 3 GiB less, 0.02 GiB of it this plan's
 ```
 
 **When something stopped you**, that goes last and alone, with the exact command:
@@ -164,13 +166,13 @@ Not done — 1 stop-list item: 2 merged branches are deletion candidates this sk
   git branch -d feature/old-thing feature/other
 ```
 
-End with a one-line verdict. **done** only when every row is closed, no Verification item fails, and
-nothing on the stop-list is outstanding. Otherwise **not done**, naming each kind apart and leaving
-out the empty ones — open rows with the command that runs them, parked rows with their blockers. The
-stop-list number counts only stop-list items; an item you could have fixed belongs fixed, not counted:
+End with a one-line verdict. **done** only when every row is closed, no Verification item fails,
+nothing on the stop-list is outstanding and no clean-up item awaits an answer. Otherwise **not done**,
+naming each non-empty kind apart — open rows with the command that runs them, parked rows with their
+blockers, clean-up items asked (not also counted as stop-list items); anything fixable is fixed, not counted:
 
 ```
-not done — open: 6, 7 → /plan-continue <plan> · parked: 4 (needs yes) · 1 Verification FAIL · 1 stop-list item
+not done — open: 6, 7 → /plan-build <plan> · parked: 4 (needs yes) · 1 Verification FAIL · clean-up: 2 asked
 ```
 
 ## Examples
@@ -182,11 +184,10 @@ reports in three lines. Nothing on the stop-list, so nothing is put back to the 
 **`/plan-finish` on a half-run plan** — row 6 `🟡` with its file half-written, row 7 `⬜`, one other
 file nothing claims, one Verification item failing. Lists that file as *not committed — unclaimed*;
 leaves row 6's file uncommitted, listed with row 6; runs neither row; reports the FAIL
-and fixes nothing: `not done — open: 6, 7 → /plan-continue <plan> · 1 Verification FAIL`.
+and fixes nothing: `not done — open: 6, 7 → /plan-build <plan> · 1 Verification FAIL`.
 
 **`/plan-finish` with a stale plan table** — two commits have no Progress row and the README omits a
-file added last commit. All three are mechanical and verifiable: fix them, commit, push, report. This
-is the case that must never come back as "shall I?".
+file added last commit. All three are mechanical and verifiable: fix, commit, push, report — never "shall I?".
 
 **`/plan-finish` in a repo with no plan** — audits the working tree, labels the report *no plan — repo
 audit only*, fixes what it finds, and commits only its own fixes and what the user names.
@@ -194,7 +195,6 @@ audit only*, fixes what it finds, and commits only its own fixes and what the us
 **Red suite** — 2 failing specs, obvious cause: fix, re-run, report the new result, continue. A cause
 *dirty at start* is reported, not fixed; one not obvious stops with the failing names and what you tried.
 
-**Merged branches present** — finishes everything else first (commit, push, the plan's table, its own
-scratch files), *then* raises the branches, because it did not create them. One batch question with
-the exact `git branch -d` line, not one prompt per branch. Note `--merged` lists branches merged into
-the *current* branch, which is not proof they are merged upstream, so present them as candidates.
+**Merged branches present** — finishes everything else first, *then* raises the branches it did not
+create: one batch question with the exact `git branch -d` line, not one prompt per branch. `--merged` lists
+branches merged into the *current* branch, not proof they are merged upstream: present them as candidates.

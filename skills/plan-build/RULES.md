@@ -1,12 +1,10 @@
 # Hard rules
 
-The safety surface of `/plan-build` and `/plan-continue`. Both `SKILL.md` files load this file
-first, before resolving a plan. `EXECUTION.md` restates inline only the rules it enforces; this is
-the canonical wording.
+The safety surface of `/plan-build`, starting or resuming. `EXECUTION.md` restates inline only the
+rules it enforces; this is the canonical wording.
 
-**The stop-list itself lives in [`../plan-shared/STOPS.md`](../plan-shared/STOPS.md)** — one file
-shared with `plan-finish`, so the two can never disagree. Read it now, with this one; rules 1, 3 and
-4 below are defined by it.
+**The stop-list itself lives in [`../plan-shared/STOPS.md`](../plan-shared/STOPS.md)**, shared with
+`plan-finish`. Read it now, with this one; rules 1, 3 and 4 below are defined by it.
 
 ## 1. Uninterrupted by default
 
@@ -18,8 +16,9 @@ set — **except the asked-alone set in `STOPS.md`**, each of which is asked on 
 exact command, **and the safety halts `STOPS.md` marks *Halts the run*** (a foreign path, no usable
 report, a base not an ancestor of `HEAD`), which stop the run at once and wait for the user.
 
-Pre-flight offers (derive a Progress table? proceed on a part-done plan?) sit outside this budget —
-they happen before execution starts.
+The pre-flight offer to derive a Progress table sits outside this budget — it happens before
+execution starts — and so does the one ask for deferred `needs: screen` rows, made during execution
+once only they and their dependents are left (`EXECUTION.md`).
 
 ## 2. Park, don't halt
 
@@ -33,14 +32,11 @@ peer's work.
 
 ## 3. The stop-list
 
-`STOPS.md`, in full — including its evidenced-action clause: a `BLOCKED — wait for user` row whose
-awaited action is already evidenced is verified and ticked, not parked. Everything not on that list
-is work, not a question.
+`STOPS.md`, in full, its *Evidenced action* clause included. Everything not on it is work, not a question.
 
 ## 4. A harness prompt is not a stop-list item
 
-`STOPS.md` states it. In short: answer the hook's prompt and continue; never re-shape a command to
-get past a matcher.
+`STOPS.md` states it: answer the hook's prompt and continue.
 
 ## 5. One boundary, one edit
 
@@ -48,7 +44,8 @@ Icon and Notes together, with `Edit`/`Write` and never Bash (`ui-rendered-files-
 at the moment the boundary is crossed. Never backfilled at the end: the table exists to record what
 was true *when*, and one edit at the close destroys exactly that. Notes record the measured
 result — counts, versions, paths — not the intent. A `✅` whose Notes restate the step name is a
-`✅` nobody can audit.
+`✅` nobody can audit. The one allowed mid-row Notes edit is a `🟡` row's current sub-step
+(`EXECUTION.md`), which the result replaces when the row closes.
 
 ## 6. Shared state
 
@@ -62,7 +59,8 @@ session's sequencer files and dirty tree alone (`shared-state-between-agents.md`
 Name what did not run, and why. "Tests pass" is not a result; the counts are.
 
 **And a check that already ran on this tree is not run again.** A result is evidence about one tree.
-Every slow check goes through `bash scripts/check-run.sh run <file> --repo <repo>... -- <command>`:
+Every slow check goes through
+`bash "${CLAUDE_SKILL_DIR}/scripts/check-run.sh" run <file> --repo <repo>... -- <command>`:
 a test suite, a build, anything over about ten seconds. A quick check (a grep, a count) is cheaper
 to re-run than to record. The script writes one record per file, with the exit status and each
 repo's tree identity: commits, edits and untracked files. Any environment variable that changes

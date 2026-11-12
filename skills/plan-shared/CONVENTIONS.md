@@ -1,6 +1,6 @@
 # Plan-skill conventions
 
-Shared by all seven plan skills. Each `SKILL.md` cites this file instead of restating it, so a
+Shared by all six plan skills. Each `SKILL.md` cites this file instead of restating it, so a
 change here lands everywhere at once. The rules a plan *author* reads — `plan-progress-section.md`,
 `plan-atomic-todos.md`, `plan-ticket-tracking.md` — own the formats; this file owns how the skills
 read them.
@@ -19,7 +19,7 @@ read them.
 
 ## Resolving the plan — the ladder
 
-In order, stopping at the first hit:
+In order, stopping at the first hit. A `<plan stem>-history.md` is never a candidate: it is its plan's.
 
 1. A path or `@`-mention in the invocation.
 2. The session's active plan file, or the only plan touched this session.
@@ -40,7 +40,7 @@ all but name. (The two offers below are not exceptions: `plan-finish`'s repo-onl
 new-plan option name no candidate, so neither previews nor ranks one.)
 
 **The last rung picks a plan only for the read-only skills**, `plan-status` and `plan-summary`.
-The five that edit or execute — `plan-add`, `plan-review`, `plan-build`, `plan-continue`,
+The four that edit or execute — `plan-add`, `plan-review`, `plan-build`,
 `plan-finish` — list the candidates from rung 4 and stop there instead: executing or editing the
 wrong plan is not a mistake you can take back. `plan-finish` then offers a repo-only audit, which
 needs no plan. `plan-add` can also create, so every list it stops on — last rung or two plausible at
@@ -72,11 +72,8 @@ Markers live in the Step cell's text. The skills parse exactly these:
 | `hand-off row` | The step gives the user work to do outside the run, then the run ends. A sanctioned mid-table halt, as are `STOPS.md`'s safety halts |
 | `(⏭️ if …)` | A conditional skip the author allowed in advance; the Notes must say which condition held |
 | `review: deep` | The row's reviewer runs on the strongest model tier (`DISPATCH.md` §3). On a row that also carries `review: default`, `review: deep` wins: an author asking for depth outranks an exemption. Its reviews are logged per `EXECUTION.md`, *The Run log* |
+| `needs: screen` | The step needs the user's display or input devices until it finishes — a windowed capture, a GUI the run drives, a playtest. `plan-build` defers it while other rows can run, then asks once for every such row (`EXECUTION.md`, *The loop*); a deferred row stays waiting |
 | `review: default` | The row's reviewer keeps its default tier and effort even when the controller would judge the step risky. It cancels only that risk step-up: fix round 3 and a stalled fix loop still step the reviewer up, and a risky row's implementer still steps up. `review: deep` on the same row wins. Its reviews are logged per `EXECUTION.md`, *The Run log* |
-
-**A pending ticket is author-parked.** `plan-ticket-tracking.md`'s `**Ticket:** pending` puts a `⛔`
-row in a brand-new plan. That row was parked by the author, not by a run, so it does not make the
-plan a resume.
 
 ## Closed, parked, open
 
@@ -93,14 +90,17 @@ what the closing question is for — but never with rows open, except behind a h
 
 ## Terms
 
+- **Started** — a plan with a `🟡` or `✅` row, a `⛔` whose Notes record a run's blocker, or a
+  `## Run log`. A `⛔` its author wrote before any run, usually the pending-ticket row
+  `plan-ticket-tracking.md` requires, is *author-parked*: it leaves the plan unstarted.
 - **Row id** — the first cell's id (`A1`, `12`, `§2.1`). Reports cite rows by id, never by ordinal.
 - **Step id** — the kebab-case name in backticks at the start of the Step cell.
 - **Done-state** — what the step names as observable proof it finished: a count, a file, an exit
   code. A step with none is under-specified; say so rather than inventing one.
 - **Auditable Note** — carries at least one thing you could go and check: a path, count, sha,
   version, size or timing. `Wrote out/alpha.txt, 6 B` is auditable; `Wrote the file` is not.
-- **Run log** — the optional `## Run log` section after the body: rulings, deferred findings, review
-  records. It survives compaction because it is in the file.
+- **Run log** — the optional `## Run log` after the body, which survives compaction by being in the file.
+  Finished runs' headers and lines may move to `<plan stem>-history.md` (`plan-add`); the latest stays.
 - **Repository scope** — every repo the plan touches: its own paths, the cwd, and anything in
   `git worktree list`. **No repository in scope is a state, not an error.**
 
@@ -120,8 +120,7 @@ A defect that breaks a done-state, a rule the brief or plan quotes, or the main 
 least Medium, however small the fix.
 When unsure between Low and Medium, choose Medium and say what would make it Low.
 
-What each skill does with a severity — loop, fix, defer — is that skill's call, stated in its own
-file.
+What each skill does with a severity — loop, fix, defer — is that skill's call, in its own file.
 
 ## Model tiers
 
@@ -158,7 +157,7 @@ a run uses its output (`plan-build` §2), never this table from memory.
   run.
 - The Run log names the tier on Cursor too, strongest included, though its model is strong's.
 
-**Controller** — the session that runs `/plan-build` or `/plan-continue` and dispatches the tiers:
+**Controller** — the session that runs `/plan-build` and dispatches the tiers:
 
 - **Claude Code:** the session's own model.
 - **Cursor:** the session's own model.

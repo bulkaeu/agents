@@ -70,18 +70,17 @@ they run when asked for and not on a guess.
 | Skill | What it does |
 | --- | --- |
 | `plan-status` | One glance at a plan: the step in flight, the done count, the working copy, the next few steps, anything blocked. At most twelve lines. Read-only. |
-| `plan-build` | Runs a plan that has not started, first row to last, without stopping for ordinary work. Each code row is built by a fresh implementer subagent and checked by a separate reviewer subagent that did not write it (`DISPATCH.md`, two prompt files, `scripts/row-snapshot.sh`); the run ends with a review of its whole diff. Parks what is gated, asks about the whole parked set once at the end, then applies `plan-finish`'s checklist. `--dry-run` rehearses and prints the dispatch count. |
-| `plan-continue` | Resumes a part-done plan: reconciles its Progress table against the repositories and disk (`table-claims.sh`), repairs what drifted, hands partial work to a fresh implementer, then runs the rest as `plan-build` does. Reads `RULES.md`, `EXECUTION.md` and `DISPATCH.md` from the sibling `plan-build` directory — it needs that skill installed. |
+| `plan-build` | Starts or resumes a plan by its state, then runs it to the last row without stopping for ordinary work. A plan not yet started goes straight to the loop; a started one is first reconciled (`RESUME.md`): its Progress table is checked against the repositories and disk (`table-claims.sh`), what drifted is repaired, and partial work goes to a fresh implementer. Each code row is built by a fresh implementer subagent and checked by a separate reviewer subagent that did not write it (`DISPATCH.md`, two prompt files, `scripts/row-snapshot.sh`); the run ends with a review of its whole diff. Parks what is gated, asks about the whole parked set once at the end, then applies `plan-finish`'s checklist. `--dry-run` rehearses and prints the dispatch count. |
 | `plan-summary` | Summary of a plan: its own plain-language Summary in full, a technical twin, and its recent + upcoming Progress steps (windowed only past 10 rows). Read-only. |
-| `plan-finish` | Finishes a plan: audits the check suite, the plan's own Verification items, commit state, docs, and cleanup — then fixes what it found and reports what it did, stopping only for work that is destructive, gated, ambiguous, or not its own to delete. It reports a plan's open rows rather than running them, pointing at `/plan-continue`; a Verification area reports each item's recorded result or runs it live, reporting a FAIL rather than fixing it. The verdict separates open, parked, and stop-list items; commits carry the plan's ticket id; and work no reviewer saw is named. Its checklist (`CHECKLIST.md`) holds the per-area commands, including a claims audit with `table-claims.sh`. |
-| `plan-add` | Adds new scope to the plan that already exists, instead of starting a second file for the same topic: resolves the plan — creating one when the invocation names a path that is not there, or when the user takes the new-plan offer on a list it stops at — grounds an addition that touches code in an `Explore` run first, and writes the new steps as atomic rows placed where they will actually run rather than appended at the end. A closed row is reopened only on one of three evidence tests (`MATCHING.md`), keeping its original result in the Notes beside the reason and the id of the row that caused it; if the plan looks mid-run, it prints the intended reopens and waits for a yes. It authors and never executes, ending at `/plan-build` or `/plan-continue` — and applies `plan-review`'s cycle inline, because a skill cannot invoke a sibling that sets `disable-model-invocation: true`. |
+| `plan-finish` | Finishes a plan: audits the check suite, the plan's own Verification items, commit state, docs, and cleanup — then fixes what it found and reports what it did, stopping only for work that is destructive, gated, ambiguous, or not its own to delete. It reports a plan's open rows rather than running them, pointing at `/plan-build`; a Verification area reports each item's recorded result or runs it live, reporting a FAIL rather than fixing it. The verdict separates open, parked, and stop-list items; commits carry the plan's ticket id; and work no reviewer saw is named. Its checklist (`CHECKLIST.md`) holds the per-area commands, including a claims audit with `table-claims.sh`; the clean-up commands — measure with sizes, delete, ask once, keep — live in `CLEANUP.md`. |
+| `plan-add` | Adds new scope to the plan that already exists, instead of starting a second file for the same topic: resolves the plan — creating one when the invocation names a path that is not there, or when the user takes the new-plan offer on a list it stops at — grounds an addition that touches code in an `Explore` run first, and writes the new steps as atomic rows placed where they will actually run rather than appended at the end. A closed row is reopened only on one of three evidence tests (`MATCHING.md`), keeping its original result in the Notes beside the reason and the id of the row that caused it; if the plan looks mid-run, it prints the intended reopens and waits for a yes. It authors and never executes, ending at `/plan-build` — and applies `plan-review`'s cycle inline, because a skill cannot invoke a sibling that sets `disable-model-invocation: true`. |
 | `plan-review` | Reviews and refines a plan until nothing above Very Low remains, then fixes the remaining nits in a closing pass — only deliberate tradeoffs stay, with reasons. Round 1 is run by a reviewer subagent it dispatches, which did not write the plan (`reviewer-prompt.md`); later rounds are scoped re-checks in-thread against the same checklist (`checklist.md`), which also checks whether a plan can be executed unattended: its markers, done-states, failable Verification and scope cuts. Every finding is CONFIRMED with a quote or marked UNVERIFIED, and a stall rule stops the loop if findings stop moving. `/code-review` is an optional extra pass whose mode is logged, never the source of independence. |
 | `verify-changes` | Stages conversation-related changes, runs code review per repo, summarizes. |
 | `migrate` | Ports HTTP endpoints or cron jobs between two codebases, driven by a per-project profile. |
 | `update-js-libs` | Updates npm/yarn/pnpm dependencies, classifies the bumps, runs the project's checks. |
 | `12factor` | Audits a project against the Twelve-Factor App methodology: grades all 12 factors with file-level evidence and fixes, report in chat. |
 
-`skills/plan-shared/` is not a command. It holds what the seven `plan-*` skills share, each in one
+`skills/plan-shared/` is not a command. It holds what the six `plan-*` skills share, each in one
 place: `STOPS.md` (the stop-list), `CONVENTIONS.md` (how a plan is found and read, the severity
 scale) and `scripts/table-claims.sh` (checks a Progress table's shas and paths against git and
 disk). `install.sh` links it beside the skills, which is what lets them reach it.
@@ -103,7 +102,7 @@ strong and strongest falling back to Claude Opus if that call fails. Contributor
 `opencode/plugins/contributor-redact/` plugin strips secrets and infrastructure identifiers from requests to
 them (ids with `-contributor` or `-free`/`:free`, `big-pickle`, and the OpenRouter routers `auto`, `fusion`,
 `pareto-code` and `bodybuilder`). The `opencode/plugins/plan-dispatch-guard/` plugin holds plan runs to
-their tiers: once a session loads `plan-add`, `-build`, `-continue`, `-review` or `-finish`, every
+their tiers: once a session loads `plan-add`, `-build`, `-review` or `-finish`, every
 `subagent` call in it must name a model `tiers.sh opencode` prints, or it is refused before it starts,
 and the model sees `model` as required (OpenCode's own schema says never to set it). `install.sh` links
 both into `~/.config/opencode/plugins/`, so what OpenCode runs is whatever this checkout has — and
@@ -186,16 +185,16 @@ inject the ruleset twice: **never install the marketplace plugin.**
 | Command | What it does |
 | --- | --- |
 | `bash update-ponytail.sh [<ref>]` | Copies an allow-listed set of files from the newest upstream `v*` tag (or `<ref>`) into `vendor/ponytail/`, rewrites `UPSTREAM`, then runs three checks — `check-ponytail.sh`, `check-vendor.sh` and `sanitize-check.sh`. Never commits. Exit 0 ok, 1 a structural check or the copy failed, 2 refused or bad usage, 3 only `sanitize-check.sh` failed |
-| `bash check-ponytail.sh [--root <dir>]` | Read-only conflict checks P1–P5, ponytail-specific: its skills' names against ours, hook events, the mode tracker's gate, the subagent matcher variable, a pinned sha. It compares ponytail against `skills/*` only — `check-vendor.sh` is the script that sees every set, so that is what catches a collision between ponytail and another vendored set, or with a name Claude Code ships |
+| `bash check-ponytail.sh [--root <dir>]` | Read-only conflict checks P1, P2, P3 and P5, ponytail-specific: its skills' names against ours, hook events, the mode tracker's gate, a pinned sha. It compares ponytail against `skills/*` only — `check-vendor.sh` is the script that sees every set, so that is what catches a collision between ponytail and another vendored set, or with a name Claude Code ships |
 | `bash wire-ponytail-hooks.sh [--dry-run \| --uninstall]` | Adds (or refreshes) ponytail's entries in the Claude Code, Cursor and Codex hook files, leaving every other entry alone. Each target is copied to `<file>.bak-ponytail-<YYYYMMDD>` before its first write |
 
-**Subagents.** On Claude Code the `SubagentStart` hook runs with
-`PONYTAIL_SUBAGENT_MATCHER='^general-purpose$'`, so only implementer-type subagents get the
-ruleset. Reviewers (`Explore`) must not: its "end your reply with one or two lines" instruction
-would land after the `Verdict:` line the reviewer contract treats as the reply's last element, and
-inside saved review files. Codex gets no `SubagentStart` hook at all: the hook fails open on an
-unknown payload and Codex's agent-type names are not Claude's, so the matcher could not be trusted
-there. Cursor has no subagent injection upstream.
+**Subagents.** Helper agents get no ponytail on any host: `wire-ponytail-hooks.sh` wires no
+`SubagentStart` hook, and a re-run removes one an older run added. A helper's reply is a contract
+its caller parses — an implementer's report, a reviewer's `Verdict:` line — and the ruleset's
+"end your reply with one or two lines" instruction lands after that contract's last element, inside
+saved reports and review files. Its push to skip work also reached specified work: an implementer
+skipped part of its row, and only the reviewer caught it. The main session keeps the ruleset. Cursor
+has no subagent injection upstream, and Codex never had the hook.
 
 **Upgrading.** Do it in this order:
 
@@ -217,14 +216,17 @@ and restart Codex.
 
 ## Contributing to this repo
 
+- **Run `bash check.sh` before a change is done.** It runs every repository check in order and stops
+  at the first failure, naming it: `check-plan-skills.sh`, `check-vendor.sh`, `check-ponytail.sh`,
+  the row-snapshot test, and ShellCheck (`-S warning`) over this repo's own shell scripts. ShellCheck
+  must be installed; a missing one fails the run.
 - **Keep `SKILL.md` under ~200 lines.** Detail goes in a sibling `.md` linked from it —
   `plan-finish/CHECKLIST.md`, `migrate/RULES.md`. One level of references, no deeper. The
   exceptions are named here rather than left for a contributor to rediscover and mistake for drift,
   and each is a single hop into a sibling directory, never a chain. The `plan-*` skills read
   `plan-shared/`, where the conventions, the stop-list and the claims script each live once, and
-  they read `plan-build`'s contract files — `RULES.md`, `EXECUTION.md`, `DISPATCH.md`,
-  `scripts/row-snapshot.sh`, `scripts/check-run.sh` and, for the concurrency check `plan-continue` defers to, `plan-build`'s
-  own `SKILL.md` §2 — because the execution contract, the dispatch tiers and the run
+  they read `plan-build`'s contract files — `RULES.md`, `EXECUTION.md`, `CLOSEOUT.md`, `DISPATCH.md`,
+  `scripts/row-snapshot.sh` and `scripts/check-run.sh` — because the execution contract, the dispatch tiers and the run
   directory are written once for the whole family instead of copied into every skill that runs a
   plan. The close-outs reach sideways too: `plan-build`'s reads `plan-finish`'s files, and
   `plan-add`'s reads `plan-review`'s, because a skill cannot invoke a sibling that sets

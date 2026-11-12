@@ -15,12 +15,14 @@
 #   bash wire-ponytail-hooks.sh --help       show this text
 #
 # Targets:
-#   ~/.claude/settings.json  SessionStart, SubagentStart (general-purpose only), UserPromptSubmit
+#   ~/.claude/settings.json  SessionStart, UserPromptSubmit
 #   ~/.cursor/hooks.json     via upstream scripts/cursor-hooks.js, then node made absolute
-#   ~/.codex/hooks.json      SessionStart, UserPromptSubmit (no SubagentStart), PLUGIN_DATA inline
+#   ~/.codex/hooks.json      SessionStart, UserPromptSubmit, PLUGIN_DATA inline
+#
+# No target gets a SubagentStart entry: helper agents run without ponytail (see the README).
 #
 # Entries whose command matches /hooks/ponytail-[a-z-]+\.js are replaced on every run, so a
-# re-run is idempotent and every other entry is left as it was. JSON is edited with `jq -a`
+# re-run is idempotent, removes an old SubagentStart entry, and leaves every other entry as it was. JSON is edited with `jq -a`
 # only, written through a temp file in the target's directory. Before the first write to an
 # existing target it is copied to <file>.bak-ponytail-<YYYYMMDD>; an existing backup is never
 # overwritten. ~/.codex/config.toml is never touched.
@@ -79,7 +81,7 @@ NODE_ON_PATH="$(command -v node 2>/dev/null || true)"
 NODE="$(resolve_physical "$NODE_ON_PATH")"
 [[ -x "$NODE" ]] || die "node resolved to $NODE, which is not executable"
 
-for f in ponytail-activate.js ponytail-subagent.js ponytail-mode-tracker.js; do
+for f in ponytail-activate.js ponytail-mode-tracker.js; do
   [[ -f "$HOOKS/$f" ]] || die "missing $HOOKS/$f"
 done
 [[ -f "$CURSOR_SCRIPT" ]] || die "missing $CURSOR_SCRIPT"
@@ -91,7 +93,6 @@ trap 'rm -rf "$SCRATCH"' EXIT
 # --- the commands ---------------------------------------------------------------------
 cmd() { printf '"%s" "%s/%s"' "$NODE" "$HOOKS" "$1"; }
 ACTIVATE_CMD="$(cmd ponytail-activate.js)"
-SUBAGENT_CMD="PONYTAIL_SUBAGENT_MATCHER='^general-purpose\$' $(cmd ponytail-subagent.js)"
 TRACKER_CMD="$(cmd ponytail-mode-tracker.js)"
 CODEX_ENV="PLUGIN_DATA=\"$HOME/.codex/ponytail\""
 
@@ -141,7 +142,6 @@ build_claude() { # out
   json_in "$CLAUDE_FILE" | jq -a --arg re "$PONYTAIL_RE" "$JQ_STRIP" > "$out.1"
   if (( UNINSTALL )); then mv "$out.1" "$out"; return; fi
   jq -a --arg ev SessionStart --arg m 'startup|resume|clear|compact' --arg c "$ACTIVATE_CMD" "$JQ_ADD" "$out.1" \
-    | jq -a --arg ev SubagentStart --arg m '' --arg c "$SUBAGENT_CMD" "$JQ_ADD" \
     | jq -a --arg ev UserPromptSubmit --arg m '' --arg c "$TRACKER_CMD" "$JQ_ADD" > "$out"
   rm -f "$out.1"
 }

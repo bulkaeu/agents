@@ -1,6 +1,6 @@
 # The execution loop
 
-Shared by `/plan-build` and `/plan-continue`. Read [RULES.md](RULES.md) first — this file assumes
+Read by `/plan-build`, starting or resuming. Read [RULES.md](RULES.md) first — this file assumes
 it and does not repeat the stop-list. Dispatched rows follow [DISPATCH.md](DISPATCH.md).
 
 ## Contents
@@ -12,11 +12,14 @@ it and does not repeat the stop-list. Dispatched rows follow [DISPATCH.md](DISPA
 - The Run log
 - Hand-off rows — a sanctioned halt, beside `STOPS.md`'s safety halts
 - The spin guard
-- The final review, then close-out
-- Order, stated once
-- The report
+- After the last row
 
 ## The loop — one row at a time
+
+**Before the first row, record the run base** unless the Run log has a `run base:` line (a resume never
+overwrites it): `bash "${CLAUDE_SKILL_DIR}/scripts/row-snapshot.sh" base <plan> run --repo <repo>...`,
+then log `run dir: <what row-snapshot.sh dir <plan> prints>` and `run base: <repo> <sha>` per repo. A repo
+that joins later, such as a worktree, is based alone: `base <plan> run --repo <it>`.
 
 Rows run in **table order**. For each:
 
@@ -31,8 +34,22 @@ Rows run in **table order**. For each:
    real command output, and for a dispatched row its `review:` token.
 6. **Commit** if the row calls for it — below — then log it in the Run log. Then the next row.
 
-A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it get
-`⛔` *"depends on N"* — then the loop **continues** with the rest (rule 2), bar one: no usable report.
+**Keep the user posted.** After a row closes or parks, send one chat line: `<row id> <icon> ·
+<closed>/<total> · <elapsed since the run's start>`. While a helper works, the `🟡` row's Notes cell
+names its sub-step — dispatched, reported, in review, fix round *n* — until the result replaces it
+(rule 5). A turn never ends while a dispatched helper is still running unless its last line says
+which row, which helper, and that the run continues when it reports: silence reads as a stall.
+
+A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it
+`⛔` *"depends on N"* — then the loop **continues** (rule 2), bar `STOPS.md`'s three safety halts.
+
+**A `needs: screen` row is deferred while any other runnable row remains**: it stays `⬜`, the Run log
+gets `deferred: <row id> — needs: screen`, and the loop goes on with every row that does not depend on
+it. When only deferred rows and their dependents are left, the run asks once: the rows by id, and that
+they need the screen until they finish. That ask is `STOPS.md`'s stop for a step the plan marks as
+waiting on the user, batched so the user is interrupted once. On yes, they run back to back in table
+order, then their dependents. On no, or no answer, they park with *needs: screen* as the blocker,
+their dependents with *depends on N*, and the run closes out; the report lists them, not asked again.
 
 **A dispatched row acts only on its own paths**: the union of **Changed** in every `report-<n>.md` it has, all
 rounds, symlinks resolved as in `paths-<n>.txt` (`/tmp` is `/private/tmp` on macOS). A **foreign path**, in
@@ -93,20 +110,21 @@ A subagent's claim clears none of these (rule 9).
 A `## Run log` section after the plan's body, written by the controller as things happen — it is
 in the file, so it survives a context summary. It holds:
 
-- a header per run: the date, the `tiers:` line (`SKILL.md` §2), the starting commits, the run base;
+- a header per run: the date and start time, the `tiers:`, `disk:` and any `dirty at start:` lines
+  (`SKILL.md` §2), the starting commits, the `run dir:` and `run base:` lines (*The loop*);
+- an `inherit` line, once per run, where a tier falls back to it (`CONVENTIONS.md`, *Model tiers*);
+- per dispatched pass, `<row id> · implementer <model> · reviewer <model>` (standing order 7);
+- every `deferred: <row id> — needs: screen` line (*The loop*);
+- `created: <path or process> — <what>` when the run makes anything outside the repositories that
+  outlives its row — a worktree, a toolchain, a cache, a background process, a folder under home;
 - every ruling, `R<n> · <row id> · <what> — <why> — <cost if wrong>`;
 - every commit the run makes — dispatched row, commit row, close-out or fix wave — as
-  `commit: <short sha> <subject>`, in the Run log edit right after that commit;
+  `commit: <short sha> <subject>`, right after it; one of only the plan's own files needs none (`STOPS.md`);
 - every inline row that changes files, `inline <row id>: <paths>`;
-- every model or effort step-up with its reason, and, on a row carrying a `review:` marker, `deep` or
-  `default`, the reviewer's tier and reason for every review of that row, whether or not the marker
-  changed anything — one line per review, naming the row and its `review-<n>.md` (`DISPATCH.md`
-  §3). It is also the step-up's line when there is one, so a fix loop whose tier changes (round 3,
-  a stall) still shows which review ran on which tier:
-  `<row id> · review-<n>.md — reviewer on the strongest tier: review: deep marker`,
-  `<row id> · review-<n>.md — reviewer on the default tier: review: default holds a step that
-  deletes data`, `<row id> · review-<n>.md — reviewer on the default tier: review: default marker,
-  step not risky`, `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
+- every model or effort step-up with its reason, and, on a row carrying a `review: deep` or
+  `review: default` marker, one line per review, changed or not, naming its `review-<n>.md` and the
+  reviewer's tier and reason (`DISPATCH.md` §3) — also the step-up's line, so a tier change in a fix
+  loop shows: `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
   review: default does not cancel`;
 - deferred findings, the Low and Very Low ones, one line each with `file:line`;
 - the final review's file and verdict.
@@ -126,7 +144,7 @@ A row whose step is to give the user work to do outside this run and stop — it
 
 **Name who picks up the parked set.** A hand-off defers the closing question, so anything parked
 before it has no scheduled owner — and if the hand-off is the *last* row, deferring is indefinite.
-The printed block must therefore say what resumes the plan (normally `/plan-continue <plan path>`)
+The printed block must therefore say what resumes the plan (normally `/plan-build <plan path>`)
 and list the parked rows it will have to answer for. A hand-off that ends the table with rows still
 `⛔` and no named resumption is a leak, not a halt.
 
@@ -142,59 +160,7 @@ report.** Marching to the end producing un-auditable ticks looks like progress a
 **`⛔` and `⏭️` rows do not count toward the guard.** Their Notes carry a named blocker or reason;
 two parked rows in a row is a normal shape, not a spin.
 
-## The final review, then close-out
+## After the last row
 
-**Final review** — after the last row, per `DISPATCH.md`: one reviewer on the whole run's diff, one
-fix wave, one re-review, the verdict in the Run log. It runs even when every row was inline, if the
-run changed any file in the plan's repositories.
-
-**Close-out** applies `plan-finish` inline. These skills cannot invoke `/plan-finish`: it sets
-`disable-model-invocation: true`, which hides it from the model entirely. So:
-
-1. Read `plan-finish/SKILL.md` and `plan-finish/CHECKLIST.md` from the sibling skill directory —
-   `${CLAUDE_SKILL_DIR}/../plan-finish/`, or the same relative path on a host that does not set that
-   variable.
-2. Apply them **verbatim** — the audit, the fix-by-default posture, the per-ecosystem command tables.
-3. **Name the file you applied** in the report, so a reader can tell an applied checklist from a
-   remembered one.
-4. If the sibling is missing, do not improvise a close-out: print *run `/plan-finish`* and end.
-
-`plan-finish`'s own stop-list governs this stage, and `RULES.md` rule 3 applies here as everywhere.
-**Outside a git repository**, the commit and cleanup areas report *no repo* rather than being
-skipped silently. **Cleanup deletes scratch, never deliverables**: a file a row exists to create is
-the plan's output and stays; scratch is what the run made incidentally. The run directory holds the
-reviews and is not scratch.
-
-## Order, stated once
-
-```
-execute → park what must be parked → final review → fix wave → close out
-       → one question covering the parked set → report, ending with "Rulings I made"
-       → on yes: run the rows that yes releases, then review and close out again
-       → on no: they stay blocked
-```
-
-`plan-finish`'s own *"not done — N items"* ask is **folded into that one question**. A run that
-ends at a hand-off row does none of this; the resuming run does it at the true end.
-
-## The report
-
-Scale it to what happened. A clean run is a line:
-
-```
-done · 12/12 · 5 rows reviewed, final review PASS · checks green · committed a1b2c3d
-```
-
-When rows parked, they are the news — lead with them, name the blocker, and give the exact command
-so a yes is one word. When a check could not run, say which and why (rule 7). Then **Rulings I
-made**, one line each in the Run log's format — decisions taken on the user's behalf are theirs to
-see, even when every one of them was right.
-
-An example table, icons omitted so this file never reads as live work:
-
-```markdown
-| # | Step | Notes |
-| - | ---- | ----- |
-| 1 | `add-index` — index on the events table | 2.1 M rows, 41 s · review: `rows/<row id>/review-<n>.md` PASS |
-| 2 | `deploy-staging` — ship the image | BLOCKED: deploy, rule 3 |
-```
+The final review, close-out, the single question and the report — and the order they run in — are
+in [CLOSEOUT.md](CLOSEOUT.md), read when the last row closes. A hand-off row defers all of them.

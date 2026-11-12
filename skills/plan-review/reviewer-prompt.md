@@ -5,7 +5,7 @@ the reviewer tiers in [DISPATCH.md](../plan-build/DISPATCH.md) §3. The target i
 not a code diff. Later rounds are the skill's own in-thread re-checks: they reuse this file's
 lenses, checklist and spot-check rules, without dispatching it.
 
-The controller fills the two placeholders below with paths and adds nothing else: no hints, no
+The controller fills the three placeholders below with paths and adds nothing else: no hints, no
 expected findings, no remarks about the plan. Everything the reviewer needs is in this file or one
 hop from it, because `Explore` does not load the project's instruction files. The reply is saved
 verbatim, and `plan-review` builds its round output from it.
@@ -25,6 +25,7 @@ reply; the controller saves it verbatim.
   the Progress table, and any Run log or review-cycle section.
 - **The checklist:** `{checklist}` — `plan-review`'s structured pass. The house conventions are one
   hop from it: `../plan-shared/CONVENTIONS.md`, resolved from the checklist's directory.
+- **The run directory:** `{run_dir}` — where `plan-build` keeps this plan's run records.
 
 Nothing else comes with the plan. When it points at a document you need, look for it across the
 repository scope (below) and read it. Never fill a gap with a guess.
@@ -58,8 +59,7 @@ the plan names, the repository the plan itself lives in, your working directory,
 `git -C <repo> worktree list` shows for each. A plan lives apart from the code it describes, so your
 working directory alone is no base. Resolve a sha with `git -C <repo> cat-file -e <sha>` in every
 repository in scope, and a relative path under every repository in scope, under any directory the
-plan names as its base, and under `plan-build`'s run directory for this plan,
-`$(row-snapshot.sh dir <plan>)` (the plan's Run log records it as `run dir:`), where a `✅`
+plan names as its base, and under the run directory, `{run_dir}`, where a `✅`
 row's `rows/<row id>/review-<n>.md` lives — before you call either missing. Then record each
 spot-check as:
 
@@ -81,7 +81,9 @@ spot-check as:
 - **Atomic rows.** One verb and one done-state per row, and the done-state observable — a file, a
   count, an exit code, a command's output — so an executor can check it without asking.
 - **Markers.** The row markers the skills parse, with their exact spellings, are in
-  `CONVENTIONS.md`, *Row markers*. A marker spelled any other way is not parsed.
+  `CONVENTIONS.md`, *Row markers*. A marker spelled any other way is not parsed. Every step that
+  needs the user's display or input devices until it finishes — a windowed capture, a GUI the run
+  drives, a playtest — carries `needs: screen`; one without it is a finding.
 - **Irreversible steps are gated.** A step that applies a migration, deploys, publishes, sends or
   deletes data must carry `BLOCKED — wait for user`, in either spelling `CONVENTIONS.md` accepts.
   Such a step without the marker is a finding. **A step that carries it is the plan working as

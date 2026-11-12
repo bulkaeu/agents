@@ -18,6 +18,9 @@ sections that are out of scope for the plan under review.
 - [ ] Cutover steps have a defined rollback or revert path
 - [ ] Feature flags, dry-run, or canary steps exist before irreversible changes
 - [ ] Parallel workstreams do not conflict on the same resource or deploy window
+- [ ] An early look is scheduled: where the result is judged by a person's eye or hands (a screen,
+      a game, a document's layout), a row before the plan's midpoint puts it in front of them. A
+      plan with no such row before its midpoint is a finding
 
 ## Security and operations
 
@@ -31,10 +34,13 @@ sections that are out of scope for the plan under review.
 - [ ] Acceptance criteria or smoke tests are defined for major phases
 - [ ] Test gaps are acknowledged when behavior changes are planned
 - [ ] Manual verification steps name who runs them and what "pass" looks like
+- [ ] Every new check is seen failing: a row that adds a check also runs it once against a seeded
+      violation and shows it fail. A check never seen failing is not known to work, so a row that
+      adds one without that run is a finding
 
 ## Executability
 
-For a plan an executor — `plan-build` or `plan-continue` — will run unattended. The markers and
+For a plan the executor — `plan-build` — will run unattended. The markers and
 terms are those of [CONVENTIONS.md](../plan-shared/CONVENTIONS.md) (*Row markers*, *Terms*); hold
 the plan to that file, not to a paraphrase of it.
 
@@ -42,8 +48,9 @@ the plan to that file, not to a paraphrase of it.
       `BLOCKED — wait for user: …` marker, in either spelling *Row markers* accepts; so does every
       step that applies a migration, deploys, publishes, sends or deletes data. A `hand-off row`
       says what resumes the plan; a `(⏭️ if …)` names a condition someone can check; `review: deep`
-      and `review: default` are used as *Row markers* defines them. A marker spelled any other way
-      is not parsed
+      and `review: default` are used as *Row markers* defines them; every step that needs the
+      user's display or input devices until it finishes carries `needs: screen`, and one without it
+      is a finding. A marker spelled any other way is not parsed
 - [ ] **Done-states** — every row names an observable done-state (*Terms*): a file, a count, an
       exit code, a command's output — something an executor can check without asking. "Improve X"
       with no check is a finding
@@ -53,6 +60,9 @@ the plan to that file, not to a paraphrase of it.
 - [ ] **Scope cuts** — anything the user asked for or decided, recorded in the plan or a document
       it cites, that the plan drops or narrows is named in the plan as out of scope, with its reason
       and a pointer to where the decision is recorded. No step quietly narrows a recorded decision
+- [ ] **Rows right-sized** — each row is one a reviewer could reject while approving its
+      neighbours. Two rows that could only pass or fail together are one row, and a row holding two
+      pieces that could pass or fail separately is two; either shape is a finding
 
 ## Internal consistency
 

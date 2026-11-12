@@ -65,7 +65,7 @@ grep -n "<the item's command or number>" "<plan-file>"   # a Progress row whose 
 - **Not recorded** — run it now: PASS or FAIL, with its real output (exit code, count, failing lines).
 - **A FAIL on one of the repository's own checks** belongs to area 2: fix an obvious cause (one in a file
   dirty and unclaimed at start is reported instead), re-run, report the result here citing the fix. **Any
-  other FAIL is reported, never fixed** — a finding for the plan's own rows or `/plan-continue`.
+  other FAIL is reported, never fixed** — a finding for the plan's own rows or `/plan-build`.
 
 ## Area 4 — Commits
 
@@ -79,7 +79,7 @@ Unpushed commits, without erroring on a branch that has no upstream:
 
 ```bash
 if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
-  git log --oneline '@{u}..HEAD'              # the push gate (SKILL.md §3)
+  git rev-parse HEAD; git log --oneline '@{u}'..HEAD   # SKILL.md §3 pushes that sha, bar a plans repo
 elif git rev-parse origin/HEAD >/dev/null 2>&1; then
   git log --oneline origin/HEAD..
 else
@@ -93,7 +93,11 @@ and **real work** (committed if claimed, else listed *not committed — unclaime
 ## Area 5 — Docs
 
 ```bash
-# <plan-start>: the Run log's `run base` sha for this repo, else `git merge-base HEAD origin/HEAD`
+# <plan-start>: the Run log's `run base` sha for this repo, else the merge-base with the default branch:
+default="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')"
+[ -n "$default" ] ||   # origin/HEAD unset in this clone: ask the remote, read-only
+  default="$(git ls-remote --symref origin HEAD | awk '/^ref:/ { sub("refs/heads/", "", $2); print $2 }')"
+git merge-base HEAD "origin/$default"         # run with the lines above, in one call
 git diff --name-only <plan-start>..HEAD       # never main..HEAD — empty on main
 ```
 
@@ -145,12 +149,13 @@ default, the plan's repository. The run directory (`row-snapshot.sh dir` prints 
 so cited review files resolve. **Each MISSING is a question, not a verdict**: a path a row deleted
 or moved is meant to be absent. A claimed sha or path really absent is drift.
 
-**Re-read the plan from disk before auditing it.** A copy carried in context from earlier in the
-session may predate edits made since: you would report a defect already fixed, or miss one introduced.
+**Re-read the plan from disk before auditing it**: a copy from earlier in context can miss later edits.
 
 ### The ticket is a doc too
 
-If the plan carries a `**Ticket:**` line with an identifier, read that issue and compare:
+If the plan carries a `**Ticket:**` line with an identifier, read that issue from the tracker in the
+same turn as the report — never an earlier read, the conversation or memory, which go stale — and compare.
+A merged pull request closes its ticket by itself: say so when it did.
 
 | Plan says | Ticket says | Finding |
 | --- | --- | --- |
@@ -165,24 +170,8 @@ If the plan carries a `**Ticket:**` line with an identifier, read that issue and
 
 ## Area 6 — Cleanup
 
-```bash
-git branch --merged | grep -vE '^\*|^[ +] (main|master|develop)$'   # candidates only
-git worktree list --porcelain
-git worktree prune --dry-run
-find . \( -name '*.orig' -o -name '*.rej' \) -not -path './.git/*'
-```
-
-Plus scratch the plan itself names — throwaway scripts, dumps, fixture files — and anything left in
-the session scratchpad that was meant to be temporary.
-
-**Candidates, not conclusions.** `--merged` lists branches merged into the *current* branch, not the default
-branch or upstream. Verify before proposing a deletion; never propose deleting an unmerged branch.
-
-Worktrees come out before the branches they hold:
-
-```bash
-git worktree remove <path>     # then the branch, separately confirmed
-```
+The footprint audit — measure, classify, only-copy check, docs re-check, report — is
+[CLEANUP.md](CLEANUP.md).
 
 ## Report — evidence per area
 

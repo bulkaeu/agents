@@ -7,7 +7,7 @@
 #   bash check-plan-skills.sh --root <dir>    check a copy of the repo at <dir>
 #
 # Prints `FAIL [Kn] file:line — message` per failure and exits 1 on any; prints
-# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K20 (see README).
+# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K21 (see README).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,7 +17,7 @@ if [[ "${1:-}" == "--root" ]]; then
 fi
 cd "$ROOT" || exit 2
 
-SKILLS=(plan-add plan-build plan-continue plan-finish plan-review plan-status plan-summary)
+SKILLS=(plan-add plan-build plan-finish plan-review plan-status plan-summary)
 checks=0
 # Failures go to a report file, not a counter: a counter bumped inside a pipeline lives in a
 # subshell and is lost (bash 3.2, the macOS default, has no lastpipe).
@@ -29,7 +29,7 @@ fail() { echo "FAIL [$1] $2 — $3" | tee -a "$REPORT"; }
 # Every markdown file in the family, repo-relative.
 FILES=()
 while IFS= read -r f; do FILES+=("$f"); done < <(
-  find skills/plan-add skills/plan-build skills/plan-continue skills/plan-finish skills/plan-review \
+  find skills/plan-add skills/plan-build skills/plan-finish skills/plan-review \
     skills/plan-status skills/plan-summary skills/plan-shared -name '*.md' -type f 2>/dev/null | sort)
 [[ ${#FILES[@]} -gt 0 ]] || { echo "FAIL [K0] $ROOT — no plan-skill files found"; exit 1; }
 
@@ -70,7 +70,7 @@ for s in "${SKILLS[@]}"; do
   frontmatter "$f" | grep -qx 'disable-model-invocation: true' || fail K2 "$f:1" "disable-model-invocation is not true"
   case "$s" in
     plan-add) want='argument-hint: "<what to add> [optional plan path]"' ;;
-    plan-build|plan-continue) want='argument-hint: "[optional plan path] [--dry-run]"' ;;
+    plan-build) want='argument-hint: "[optional plan path] [--dry-run]"' ;;
     *) want='argument-hint: "[optional plan path]"' ;;
   esac
   frontmatter "$f" | grep -qxF "$want" || fail K2 "$f:1" "argument-hint changed; want $want"
@@ -87,7 +87,7 @@ for s in "${SKILLS[@]}"; do
   [[ "$d" == *"Use when "* ]] || fail K3 "$f:3" "description lost its 'Use when …' trigger"
 done
 
-# K4 — the ladder's rung phrases live only in CONVENTIONS.md; all seven skills cite it
+# K4 — the ladder's rung phrases live only in CONVENTIONS.md; all six skills cite it
 checks=$((checks + 1))
 hits_except K4 skills/plan-shared/CONVENTIONS.md 'settings\*\.json|ecently modified (plan )?in `~/\.claude/plans/`' \
   "plan ladder restated; cite plan-shared/CONVENTIONS.md" | record
@@ -103,7 +103,7 @@ hits_except K5 skills/plan-shared/STOPS.md '[Mm]igration, deploy, publish(,| and
   "asked-alone set restated outside STOPS.md" | record
 hits_except K5 skills/plan-shared/STOPS.md 'chain it, or wrap it' \
   "harness-prompt rule restated outside STOPS.md" | record
-for s in plan-build plan-continue plan-finish; do
+for s in plan-build plan-finish; do
   grep -q 'STOPS\.md' "skills/$s/SKILL.md" 2>/dev/null || fail K5 "skills/$s/SKILL.md:1" "does not cite STOPS.md"
 done
 
@@ -195,15 +195,14 @@ placeholders() { # <file> <allowed, space-separated>
 placeholders skills/plan-build/implementer-prompt.md "brief findings out" | record
 placeholders skills/plan-build/reviewer-prompt.md "brief diff report findings checks" | record
 
-# K13 — the two executing skills keep standing orders near the top, where a re-read after a
+# K13 — the executing skill keeps its standing orders near the top, where a re-read after a
 # context summary lands
 checks=$((checks + 1))
-for s in plan-build plan-continue; do
-  f="skills/$s/SKILL.md"
-  n="$(grep -n -m1 '^## Standing orders' "$f" 2>/dev/null | cut -d: -f1)"
-  if [[ -z "$n" ]]; then fail K13 "$f:1" "no ## Standing orders section"
-  elif (( n > 40 )); then fail K13 "$f:$n" "## Standing orders starts at line $n, past line 40"; fi
-done
+s=plan-build
+f="skills/$s/SKILL.md"
+n="$(grep -n -m1 '^## Standing orders' "$f" 2>/dev/null | cut -d: -f1)"
+if [[ -z "$n" ]]; then fail K13 "$f:1" "no ## Standing orders section"
+elif (( n > 40 )); then fail K13 "$f:$n" "## Standing orders starts at line $n, past line 40"; fi
 
 # K14 — plan-shared is not a command; every skill has a README row
 checks=$((checks + 1))
@@ -242,6 +241,7 @@ checks=$((checks + 1))
 for pair in 'plan-build/EXECUTION.md|foreign path' \
   'plan-finish/SKILL.md|@{u}..HEAD' \
   "plan-shared/STOPS.md|upstream branch's name equals the local branch's" \
+  'plan-shared/STOPS.md|<sha>:<branch>' \
   'plan-review/SKILL.md|print the diff and wait'; do
   f="skills/${pair%%|*}"; phrase="${pair#*|}"
   grep -qF -- "$phrase" "$f" 2>/dev/null || fail K18 "$f:1" "missing phrase '$phrase'"
@@ -263,6 +263,16 @@ for host in claude-code cursor codex opencode; do
   out="$(bash skills/plan-shared/scripts/tiers.sh "$host" 2>&1)" \
     || fail K20 "skills/plan-shared/CONVENTIONS.md:1" "tiers.sh $host: $out"
 done
+
+# K21 — the files plan-build reads at invocation stay within budget; later files load when needed
+checks=$((checks + 1))
+total=0
+for f in skills/plan-build/SKILL.md skills/plan-build/RULES.md skills/plan-shared/STOPS.md \
+  skills/plan-shared/CONVENTIONS.md skills/plan-build/EXECUTION.md; do
+  total=$((total + $(wc -c < "$f")))
+done
+(( total <= 48000 )) \
+  || fail K21 "skills/plan-build/SKILL.md:1" "files read at invocation total $total bytes, over 48000"
 
 fails="$(grep -c '^FAIL' "$REPORT")"
 if (( fails > 0 )); then

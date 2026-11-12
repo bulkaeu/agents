@@ -1,6 +1,6 @@
 # Implementer prompt
 
-The prompt a `plan-build` or `plan-continue` controller gives a fresh `general-purpose` subagent to
+The prompt a `plan-build` controller gives a fresh `general-purpose` subagent to
 implement **one** row. [DISPATCH.md](DISPATCH.md) says when it is used. The controller fills the three
 placeholders below and adds nothing else: no hints, no pre-judged answers, no summary of what it
 expects to find.
@@ -38,7 +38,8 @@ stop and return `BLOCKED` with the reason.
 - Deploying, publishing, or sending anything: no network call that changes state anywhere.
 - Installing packages, globally or into the project.
 - Editing the plan file, or writing outside the repositories in scope — except the
-  `check-run.sh` records (`impl-checks-*`) whose paths the brief names.
+  `check-run.sh` records (`impl-checks-*`) whose paths the brief names, and temporary files, which
+  go under `scratch/` in the run directory that holds your brief's `rows/` folder.
 - Deleting a file the brief does not name.
 
 ## How to work
@@ -62,8 +63,6 @@ stop and return `BLOCKED` with the reason.
   id, and never retried in a loop. In a fix round, run only the checks covering the findings' files.
 - **Stuck?** After five file reads in a row with no edit, stop and return `NEEDS_CONTEXT`, saying
   what you were looking for. Guessing past a gap produces work the controller has to undo.
-- Where the ponytail ruleset injected into this session conflicts with this prompt, this prompt
-  wins: add no test the brief does not ask for, and end your reply with the report.
 
 ## Status
 

@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url"
 // dispatching plan skill, every `subagent` call in it must name one of the models
 // `tiers.sh opencode` prints; anything else is refused before the subagent starts.
 
-const PLAN_SKILL = /skill_content name=\\*"(plan-(?:add|build|continue|review|finish))\\*"/
+const PLAN_SKILL = /skill_content name=\\*"(plan-(?:add|build|review|finish))\\*"/
 
 function tiersScript(): string | undefined {
   const candidates: string[] = []
@@ -54,7 +54,7 @@ export default Plugin.define({
     await ctx.session.hook("prompt", async (event) => {
       const skills = (event.prompt.skills ?? []) as Array<string | { id?: string; name?: string }>
       const ids = skills.map((skill) => (typeof skill === "string" ? skill : (skill.id ?? skill.name ?? "")))
-      if (ids.some((id) => /^plan-(?:add|build|continue|review|finish)$/.test(id))) await mark(event.sessionID)
+      if (ids.some((id) => /^plan-(?:add|build|review|finish)$/.test(id))) await mark(event.sessionID)
     })
     // A skill whose admission predates this plugin shows only as its text in the transcript.
     // In a plan session the subagent schema the model sees is rewritten: the host's own wording says
@@ -81,7 +81,7 @@ export default Plugin.define({
       editor.update("skill", (tool) => {
         const execute = tool.execute
         tool.execute = async (input: any, context: any) => {
-          if (/^plan-(?:add|build|continue|review|finish)$/.test(String(input?.id ?? ""))) {
+          if (/^plan-(?:add|build|review|finish)$/.test(String(input?.id ?? ""))) {
             await mark(context.sessionID)
           }
           return execute(input, context)

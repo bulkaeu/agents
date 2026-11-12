@@ -11,9 +11,9 @@
 # only to read the hook manifests and skill frontmatter.
 #
 #   P1  no vendored skill directory name or `name:` equals a skills/* name
-#   P2  hook event names are exactly the set wire-ponytail-hooks.sh knows how to wire
+#   P2  hook event names are exactly the set wire-ponytail-hooks.sh knows: it wires all but
+#       SubagentStart, which it deliberately leaves unwired so helper agents get no ponytail
 #   P3  mode tracker still gates on ^[/@$]ponytail; deactivation still matches exactly
-#   P4  ponytail-subagent.js still reads PONYTAIL_SUBAGENT_MATCHER
 #   P5  vendor/ponytail/UPSTREAM exists and names a 40-hex sha
 set -uo pipefail
 
@@ -67,11 +67,6 @@ grep -qF '^[/@$]ponytail' "$V/hooks/ponytail-mode-tracker.js" 2>/dev/null \
   || fail P3 "ponytail-mode-tracker.js no longer gates on ^[/@\$]ponytail"
 grep -qF "t === 'stop ponytail' || t === 'normal mode'" "$V/hooks/ponytail-config.js" 2>/dev/null \
   || fail P3 "ponytail-config.js no longer matches deactivation as exactly 'stop ponytail' or 'normal mode'"
-
-# --- P4: subagent matcher -----------------------------------------------------------
-checks=$((checks + 1))
-grep -qF 'PONYTAIL_SUBAGENT_MATCHER' "$V/hooks/ponytail-subagent.js" 2>/dev/null \
-  || fail P4 "ponytail-subagent.js no longer reads PONYTAIL_SUBAGENT_MATCHER"
 
 # --- P5: pin ------------------------------------------------------------------------
 checks=$((checks + 1))
