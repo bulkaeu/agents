@@ -29,6 +29,12 @@ Rows run in **table order**. For each:
    real command output, and for a dispatched row its `review:` token.
 6. **Commit** if the row calls for it — below — then log it in the Run log. Then the next row.
 
+**Keep the user posted.** After a row closes or parks, send one chat line: `<row id> <icon> ·
+<closed>/<total> · <elapsed since the run's start>`. While a helper works, the `🟡` row's Notes cell
+names its sub-step — dispatched, reported, in review, fix round *n* — until the result replaces it
+(rule 5). A turn never ends while a dispatched helper is still running unless its last line says
+which row, which helper, and that the run continues when it reports: silence reads as a stall.
+
 A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it get
 `⛔` *"depends on N"* — then the loop **continues** with the rest (rule 2), bar one: no usable report.
 

@@ -19,7 +19,8 @@ exact command, **and the safety halts `STOPS.md` marks *Halts the run*** (a fore
 report, a base not an ancestor of `HEAD`), which stop the run at once and wait for the user.
 
 The pre-flight offer to derive a Progress table sits outside this budget — it happens before
-execution starts — and so does the one ask for deferred `needs: screen` rows (`EXECUTION.md`).
+execution starts — and so does the one ask for deferred `needs: screen` rows, made during execution
+once only they and their dependents are left (`EXECUTION.md`).
 
 ## 2. Park, don't halt
 
@@ -48,7 +49,8 @@ Icon and Notes together, with `Edit`/`Write` and never Bash (`ui-rendered-files-
 at the moment the boundary is crossed. Never backfilled at the end: the table exists to record what
 was true *when*, and one edit at the close destroys exactly that. Notes record the measured
 result — counts, versions, paths — not the intent. A `✅` whose Notes restate the step name is a
-`✅` nobody can audit.
+`✅` nobody can audit. The one allowed mid-row Notes edit is a `🟡` row's current sub-step
+(`EXECUTION.md`), which the result replaces when the row closes.
 
 ## 6. Shared state
 

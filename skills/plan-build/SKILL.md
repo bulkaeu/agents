@@ -30,7 +30,7 @@ Read each file when first needed, not before: an early read spends context the r
 
 ## Standing orders
 
-After a context summary, re-read these, `RULES.md`, the Progress table, the Run log, any late file.
+After a context summary, re-read these, `RULES.md`, the Progress table, the Run log, any late file loaded.
 
 1. Make the table true before running anything, and name every correction.
 2. The table and the Run log are the ledger. Never re-dispatch a `✅` row.
