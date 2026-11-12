@@ -119,7 +119,7 @@ in the file, so it survives a context summary. It holds:
   outlives its row — a worktree, a toolchain, a cache, a background process, a folder under home;
 - every ruling, `R<n> · <row id> · <what> — <why> — <cost if wrong>`;
 - every commit the run makes — dispatched row, commit row, close-out or fix wave — as
-  `commit: <short sha> <subject>`, in the Run log edit right after that commit;
+  `commit: <short sha> <subject>`, right after it; one of only the plan's own files needs none (`STOPS.md`);
 - every inline row that changes files, `inline <row id>: <paths>`;
 - every model or effort step-up with its reason, and, on a row carrying a `review: deep` or
   `review: default` marker, one line per review, changed or not, naming its `review-<n>.md` and the

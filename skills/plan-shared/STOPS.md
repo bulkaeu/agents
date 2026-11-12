@@ -1,8 +1,7 @@
 # The stop-list
 
 The one list of things a plan skill must not do without an explicit yes. `plan-build`
-and `plan-finish` both cite this file; neither keeps its own copy, because two
-copies of a safety list drift and the drift is silent.
+and `plan-finish` both cite it and keep no copy: two copies of a safety list drift, silently.
 
 **Exhaustive.** Everything not listed here is work, not a question. Inventing a reason to ask costs
 the user the time these skills exist to save.
@@ -26,7 +25,7 @@ the user the time these skills exist to save.
 | **A foreign path** in a dispatched row's diff — in its `paths-<n>.txt`, in no report's **Changed** (`plan-build/EXECUTION.md`) | Likely a peer's work: never restored, removed or committed. **Halts the run**. A path in `outside-<n>.txt`, beyond the row's `--path` scope in a shared checkout, is left alone the same way but does not halt |
 | **No usable report** from a dispatched row — a crash, or no **Changed** | Its own paths are unknown, so nothing in the tree is safe to restore. **Halts the run** |
 | A row's `diff` exits 3 because its base is **not an ancestor** of `HEAD` | History moved under the run and no paths file exists. **Halts the run** |
-| **A commit in `'@{u}'..<sha>`** that the Run log does not record and the user did not name | Pushing would publish someone else's commit. Stops the push; a yes covers the shas shown and no others |
+| **A commit in `'@{u}'..<sha>`** that the Run log does not record and the user did not name | Pushing would publish someone else's commit. Stops the push; a yes covers the shas shown and no others. A commit whose only paths (`git show --pretty=format: --name-only <sha>`) are this plan's file and its `<plan stem>-history.md` is the run's own, logged or not: the commit carrying the log's last lines cannot log itself. Any other path, another plan's file included, keeps this stop |
 | **Deleting what the plan made outside its repositories** — a toolchain, cache or home folder from a `created:` line, or uncited media in the run directory | Large and slow to rebuild: measured and asked in the one batch (`plan-finish/CLEANUP.md`) |
 
 **What stays ordinary:** `git add` and `git commit` of work in scope, by explicit path; pushing to a
@@ -55,8 +54,7 @@ message is no more recoverable than a migration.
 The three marked **Halts the run** are not batched or deferred either: the run stops at once and
 waits for the user (`plan-build/RULES.md` §1–2), because continuing could commit or erase a peer's
 work. Everything else that stopped goes into **one** batch question. A run with four stopped items, one of
-them a deploy, asks two questions: the batch of three, and the deploy on its own. Not four, and not
-one.
+them a deploy, asks two questions: the batch of three, and the deploy on its own.
 
 ## Evidenced action
 

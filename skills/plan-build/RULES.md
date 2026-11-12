@@ -1,12 +1,10 @@
 # Hard rules
 
-The safety surface of `/plan-build`, starting or resuming. Its `SKILL.md` loads this file
-first, before resolving a plan. `EXECUTION.md` restates inline only the rules it enforces; this is
-the canonical wording.
+The safety surface of `/plan-build`, starting or resuming. `EXECUTION.md` restates inline only the
+rules it enforces; this is the canonical wording.
 
-**The stop-list itself lives in [`../plan-shared/STOPS.md`](../plan-shared/STOPS.md)** — one file
-shared with `plan-finish`, so the two can never disagree. Read it now, with this one; rules 1, 3 and
-4 below are defined by it.
+**The stop-list itself lives in [`../plan-shared/STOPS.md`](../plan-shared/STOPS.md)**, shared with
+`plan-finish`. Read it now, with this one; rules 1, 3 and 4 below are defined by it.
 
 ## 1. Uninterrupted by default
 
@@ -38,8 +36,7 @@ peer's work.
 
 ## 4. A harness prompt is not a stop-list item
 
-`STOPS.md` states it. In short: answer the hook's prompt and continue; never re-shape a command to
-get past a matcher.
+`STOPS.md` states it: answer the hook's prompt and continue.
 
 ## 5. One boundary, one edit
 
