@@ -7,7 +7,7 @@
 #   bash check-plan-skills.sh --root <dir>    check a copy of the repo at <dir>
 #
 # Prints `FAIL [Kn] file:line — message` per failure and exits 1 on any; prints
-# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K21 (see README).
+# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K21, each named in a comment below.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

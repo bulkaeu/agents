@@ -116,11 +116,12 @@ in the file, so it survives a context summary. It holds:
 - an `inherit` line, once per run, where a tier falls back to it (`CONVENTIONS.md`, *Model tiers*);
 - per dispatched pass, `<row id> · implementer <model> · reviewer <model>` (standing order 7);
 - every `deferred: <row id> — needs: screen` line (*The loop*);
-- `created: <path or process> — <what>` when the run makes anything outside the repositories that
-  outlives its row — a worktree, a toolchain, a cache, a background process, a folder under home;
+- `created: <path or process> — <what>` when the run makes anything outside the repositories and the
+  run directory that outlives its row — a worktree, a toolchain, a cache, a background process, a home folder;
 - every ruling, `R<n> · <row id> · <what> — <why> — <cost if wrong>`;
 - every commit the run makes — dispatched row, commit row, close-out or fix wave — as
-  `commit: <short sha> <subject>`, right after it; one of only the plan's own files needs none (`STOPS.md`);
+  `commit: <short sha> <subject>`, right after it; one whose only paths are the plan file and its history
+  file needs no line (`STOPS.md`);
 - every inline row that changes files, `inline <row id>: <paths>`;
 - every model or effort step-up with its reason, and, on a row carrying a `review: deep` or
   `review: default` marker, one line per review, changed or not, naming its `review-<n>.md` and the
