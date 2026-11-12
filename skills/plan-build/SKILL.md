@@ -132,10 +132,10 @@ means executing, which a dry run cannot do. Report the refusal and stop.
 
 *Cost.* A dispatched row costs at least 2 subagents, and up to 9 — one `NEEDS_CONTEXT` retry, then
 three fix rounds; the final review adds 1 to 3. Only code rows dispatch, each on `DISPATCH.md` §3's
-tiers: implementers standard and reviewers strong by default, stepping up on its table's triggers.
-The floor is 2 × dispatched rows + 1.
+tiers. The floor is 2 × dispatched rows + 1.
 
-Report shape — follow it, so two runs on the same plan are comparable:
+Report shape — follow it, so runs compare; an empty list prints `none` after its label, several rows
+repeat it, each repo shows a count, 0 too:
 
 ```
 /plan-build --dry-run · <plan file>
@@ -190,11 +190,11 @@ question, with the exact deploy command, so a yes is one word.
 
 **A plan with a migration and a deploy** — each asked on its own with its exact command, never folded
 into a batch: `STOPS.md` puts both in the asked-alone set. With one other parked row, that is three
-questions — the migration, the deploy, and a batch of one.
+questions.
 
 **`/plan-build` on a part-done table** — is reconciled and resumed: each `✅` row checked against
 the repositories, every correction named, then the loop from the first open row. It does not
 silently re-run finished steps.
 
-**`--dry-run` on the same plan** — the proposed corrections, the *will park* list, and the reminder
-that the list covers only the explicit markers. Nothing written.
+**`--dry-run` on the same plan** — the proposed corrections, the *will park* list, the reminder
+that the list covers only explicit markers. Nothing written.

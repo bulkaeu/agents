@@ -16,7 +16,8 @@ The files this one names sit in the `plan-build` directory, beside it or under `
 Before reconciling, run the repository-scope, concurrency and tiers checks (`SKILL.md` §2): a
 collision means stop and report, not clean up, and a `tiers.sh` error means stop. Their output —
 `dirty at start` included — opens this run's Run log header, even when an earlier header already has one.
-A `--dry-run` runs the same checks and writes no header: what they found goes in its report.
+A `--dry-run` runs the same checks and writes no header: what they found goes in its report. It
+skips the `disk:` measure, which only a header uses.
 
 A dirty path is this run's own only if it is the plan file, an own path of the in-flight `🟡` row, or
 an own path of a closed (`✅`) row that no commit on a Run log `commit:` line holds yet (a crash before
@@ -96,11 +97,16 @@ A clean dry-run is not clearance: stops other than the markers are recognised at
 Nothing written.
 ```
 
-A list with nothing in it prints `none` after its label; with no repo in scope, `Pre-flight:` reads
-`concurrency no repo` and carries no count. A refusal, for a collision or a `tiers.sh` error, prints
-the lines down to `Pre-flight:` (`Pre-flight: REFUSED — tiers` for the error, which `Tiers:` carries),
-then the last two lines; it does not reconcile. Print the lines as shaped, with no added
-parentheticals; anything else worth saying goes under `Reconcile:` as an `observation:` line.
+A list with nothing in it prints `none` after its label, and one with several rows repeats its label,
+one line per row (corrections stay indented under `Reconcile:`). `foreign dirty paths:` names every
+repo in scope with its count, zeros included; with no repo in scope, `Pre-flight:` reads
+`concurrency no repo` and carries no count. A `🟡` row that is kept prints
+`row <n>: 🟡 kept — <its partial files>` and is not counted as a correction.
+
+A refusal, for a collision or a `tiers.sh` error, prints the lines down to `Pre-flight:`
+(`Pre-flight: REFUSED — tiers` for the error, which `Tiers:` carries), then the last two lines; it
+does not reconcile. Print the lines as shaped, with no added parentheticals; anything else worth
+saying goes under `Reconcile:` as an `observation:` line.
 
 ## Resume
 
