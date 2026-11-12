@@ -5,8 +5,8 @@
 #   bash check.sh
 #
 # Runs, in order, and stops at the first that fails: check-plan-skills.sh (which runs
-# sanitize-check.sh), check-vendor.sh, check-ponytail.sh, the row-snapshot test, and ShellCheck
-# at warning level over the repository's own shell scripts (vendor/ excluded). Prints
+# sanitize-check.sh), check-vendor.sh, check-ponytail.sh, the row-snapshot and table-claims tests,
+# and ShellCheck at warning level over the repository's own shell scripts (vendor/ excluded). Prints
 # `FAIL — <name>` naming the failed step and exits 1; prints `ok — all checks` and exits 0 when
 # clean. A missing ShellCheck is a failure, not a skip. Exit 2 if run outside a git checkout.
 set -uo pipefail
@@ -34,5 +34,6 @@ run "check-plan-skills.sh" bash check-plan-skills.sh
 run "check-vendor.sh" bash check-vendor.sh
 run "check-ponytail.sh" bash check-ponytail.sh
 run "test-row-snapshot.sh" bash skills/plan-build/scripts/test-row-snapshot.sh
+run "test-table-claims.sh" bash skills/plan-shared/scripts/test-table-claims.sh
 run "ShellCheck" shellcheck_own
 echo "ok — all checks"

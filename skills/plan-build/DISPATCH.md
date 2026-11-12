@@ -133,9 +133,16 @@ Record it like any other finding; list the stray files and ask, and remove them 
 
 ## 7. Fix loop
 
-**Open** means a spec ❌, or a finding at Critical, High or Medium. An UNVERIFIED open finding is
-checked by the controller: confirmed, it stays open; refuted, it is dropped with a ruling. Low and
-Very Low findings go to the Run log as *deferred* and do not enter the loop.
+**Open** means a spec ❌, or a finding at Low or above: the stop threshold is Very Low
+(`CONVENTIONS.md`, *Severity scale*). An UNVERIFIED open finding is checked by the controller:
+confirmed, it stays open; refuted, it is dropped with a ruling.
+
+**Closing pass: Very Lows are fixed once, after the last review, with no re-review.** When a review
+leaves only Very Low findings, one fresh implementer gets them as `{findings}`; the controller then
+re-runs the row's checks and takes the diff as in §6, and ticks the row. A failed check, or a path
+outside the row's own, reopens the loop as a Medium finding. A Very Low that records a deliberate
+tradeoff stays, its reason in the row's Notes. **Nothing is logged as deferred**: every finding ends
+fixed, refuted or, for such a tradeoff, noted.
 
 A defect the controller confirms itself while reading the diff (`RULES.md` rule 9) is an **open
 finding**, handled exactly like a reviewer's CONFIRMED one: the controller records it with its
@@ -150,7 +157,7 @@ base, so the whole row is shown with its fixes in; a fresh `checks-<n>.txt`, run
 Codex), strongest in round 3, the reviewer strongest in round 3. **If the open count does not fall** between
 two rounds, the loop has stalled: the next round's review runs on the strongest tier. If it still does not
 fall after a strongest-tier review, or anything is open after round 3, park the row with its open findings as
-the reason; no ruling accepts one. A row is never ticked with a finding at Medium or above still open.
+the reason; no ruling accepts one. A row is never ticked with a finding at Low or above still open.
 
 ## 8. Rulings — including overriding the step's wording
 
@@ -179,12 +186,13 @@ recorded, it falls back to the merge-base with the remote default branch; say so
 reviewer in `Mode: run`, briefed on this run's rows, on §3's tiers, with `{checks}` = the plan's
 `## Verification` items no row's Notes record, run now, plus the recorded ones quoted with their row ids —
 a stage-time check is not re-run, as its fixtures may be gone by design (`plan-finish`, area 3).
-Medium-or-above findings go to **one** fix subagent, then one re-review, both on §3's tiers; no second wave.
+All its findings go to **one** fix subagent, then one re-review, both on §3's tiers; no second wave, and
+no re-review when every finding was Very Low: the controller re-runs the checks, as in §7's closing pass.
 Record `base <plan> final-fix --repo …` before dispatching it; its diff and `paths-<n>.txt` are
 `diff <plan> final-fix`. Its **Changed**, as an implementer's, is its own paths: a foreign path in that
 diff stops the run as for a row (`EXECUTION.md`). Its commit names only its own paths, logged
-`inline final-fix: <paths>` so `plan-finish` claims them. One still open is parked for the closing
-question, never a ruling. Log `final review: <file> <verdict>`. Run §6's write check after each one.
+`inline final-fix: <paths>` so `plan-finish` claims them. One at Low or above still open is parked for
+the closing question, never a ruling. Log `final review: <file> <verdict>`. §6's write check follows each.
 
 ## Fallback — a host without subagents
 

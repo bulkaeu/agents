@@ -103,9 +103,9 @@ fix in the plan, per `plan-progress-section.md`.
 
 The current step, spelled out — row id, what it does, and what it is waiting on. Then every `⛔` with
 its blocker and every `⏭️` with its reason, quoted from the Notes column. If the plan has a
-`## Run log`, add its rulings and deferred findings, one line each — they are decisions a run made
-on the reader's behalf. **This is the section the skill
-exists for**; when the plan has started, lead the reader here.
+`## Run log`, add its rulings, one line each — they are decisions a run made on the reader's behalf.
+Leave out old `deferred ·` finding lines: they are closed history, not work owed. **This is the
+section the skill exists for**; when the plan has started, lead the reader here.
 
 If the plan has not started, one line stands **in place of this section, with no `## Where we are`
 header** (the same rule as the complete case): *"Not started — N waiting, first is `<id>`."* **Count

@@ -121,7 +121,7 @@ A defect that breaks a done-state, a rule the brief or plan quotes, or the main 
 least Medium, however small the fix.
 When unsure between Low and Medium, choose Medium and say what would make it Low.
 
-What each skill does with a severity — loop, fix, defer — is that skill's call, in its own file.
+In every skill: Low and above are fixed in its loop, Very Low once after the last review; none is deferred.
 
 ## Model tiers
 

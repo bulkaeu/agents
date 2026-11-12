@@ -218,7 +218,7 @@ and restart Codex.
 
 - **Run `bash check.sh` before a change is done.** It runs every repository check in order and stops
   at the first failure, naming it: `check-plan-skills.sh`, `check-vendor.sh`, `check-ponytail.sh`,
-  the row-snapshot test, and ShellCheck (`-S warning`) over this repo's own shell scripts. ShellCheck
+  the row-snapshot and table-claims tests, and ShellCheck (`-S warning`) over this repo's own shell scripts. ShellCheck
   must be installed; a missing one fails the run.
 - **Keep `SKILL.md` under ~200 lines.** Detail goes in a sibling `.md` linked from it —
   `plan-finish/CHECKLIST.md`, `migrate/RULES.md`. One level of references, no deeper. The

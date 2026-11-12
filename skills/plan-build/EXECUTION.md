@@ -91,7 +91,7 @@ Before any `✅`, fresh in the same turn as the tick:
   `../plan-shared/scripts/table-claims.sh` checks all three across the repos in scope, run with
   the run directory (`row-snapshot.sh dir <plan>` prints it) also passed as a `--root`, so the
   review token's `rows/<row id>/review-<n>.md` path resolves;
-- for a dispatched row, a saved `Verdict: PASS` review, nothing at Medium or above open (`DISPATCH.md` §7).
+- for a dispatched row, a saved `Verdict: PASS` review and its closing pass done (`DISPATCH.md` §7).
 
 A subagent's claim clears none of these (rule 9).
 
@@ -126,10 +126,10 @@ in the file, so it survives a context summary. It holds:
   reviewer's tier and reason (`DISPATCH.md` §3) — also the step-up's line, so a tier change in a fix
   loop shows: `<row id> · review-<n>.md — reviewer on the strongest tier: fix round 3, which
   review: default does not cancel`;
-- deferred findings, the Low and Very Low ones, one line each with `file:line`;
 - the final review's file and verdict.
 
-Old `✅` rows without a `review:` token are not drift: they predate this loop.
+Old `✅` rows without a `review:` token are not drift: they predate this loop. Nor is an old
+`deferred ·` finding line owed work: a finding is now fixed or ruled on in its own row (`DISPATCH.md` §7).
 
 ## Hand-off rows — a sanctioned halt, beside `STOPS.md`'s safety halts
 

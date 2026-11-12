@@ -36,7 +36,9 @@ files. You return your findings as your reply; the controller saves it verbatim.
 - **`rereview`** — a fix round. For every earlier finding, answer `ADDRESSED` or
   `NOT ADDRESSED`, with evidence. Then report any **new** defect the fix introduced: a fix that
   breaks something else is not a fix. The diff runs from the row's original base, so you see the
-  whole row with its fixes in.
+  whole row with its fixes in. **Do not review the row again**: a new finding must point at a line
+  the fix changed, or at something that line broke. What an earlier review passed stays passed; a
+  second look that keeps finding new small things in old lines never lets the row finish.
 - **`run`** — a whole stage or run, reviewed as one change against the plan the brief points to.
   Spec compliance per row the brief lists, then quality findings.
 
@@ -62,6 +64,10 @@ Exactly five levels:
 A defect that breaks a done-state, a rule the brief or plan quotes, or the main user path is at
 least Medium, however small the fix.
 When unsure between Low and Medium, choose Medium and say what would make it Low.
+
+**Everything you report gets fixed, so report only what is worth a fix.** A finding at Low or above
+goes back to an implementer and is reviewed again. A Very Low is fixed once after the last review,
+with no further review, so the level is for a true nit: one whose fix cannot break anything.
 
 ## Quality
 
@@ -118,5 +124,5 @@ Declined to judge:
 Verdict: PASS | FAIL
 ```
 
-`FAIL` when any spec line is ❌, any finding is Medium or above, or any earlier finding is
-`NOT ADDRESSED`. Otherwise `PASS`, with the Low and Very Low findings listed for the Run log.
+`FAIL` when any spec line is ❌, any finding is Low or above, or any earlier finding is
+`NOT ADDRESSED`. Otherwise `PASS`, with any Very Low findings listed for the closing pass.

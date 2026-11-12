@@ -16,7 +16,8 @@
 # A sha counts as present if `git cat-file` resolves it as a commit in ANY repo in scope. A path
 # counts as present if it exists as given (after ~ expansion), under any repo in scope, or under
 # the root. Only tokens containing a `/` are paths: bare file names, slash commands (`/name`), git
-# refs (`origin/main`), globs, variables and placeholders (`*`, `$`, `<`, `{`) are skipped.
+# refs (`origin/main`), globs, variables and placeholders (`*`, `$`, `<`, `{`) are skipped, and so are
+# ranges and refspecs (`a..b`, `sha:refs/x`), package scopes (`@x/y`) and `#` references.
 #
 # Output: one line per row, then a tally. Exit 0 always on a readable plan; 2 on a usage error.
 set -euo pipefail
@@ -124,6 +125,8 @@ while IFS= read -r line; do
   while IFS= read -r tok; do
     tok="${tok//\`/}"; tok="$(sed -E 's/:[0-9]+(-[0-9]+)?$//' <<<"$tok")"  # drop a :line anchor
     [[ -z "$tok" || "$tok" == *[\ \*\$\<\{]* ]] && continue
+    # never a path: a range or refspec (a..b, sha:refs/x), an npm scope, an issue or PR reference
+    [[ "$tok" == *..* || "$tok" == *:* || "$tok" == @* || "$tok" == *'#'* ]] && continue
     [[ "$tok" == */* && ! "$tok" =~ ^/[A-Za-z0-9_-]+$ ]] || continue
     is_ref "$tok" && continue
     if path_ok "$tok"; then out+=" · path $tok ok"; path_good=$((path_good + 1))
