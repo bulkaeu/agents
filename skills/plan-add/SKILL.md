@@ -22,8 +22,10 @@ left standing over work the addition invalidated. This skill guards those three,
 
 - **One topic, one plan file.** Never a second plan for a topic that has one (`no-plan-copies.md`).
   A genuinely different topic earns a plan of its own — that is not a copy of this one.
-- **Never delete a row.** Work no longer wanted becomes `⏭️` with the reason and the id of the row
-  that superseded it. The history of what was *not* done is worth as much as what was.
+- **Never delete a row once the plan has started.** Unwanted work becomes `⏭️` with the reason and
+  the superseding row's id: what was *not* done is history too. A plan that has not started — every
+  row `⬜`, nothing in flight, no `## Run log` — has none yet: a row the addition replaces is rewritten
+  or removed and renumbered past, leaving no `⏭️` row, no earlier-revisions table, no trace in Notes.
 - **Never invent a done-state.** A step whose proof you cannot name is under-specified: say so and
   ask, rather than write an observable-sounding sentence nobody can check.
 - **Plan edits go through `Edit`/`Write`, never Bash** (`ui-rendered-files-use-write-tool.md`): a
@@ -46,14 +48,13 @@ same shape as `plan-finish`'s repo-only offer.
 - **The user takes the offer**, on whichever list this skill stopped at, and names where the plan
   goes. That is a choice, not a signal — never read it into silence.
 
-Either way, write the new plan with its `**Ticket:**` line, `## Summary` and `## Progress` table
-(`plan-progress-section.md`, `plan-ticket-tracking.md`), **with the body sections its rows cite, per
-step 4**, and — when step 2's interview ran — the `## Decisions` section in the format its close
-gives: at the named path in the first case, at the path the user names in the second. **The plan is
-written at the path it belongs, in plan mode too** (`plans-live-in-a-plans-repo.md`). Plan mode
-auto-permits only the harness's designated session plan, so a write elsewhere may prompt: answer it,
-and never divert the content into that file (`plan-mode-edit-plans.md`) — the named path stays
-empty, and the next invocation creates a second plan for the same topic.
+Either way, write the new plan after step 2's interview and step 4's rows: its `**Ticket:**` line,
+`## Summary`, `## Progress` (`plan-progress-section.md`, `plan-ticket-tracking.md`), the body sections
+its rows cite and, if the interview ran, `## Decisions` in the format the close of
+[INTERVIEW.md](INTERVIEW.md) gives — at the named path, or the one the user names. **It goes where it
+belongs, in plan mode too** (`plans-live-in-a-plans-repo.md`). Plan mode auto-permits only the
+harness's session plan, so a write elsewhere may prompt: answer it, and never divert the content into
+that file (`plan-mode-edit-plans.md`) — the named path stays empty, and the next run makes a second plan.
 
 Read the whole plan once resolved, and note its mtime — step 4's guard compares against it.
 
@@ -117,9 +118,8 @@ Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that d
   otherwise write a new section and name it from the row. A row with nothing behind it hands the
   next `/plan-build` an implementer whose Specification is empty: the under-specified step the
   hard rules above forbid.
-- **Renumber only when the plan has not started at all** — every row `⬜`, nothing in flight, no
-  `## Run log`. The moment any row is in flight or closed, insert with a suffixed id — `3a`, `3b` —
-  so existing references keep pointing at the same steps ([MATCHING.md](MATCHING.md) §6).
+- **Renumber only while the plan has not started** (hard rule 2's test); once it has, suffix the id
+  — `3a`, `3b` — so references keep pointing at the same steps ([MATCHING.md](MATCHING.md) §6).
 - **Gated work carries the `BLOCKED — wait for user:` marker** (`CONVENTIONS.md`, *Row markers*), on
   a row of its own. A gate bundled into a step that also does work cannot be parked.
 - **Notes stay empty on a new waiting row.** The Notes column records results, never intentions.
@@ -127,10 +127,10 @@ Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that d
 ## 5. Reopen what the addition invalidates
 
 **Test 1 or test 2 reopens**: the matched `✅` or `⏭️` goes back to `⬜`. **Test 3 supersedes
-instead** — the row becomes `⏭️`, an open one included, and a superseded row never runs
-([MATCHING.md](MATCHING.md) §3). Either way **its Notes keep the original result** and gain the
-reason and the id of the row that caused the change — the earlier run is evidence, and overwriting
-it destroys the only record of what that step once produced.
+instead** — the row becomes `⏭️`, an open one included, and never runs ([MATCHING.md](MATCHING.md)
+§3). Either way **its Notes keep the original result** plus the reason and the causing row's id: the
+earlier run is evidence, and overwriting it destroys the only record of what that step produced. A
+plan that has not started has nothing to reopen, and a row test 3 retires goes per hard rule 2.
 
 **A reopened row whose causing rows run later moves down to sit after the last of them, keeping its
 id.** Left where it is, it sits above its own causes, and a top-down executor runs it first — against
