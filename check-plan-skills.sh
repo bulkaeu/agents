@@ -7,7 +7,7 @@
 #   bash check-plan-skills.sh --root <dir>    check a copy of the repo at <dir>
 #
 # Prints `FAIL [Kn] file:line — message` per failure and exits 1 on any; prints
-# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K20 (see README).
+# `ok — N checks, M files` and exits 0 when clean. Check ids are K1–K21 (see README).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -263,6 +263,16 @@ for host in claude-code cursor codex opencode; do
   out="$(bash skills/plan-shared/scripts/tiers.sh "$host" 2>&1)" \
     || fail K20 "skills/plan-shared/CONVENTIONS.md:1" "tiers.sh $host: $out"
 done
+
+# K21 — the files plan-build reads at invocation stay within budget; later files load when needed
+checks=$((checks + 1))
+total=0
+for f in skills/plan-build/SKILL.md skills/plan-build/RULES.md skills/plan-shared/STOPS.md \
+  skills/plan-shared/CONVENTIONS.md skills/plan-build/EXECUTION.md; do
+  total=$((total + $(wc -c < "$f")))
+done
+(( total <= 48000 )) \
+  || fail K21 "skills/plan-build/SKILL.md:1" "files read at invocation total $total bytes, over 48000"
 
 fails="$(grep -c '^FAIL' "$REPORT")"
 if (( fails > 0 )); then

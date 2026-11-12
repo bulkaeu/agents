@@ -17,18 +17,20 @@ argument-hint: "[optional plan path] [--dry-run]"
 
 A plan that has been approved and then executed one permission prompt at a time was not worth
 approving. This skill takes a plan, fresh or part-way through, and works it to the last row,
-stopping only where stopping is the correct answer. A started plan (§2) is reconciled first, per
-[RESUME.md](RESUME.md).
+stopping only where stopping is the correct answer.
 
-Read [RULES.md](RULES.md) and [the stop-list](../plan-shared/STOPS.md) now — together they are the
-safety surface, and this file assumes both. The loop is [EXECUTION.md](EXECUTION.md), the close-out
-[CLOSEOUT.md](CLOSEOUT.md); how a code row is built and reviewed is [DISPATCH.md](DISPATCH.md),
-with its two prompts beside it; shared terms and the plan ladder are
-[CONVENTIONS.md](../plan-shared/CONVENTIONS.md).
+Read each file when first needed, not before: an early read spends context the run needs later.
+
+| When | Read |
+| --- | --- |
+| At invocation | This file; [RULES.md](RULES.md) and [the stop-list](../plan-shared/STOPS.md), the safety surface this file assumes; [CONVENTIONS.md](../plan-shared/CONVENTIONS.md), shared terms and the plan ladder; [EXECUTION.md](EXECUTION.md), the loop |
+| The plan is started (§2) | [RESUME.md](RESUME.md), which reconciles it before the loop |
+| The first row classified as dispatch | [DISPATCH.md](DISPATCH.md), how a code row is built and reviewed, and its two prompts beside it |
+| The last row closes, or a `--dry-run` | [CLOSEOUT.md](CLOSEOUT.md); a dry run also reads `DISPATCH.md` §3 for its per-tier counts |
 
 ## Standing orders
 
-Re-read these, `RULES.md`, the Progress table and the Run log after any context summary.
+After any context summary, re-read these, `RULES.md`, the table, the Run log and any late file loaded.
 
 1. Make the table true before running anything, and name every correction.
 2. The table and the Run log are the ledger. Never re-dispatch a `✅` row.
