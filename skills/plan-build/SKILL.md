@@ -80,8 +80,9 @@ All five, before any work:
 **Tiers**: run `bash ${CLAUDE_SKILL_DIR}/../plan-shared/scripts/tiers.sh <host>` — `opencode`, `codex`,
 `cursor`, `claude-code`, or `other` for any host the table does not name — now, and again after any context
 summary. It reads `CONVENTIONS.md`'s table from disk; put its one-line output in the run's Run log header
-verbatim, beside `disk: <N> GiB free` from `df -Pk "$HOME"` (close-out's clean-up baseline). The tiers line,
-not an earlier read of the table and not a previous run's header, is what every dispatch in this run uses.
+verbatim, beside `disk: <N> GiB free`: the Available column of `df -Pk "$HOME"`, in KiB, ÷ 1048576
+(close-out's clean-up baseline). The tiers line, not an earlier read of the table and not a previous run's
+header, is what every dispatch in this run uses.
 Where the variable `CLAUDE_SKILL_DIR` is unset, use this file's directory, in every file of this skill.
 
 **Concurrency** (`shared-state-between-agents.md`), in every repo in scope, asks whether this run would

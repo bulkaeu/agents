@@ -82,8 +82,9 @@ they run when asked for and not on a guess.
 
 `skills/plan-shared/` is not a command. It holds what the six `plan-*` skills share, each in one
 place: `STOPS.md` (the stop-list), `CONVENTIONS.md` (how a plan is found and read, the severity
-scale) and `scripts/table-claims.sh` (checks a Progress table's shas and paths against git and
-disk). `install.sh` links it beside the skills, which is what lets them reach it.
+scale), `scripts/table-claims.sh` (checks a Progress table's shas and paths against git and disk)
+and `scripts/tiers.sh` (prints a host's model tiers). `install.sh` links it beside the skills, which
+is what lets them reach it.
 
 **Plan skills on Codex.** Codex reads user skills from `~/.agents/skills`, which `install.sh`
 already links every skill into, so the `plan-*` family reaches it with no extra step. Invoke one
@@ -234,8 +235,10 @@ and restart Codex.
 - **Run `bash check-plan-skills.sh` after touching any `plan-*` skill, `plan-shared/`, or the plan
   rules.** It checks line counts, frontmatter, that the ladder and stop-list live in one place,
   links, time-sensitive wording, the severity scale, `RULES.md`'s pinned headings, the dispatch
-  prompts' status tokens and placeholders, the standing orders, that key safety wording is still
-  present, and that no non-table line passes 110 characters, then runs `sanitize-check.sh`.
+  prompts' status tokens and placeholders, the standing orders, each skill's README row and Codex
+  gate file, that the scripts parse and the model tiers resolve, that key safety wording is still
+  present, that no non-table line passes 110 characters, and that the files `plan-build` reads at
+  start stay within their byte budget, then runs `sanitize-check.sh`.
   `--root <dir>` points it at a copy of the repo. After touching `plan-build/scripts/row-snapshot.sh`,
   also run `bash skills/plan-build/scripts/test-row-snapshot.sh`, which works in throwaway repos.
 - **Bundle a skill's helper scripts inside that skill** and resolve their paths at runtime. A

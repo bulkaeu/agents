@@ -190,7 +190,7 @@ A footprint table, one row per measured item, then one disk line. The action is 
 | background process `<pid>` from `created:` | — | deleted — `kill <pid>` |
 ```
 
-Then the disk line, from `df -Pk "$HOME"` against the earliest `disk:` line (step 1, `log_lines disk`):
+Then the disk line: `df -Pk "$HOME"`, Available in KiB ÷ 1048576, against the earliest `disk:` line (step 1):
 
 ```text
 disk: <F> GiB free now · <B> GiB at the run's start · <B−F> GiB less, <P> GiB of it this plan's

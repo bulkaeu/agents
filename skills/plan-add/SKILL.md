@@ -116,7 +116,7 @@ Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that d
   implementer's brief as its **Specification** (`plan-build/DISPATCH.md` §2) — and position is not
   the mapping. Extend the section an existing row already names where the addition belongs in it;
   otherwise write a new section and name it from the row. A row with nothing behind it hands the
-  next `/plan-build` an implementer with an empty Specification, the step the hard rules above forbid.
+  next `/plan-build` an implementer with an empty Specification.
 - **Renumber only while the plan has not started** (hard rule 2's test); once it has, suffix the id
   — `3a`, `3b` — so references keep pointing at the same steps ([MATCHING.md](MATCHING.md) §6).
 - **Gated work carries the `BLOCKED — wait for user:` marker** (`CONVENTIONS.md`, *Row markers*), on
@@ -174,7 +174,7 @@ README's contributing section names. An edit that "fixes" this into a call break
 
 **Last, a plan over 400 KiB moves its closed history out** (the app stops rendering near 512 KiB), reporting
 what moved in one line. Appended to `<plan stem>-history.md` beside it, created if absent, never rewritten:
-body sections only closed rows cite, older review-cycle logs, finished runs' Run log headers and lines. Never
+body sections only closed rows cite, all but the latest review-cycle log, finished runs' Run log lines. Never
 moved: the Summary, the Progress table, a section an open or parked row cites, the latest run header, and any
 `run dir:`, `run base:` or `commit:` line, which later steps read here. One pointer line names the file.
 

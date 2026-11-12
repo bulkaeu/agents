@@ -23,10 +23,9 @@ on every small request is the failure this guard exists to prevent.
 - **Facts are yours to find; decisions are the user's to make.** Never ask what the repository, a
   document or a read-only command can answer. Never settle a decision on the user's behalf —
   recommending is not deciding.
-- **Facts stated to the user are read, not recalled.** A fact about the machine or the repository
-  that reaches a question, the Summary or a row — free disk, an OS version, whether a tool is
-  installed — was read by a command in this session. A remembered fact is a guess with a confident
-  voice, and a plan built on it is wrong before its first row runs.
+- **Facts stated to the user are read, not recalled**: `SKILL.md`'s hard rule, which binds every
+  question here. A remembered fact is a guess with a confident voice, and a plan built on it is
+  wrong before its first row runs.
 - **Every question carries a recommended answer**, worded so that "yes" accepts it. A question
   without one hands the thinking back to the user.
 - **Never ask a question whose answer depends on one still open.** It belongs to a later round.

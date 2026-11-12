@@ -17,7 +17,7 @@ review, close-out, the single question and the report; the loop that leads here 
 fix wave, one re-review, the verdict in the Run log. It runs even when every row was inline, if the
 run changed any file in the plan's repositories.
 
-**Close-out** applies `plan-finish` inline. These skills cannot invoke `/plan-finish`: it sets
+**Close-out** applies `plan-finish` inline. This skill cannot invoke `/plan-finish`: it sets
 `disable-model-invocation: true`, which hides it from the model entirely. So:
 
 1. Read `plan-finish/SKILL.md`, `plan-finish/CHECKLIST.md` and `plan-finish/CLEANUP.md` from the
