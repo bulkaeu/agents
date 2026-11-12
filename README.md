@@ -102,7 +102,7 @@ strong and strongest falling back to Claude Opus if that call fails. Contributor
 `opencode/plugins/contributor-redact/` plugin strips secrets and infrastructure identifiers from requests to
 them (ids with `-contributor` or `-free`/`:free`, `big-pickle`, and the OpenRouter routers `auto`, `fusion`,
 `pareto-code` and `bodybuilder`). The `opencode/plugins/plan-dispatch-guard/` plugin holds plan runs to
-their tiers: once a session loads `plan-add`, `-build`, `-continue`, `-review` or `-finish`, every
+their tiers: once a session loads `plan-add`, `-build`, `-review` or `-finish`, every
 `subagent` call in it must name a model `tiers.sh opencode` prints, or it is refused before it starts,
 and the model sees `model` as required (OpenCode's own schema says never to set it). `install.sh` links
 both into `~/.config/opencode/plugins/`, so what OpenCode runs is whatever this checkout has — and
@@ -216,6 +216,10 @@ and restart Codex.
 
 ## Contributing to this repo
 
+- **Run `bash check.sh` before a change is done.** It runs every repository check in order and stops
+  at the first failure, naming it: `check-plan-skills.sh`, `check-vendor.sh`, `check-ponytail.sh`,
+  the row-snapshot test, and ShellCheck (`-S warning`) over this repo's own shell scripts. ShellCheck
+  must be installed; a missing one fails the run.
 - **Keep `SKILL.md` under ~200 lines.** Detail goes in a sibling `.md` linked from it —
   `plan-finish/CHECKLIST.md`, `migrate/RULES.md`. One level of references, no deeper. The
   exceptions are named here rather than left for a contributor to rediscover and mistake for drift,

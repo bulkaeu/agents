@@ -198,12 +198,11 @@ placeholders skills/plan-build/reviewer-prompt.md "brief diff report findings ch
 # K13 — the executing skill keeps its standing orders near the top, where a re-read after a
 # context summary lands
 checks=$((checks + 1))
-for s in plan-build; do
-  f="skills/$s/SKILL.md"
-  n="$(grep -n -m1 '^## Standing orders' "$f" 2>/dev/null | cut -d: -f1)"
-  if [[ -z "$n" ]]; then fail K13 "$f:1" "no ## Standing orders section"
-  elif (( n > 40 )); then fail K13 "$f:$n" "## Standing orders starts at line $n, past line 40"; fi
-done
+s=plan-build
+f="skills/$s/SKILL.md"
+n="$(grep -n -m1 '^## Standing orders' "$f" 2>/dev/null | cut -d: -f1)"
+if [[ -z "$n" ]]; then fail K13 "$f:1" "no ## Standing orders section"
+elif (( n > 40 )); then fail K13 "$f:$n" "## Standing orders starts at line $n, past line 40"; fi
 
 # K14 — plan-shared is not a command; every skill has a README row
 checks=$((checks + 1))
