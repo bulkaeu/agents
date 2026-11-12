@@ -79,8 +79,8 @@ time in this run's Run log header to now. Helpers counts every subagent the run 
 implementers, reviewers, fix rounds, the final review and its fix — by the tier each ran on, from the
 Run log's per-row model lines and step-up lines. First-pass reviews is, over the rows this run
 dispatched, how many have a `rows/<row id>/review-1.md` ending `Verdict: PASS`, out of how many were
-reviewed. A resumed run reports its own figures and, where earlier run headers exist in the Run log,
-adds the plan's total on the same line.
+reviewed. A resumed run reports its own figures and, where earlier run headers exist in the Run log
+or in `<plan stem>-history.md`, adds the plan's total on the same line.
 
 An example table, icons omitted so this file never reads as live work:
 

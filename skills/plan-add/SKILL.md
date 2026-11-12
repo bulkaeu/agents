@@ -172,11 +172,11 @@ and waited on as step 4 requires; every other plan edit in the loop goes in unan
 so reading its file is the only way to get its cycle — one of the one-hop cross-skill reads the
 README's contributing section names. An edit that "fixes" this into a call breaks the skill silently.
 
-**Last, a plan over 400 KiB moves its closed history out** (the app stops rendering near 512 KiB) and reports
-what moved in one more line. Appended to `<plan stem>-history.md` beside it, created if absent, never
-rewritten: body sections only closed rows cite, review-cycle logs older than the latest, finished runs' Run
-log headers with their lines. Never moved: the Summary, the Progress table, a section an open or parked row
-cites, the latest Run log header. The plan keeps one pointer line to that file, part of it, not a copy.
+**Last, a plan over 400 KiB moves its closed history out** (the app stops rendering near 512 KiB), reporting
+what moved in one line. Appended to `<plan stem>-history.md` beside it, created if absent, never rewritten:
+body sections only closed rows cite, older review-cycle logs, finished runs' Run log headers and lines. Never
+moved: the Summary, the Progress table, a section an open or parked row cites, the latest run header, and any
+`run dir:`, `run base:` or `commit:` line, which later steps read here. One pointer line names the file.
 
 ## Examples
 

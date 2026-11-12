@@ -77,6 +77,7 @@ Report shape — follow it, so two runs on the same plan are comparable:
 ```
 /plan-build --dry-run · <plan file>
 Scope:    <repos in scope, or "no repo">
+Pre-flight: concurrency pass · <n> foreign dirty paths   |   REFUSED — collision: <the colliding paths>
 Reconcile: <N> correction(s) proposed, 0 applied
   row <n>: <icon> → <icon> — <what the table claims>; <what is on disk>
 Will park: row <n> <step-id> — <the marker, quoted>

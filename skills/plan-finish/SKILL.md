@@ -115,9 +115,9 @@ Work through the non-green areas in this order, verifying after each:
    per `plan-ticket-tracking.md`; no ticket, no prefix, never an invented one. Right after each commit,
    log `commit: <short sha> <subject>` in the Run log. Push only to an **existing upstream** of the same
    name (`plan-shared/STOPS.md`); none is a new destination: stop, offer the exact `git push -u` line.
-   Push the listed sha, pasted in, never a variable or a moving `HEAD` (`STOPS.md`): print
-   `git rev-parse HEAD`, then `git log --oneline '@{u}'..<sha>` (`@{u}..HEAD` frozen), and push
-   `git push origin <sha>:<branch>`. A listed commit neither so logged nor named by the user this session
+   Push the listed sha, pasted in, never a variable or a moving `HEAD`, to `@{u}`'s remote (`STOPS.md`):
+   print `git rev-parse HEAD`, then `git log --oneline '@{u}'..<sha>` (`@{u}..HEAD` frozen), and push
+   `git push <remote> <sha>:<branch>`. A listed commit neither so logged nor named by the user this session
    stops the push with the list; a yes covers only the shas shown. Repo-only mode always lists and asks.
 
    **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.

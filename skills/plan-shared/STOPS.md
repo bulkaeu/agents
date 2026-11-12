@@ -35,8 +35,9 @@ the upstream branch's name equals the local branch's — compare `git rev-parse 
 minus its remote, with `git branch --show-current`. A mismatch, usually a worktree branch still
 tracking `main`, is a stop: offer `git push -u origin HEAD:<branch>`. The push names the listed sha,
 never a moving `HEAD`: print `git rev-parse HEAD` and `git log --oneline '@{u}'..<sha>`, then push
-`git push origin <sha>:<branch>` with the sha pasted in, so a later commit is not carried. Never a shell
-variable: zsh reads `$tip:r…` as a modifier, and one lost between calls makes it `:<branch>`, a delete.
+`git push <remote> <sha>:<branch>`, `<remote>` being the part of `@{u}` that comparison removed, with the
+sha pasted in, so a later commit is not carried. Never a shell variable: zsh reads `$tip:r…` as a
+modifier, and one lost between calls makes it `:<branch>`, a delete.
 Writing under `~/` — scratch, fixtures, caches — is ordinary too, being reversible and local.
 "Touches anything outside this checkout" is not a stop: it would park every step writing a temp file.
 
