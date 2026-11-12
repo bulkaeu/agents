@@ -50,8 +50,13 @@ is overwritten. These documents outlive the work they describe, so they get a re
 
   Record those commands, with the clone's path, at the top of each project directory's
   `README.md`, so the next session does not have to rediscover them.
-- **Push in the same session as the commit.** A plans repo committed but never pushed is a plan
-  that exists on one disk — the failure this rule exists to prevent.
+- **Push in the same session as the commit, without asking.** A plans repo committed but never
+  pushed is a plan that exists on one disk — the failure this rule exists to prevent. The plain
+  `git push` above is ordinary work even when it carries another session's unpushed plan commits:
+  that session was told to push them too, nobody reviews a plan by its diff, and a question here
+  costs the user a wait for nothing. Say afterwards what went out; do not ask first. This covers the
+  dedicated plans repository only — a plan kept inside a code repository is pushed by that
+  repository's rules — and it never covers a force-push or a blanket `git add`.
 - **Do not keep a flat local working copy that syncs into the remote's per-project prefix.** It
   looks attractive, because existing references to plan paths keep working, but it costs more than
   it saves: the local copy has no remote of its own, so its commits sit unpublished until someone

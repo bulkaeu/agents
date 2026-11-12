@@ -113,12 +113,12 @@ Work through the non-green areas in this order, verifying after each:
 3. **Commit**, then **push**. The message describes *the change*, not the plan step. A plan's `**Ticket:**`
    identifier starts every commit — `ABC-123: <what changed>`, per `plan-ticket-tracking.md`; no ticket, no
    prefix, never an invented one. Log each commit right after it as `commit: <short sha> <subject>` in the Run
-   log. Push only to an **existing upstream** of the same name; none is a new destination: stop, offer the
-   exact `git push -u` line. Push the listed sha, pasted in, never a variable or `HEAD`, to `@{u}`'s remote
-   (`STOPS.md`): print `git rev-parse HEAD`, `git log --oneline '@{u}'..<sha>` (`@{u}..HEAD` frozen), then
-   `git push <remote> <sha>:<branch>`. A listed commit neither so logged, nor named by the user this session,
-   nor the plan's own (only the plan and its history file in `git show --pretty=format: --name-only <sha>`)
-   stops the push with the list; a yes covers only the shas listed. Repo-only mode always asks.
+   log. **A dedicated plans repository is pushed with a plain `git push`: no listing, no question**
+   (`plans-live-in-a-plans-repo.md`). Elsewhere push only to an **existing upstream** of the same name (none
+   is a new destination: stop, offer the exact `git push -u` line), and push the listed sha, pasted in, to
+   `@{u}`'s remote (`STOPS.md`): `git rev-parse HEAD`, `git log --oneline '@{u}'..<sha>` (`@{u}..HEAD`
+   frozen), `git push <remote> <sha>:<branch>`. A listed commit neither logged, named by the user, nor the
+   plan's own (`git show --pretty=format: --name-only <sha>`) stops the push; repo-only mode always asks.
 
    **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.
 4. **Cleanup.** Apply [CLEANUP.md](CLEANUP.md): measure what the plan left, with sizes; delete, ask once
