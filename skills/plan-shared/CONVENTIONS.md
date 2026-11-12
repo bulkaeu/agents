@@ -102,8 +102,8 @@ what the closing question is for — but never with rows open, except behind a h
 - **Run log** — the optional `## Run log` after the body, which survives compaction by being in the file.
   Finished runs' headers and lines may move to `<plan stem>-history.md` (`plan-add`); the latest stays.
 - **Repository scope** — every repo the plan touches: its own paths, the cwd, and any worktree in
-  `git worktree list` that the plan file names by path or branch, no other. **No repository in scope is a
-  state, not an error.**
+  `git worktree list` that the plan file or its history file names by path or branch, no other. **No
+  repository in scope is a state, not an error.**
 
 ## Severity scale
 

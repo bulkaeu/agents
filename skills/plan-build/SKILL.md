@@ -132,10 +132,9 @@ means executing, which a dry run cannot do. Report the refusal and stop.
 
 *Cost.* A dispatched row costs at least 2 subagents, and up to 9 — one `NEEDS_CONTEXT` retry, then
 three fix rounds; the final review adds 1 to 3. Only code rows dispatch, each on `DISPATCH.md` §3's
-tiers: implementers standard and reviewers strong by default, stepping up on its table's triggers.
-The floor is 2 × dispatched rows + 1.
+tiers. The floor is 2 × dispatched rows + 1.
 
-Report shape — follow it, so two runs on the same plan are comparable:
+Report shape — follow it, so two runs on the same plan are comparable; an empty list prints `none`:
 
 ```
 /plan-build --dry-run · <plan file>
