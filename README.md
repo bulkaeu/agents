@@ -185,16 +185,16 @@ inject the ruleset twice: **never install the marketplace plugin.**
 | Command | What it does |
 | --- | --- |
 | `bash update-ponytail.sh [<ref>]` | Copies an allow-listed set of files from the newest upstream `v*` tag (or `<ref>`) into `vendor/ponytail/`, rewrites `UPSTREAM`, then runs three checks — `check-ponytail.sh`, `check-vendor.sh` and `sanitize-check.sh`. Never commits. Exit 0 ok, 1 a structural check or the copy failed, 2 refused or bad usage, 3 only `sanitize-check.sh` failed |
-| `bash check-ponytail.sh [--root <dir>]` | Read-only conflict checks P1–P5, ponytail-specific: its skills' names against ours, hook events, the mode tracker's gate, the subagent matcher variable, a pinned sha. It compares ponytail against `skills/*` only — `check-vendor.sh` is the script that sees every set, so that is what catches a collision between ponytail and another vendored set, or with a name Claude Code ships |
+| `bash check-ponytail.sh [--root <dir>]` | Read-only conflict checks P1, P2, P3 and P5, ponytail-specific: its skills' names against ours, hook events, the mode tracker's gate, a pinned sha. It compares ponytail against `skills/*` only — `check-vendor.sh` is the script that sees every set, so that is what catches a collision between ponytail and another vendored set, or with a name Claude Code ships |
 | `bash wire-ponytail-hooks.sh [--dry-run \| --uninstall]` | Adds (or refreshes) ponytail's entries in the Claude Code, Cursor and Codex hook files, leaving every other entry alone. Each target is copied to `<file>.bak-ponytail-<YYYYMMDD>` before its first write |
 
-**Subagents.** On Claude Code the `SubagentStart` hook runs with
-`PONYTAIL_SUBAGENT_MATCHER='^general-purpose$'`, so only implementer-type subagents get the
-ruleset. Reviewers (`Explore`) must not: its "end your reply with one or two lines" instruction
-would land after the `Verdict:` line the reviewer contract treats as the reply's last element, and
-inside saved review files. Codex gets no `SubagentStart` hook at all: the hook fails open on an
-unknown payload and Codex's agent-type names are not Claude's, so the matcher could not be trusted
-there. Cursor has no subagent injection upstream.
+**Subagents.** Helper agents get no ponytail on any host: `wire-ponytail-hooks.sh` wires no
+`SubagentStart` hook, and a re-run removes one an older run added. A helper's reply is a contract
+its caller parses — an implementer's report, a reviewer's `Verdict:` line — and the ruleset's
+"end your reply with one or two lines" instruction lands after that contract's last element, inside
+saved reports and review files. Its push to skip work also reached specified work: an implementer
+skipped part of its row, and only the reviewer caught it. The main session keeps the ruleset. Cursor
+has no subagent injection upstream, and Codex never had the hook.
 
 **Upgrading.** Do it in this order:
 
