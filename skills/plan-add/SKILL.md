@@ -25,7 +25,7 @@ left standing over work the addition invalidated. This skill guards those three,
 - **Never delete a row once the plan has started.** Unwanted work becomes `⏭️` with the reason and
   the superseding row's id: what was *not* done is history too. A plan that has not started — every
   row `⬜`, nothing in flight, no `## Run log` — has none yet: a row the addition replaces is rewritten
-  or removed and renumbered past, leaving no `⏭️` row, no earlier-revisions table, no trace in Notes.
+  or removed, and the table renumbered, leaving no `⏭️` row, no earlier-revisions table, no trace in Notes.
 - **Never invent a done-state.** A step whose proof you cannot name is under-specified: say so and
   ask, rather than write an observable-sounding sentence nobody can check.
 - **Plan edits go through `Edit`/`Write`, never Bash** (`ui-rendered-files-use-write-tool.md`): a
@@ -43,8 +43,7 @@ same shape as `plan-finish`'s repo-only offer.
 **Exactly two paths lead to creation.**
 
 - **The invocation names a path that does not exist.** That is the one signal this skill acts on by
-  itself. Every later rung returns an existing file whenever any plan is around, so nothing else in
-  the ladder can mean *new*.
+  itself. Every later rung returns an existing file when any plan is around, so no other rung means *new*.
 - **The user takes the offer**, on whichever list this skill stopped at, and names where the plan
   goes. That is a choice, not a signal — never read it into silence.
 
@@ -67,8 +66,7 @@ neither, ask once — one question, then proceed on the answer.
 ([DISPATCH.md](../plan-build/DISPATCH.md) §3) to confirm the files, commands and checks the new rows
 will name exist. A done-state citing a missing script reads as verified, and fails when trusted.
 
-**A purely editorial addition skips the dispatch and says so in the report.** A silent skip is
-indistinguishable from having forgotten.
+**A purely editorial addition skips the dispatch and says so in the report.** A silent skip looks forgotten.
 
 **When a decision that changes what gets built is still open, run the interview before any table
 write**: read [INTERVIEW.md](INTERVIEW.md) and follow it. A new plan from a request with no agreed
@@ -116,8 +114,7 @@ Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that d
   implementer's brief as its **Specification** (`plan-build/DISPATCH.md` §2) — and position is not
   the mapping. Extend the section an existing row already names where the addition belongs in it;
   otherwise write a new section and name it from the row. A row with nothing behind it hands the
-  next `/plan-build` an implementer whose Specification is empty: the under-specified step the
-  hard rules above forbid.
+  next `/plan-build` an implementer with an empty Specification, the step the hard rules above forbid.
 - **Renumber only while the plan has not started** (hard rule 2's test); once it has, suffix the id
   — `3a`, `3b` — so references keep pointing at the same steps ([MATCHING.md](MATCHING.md) §6).
 - **Gated work carries the `BLOCKED — wait for user:` marker** (`CONVENTIONS.md`, *Row markers*), on
@@ -142,6 +139,12 @@ moved** — a `⏭️` never runs, so its position carries nothing.
 Every write here is under step 4's guard, a move included, evaluated before the first table write of
 the whole change: if it stopped you, these reopens were in what you printed.
 
+**A plan over 400 KiB after these writes moves its closed history out**: the app stops rendering a
+plan near 512 KiB. To `<plan stem>-history.md` beside it go body sections only closed rows cite,
+review-cycle logs older than the latest, and finished runs' Run log headers with their lines. Never
+moved: the Summary, the Progress table or any row in it, a section an open or parked row cites, the
+latest Run log header. The plan keeps one pointer line to that file, part of the plan and not a copy.
+
 ## 6. Update the Summary and the ticket
 
 - **A scope change that leaves the `## Summary` untrue gets the Summary edit in the same change.**
@@ -157,15 +160,13 @@ the whole change: if it stopped you, these reopens were in what you printed.
 ## 7. Report, then review — inline, not by invocation
 
 First the report, and keep it short: the rows added with their ids, the rows reopened with why,
-whether the Summary moved, and the pointer — `/plan-build`, which starts a plan that has not
-started and resumes one that has.
+whether the Summary or any history moved, and the pointer: `/plan-build`, which starts or resumes it.
 
-Then **review the whole plan, not only the new rows**: read
-`${CLAUDE_SKILL_DIR}/../plan-review/SKILL.md` — on a host that does not set that variable, the same
-relative path from this file's own directory — and apply its cycle **verbatim**: round 1's
-dispatched reviewer, the fix loop, the closing pass, and the `### Plan review cycle` log it appends.
-New rows change the plan a reviewer would have read. **If that file is missing, say so and stop** —
-do not reconstruct the cycle from memory.
+Then **review the whole plan, not only the new rows**: read `${CLAUDE_SKILL_DIR}/../plan-review/SKILL.md`
+— on a host that does not set that variable, the same relative path from this file's own directory —
+and apply its cycle **verbatim**: round 1's dispatched reviewer, the fix loop, the closing pass, and the
+`### Plan review cycle` log it appends. New rows change the plan a reviewer would have read.
+**If that file is missing, say so and stop** — do not reconstruct the cycle from memory.
 
 **The cycle's edits stay under step 4's guard.** `plan-review` not asking settles permission, not
 concurrency: on a mid-run plan, a fix that touches a row another session may be holding is printed

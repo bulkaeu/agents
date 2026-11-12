@@ -75,8 +75,7 @@ Markers live in the Step cell's text. The skills parse exactly these:
 | `review: default` | The row's reviewer keeps its default tier and effort even when the controller would judge the step risky. It cancels only that risk step-up: fix round 3 and a stalled fix loop still step the reviewer up, and a risky row's implementer still steps up. `review: deep` on the same row wins. Its reviews are logged per `EXECUTION.md`, *The Run log* |
 
 **A pending ticket is author-parked.** `plan-ticket-tracking.md`'s `**Ticket:** pending` puts a `⛔`
-row in a brand-new plan. That row was parked by the author, not by a run, so it does not make the
-plan a resume.
+row in a brand-new plan, parked by the author, not by a run, so it does not make the plan a resume.
 
 ## Closed, parked, open
 
@@ -100,7 +99,8 @@ what the closing question is for — but never with rows open, except behind a h
 - **Auditable Note** — carries at least one thing you could go and check: a path, count, sha,
   version, size or timing. `Wrote out/alpha.txt, 6 B` is auditable; `Wrote the file` is not.
 - **Run log** — the optional `## Run log` section after the body: rulings, deferred findings, review
-  records. It survives compaction because it is in the file.
+  records. It survives compaction because it is in the file. Headers of finished runs, with their lines,
+  may move to the plan's `<plan stem>-history.md` (`plan-add` step 5); the latest header stays.
 - **Repository scope** — every repo the plan touches: its own paths, the cwd, and anything in
   `git worktree list`. **No repository in scope is a state, not an error.**
 

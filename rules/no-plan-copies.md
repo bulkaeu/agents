@@ -12,6 +12,7 @@ Applies whenever working with Cursor/Claude plans (`~/.cursor/plans/*.plan.md`, 
 - **Do NOT** create a second/copy/fork of an existing plan (new `*.plan.md`, CreatePlan re-run that yields a new hash filename, `cp` of a plan, “backup” plan, or parallel plan with the same topic).
 - **Do** update the **existing** active plan file in place (edit frontmatter todos + body).
 - **Only** create an additional plan file when the user **explicitly** asks for a copy, fork, duplicate, or a separate new plan (e.g. “make a copy of this plan”, “fork the plan”, “create a new plan file”).
+- A `<plan stem>-history.md` beside a plan is **not** a copy: it is that plan's closed history, moved out by `plan-add` once the plan passes 400 KiB, and the plan keeps one pointer line to it.
 
 ## Why
 

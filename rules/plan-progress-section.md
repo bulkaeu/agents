@@ -74,6 +74,9 @@ meaning. Write them exactly:
 - **`## Run log`** — written by an executing skill, not by hand: rulings it made on your behalf,
   review findings it deferred, the run's starting commits. It lives in the file so it survives a
   long run's context being summarised.
+- **`<plan stem>-history.md`** — beside a plan past 400 KiB (the app stops rendering one near
+  512 KiB), `plan-add` moves closed history here. It is part of its plan, not a second plan: the
+  Summary and the Progress table never leave the plan, which keeps one pointer line to this file.
 
 ## Keeping it current — this is the part that gets skipped
 
@@ -104,8 +107,10 @@ end is a changelog, not a progress tracker, and it was useless during the only w
   heredoc lands the bytes but leaves the rendered panel showing the stale table.
 - **A step you are told to skip still gets a row edit.** Silent omission and `⏭️ (reason)` look the
   same in the body and completely different to a reader six weeks later.
-- Never delete a row to "clean up". Abandoned work becomes `⏭️` with the reason — the history of
-  what was *not* done is worth as much as what was.
+- Once a plan has started, never delete a row to "clean up". Abandoned work becomes `⏭️` with the
+  reason — the history of what was *not* done is worth as much as what was. A plan that has not
+  started (every row `⬜`, nothing in flight, no `## Run log`) has no history yet: a replaced row is
+  rewritten or removed, and the table renumbered.
 
 If a turn ends with the table disagreeing with what actually happened, that is a defect to fix
 before anything else, not a tidy-up for later. The `Stop` hook in `~/.claude/settings.json` counts
