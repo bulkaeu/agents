@@ -38,7 +38,9 @@ body section names count as the row's own work. `diff` says so in its header.
 Write `brief-<n>.md` with these sections, each quoted from the plan, not paraphrased:
 
 - **`Mode:`** `row`, `rereview` or `run` — the reviewer reads it; the implementer ignores it.
-- **Row** — its id and step text, verbatim, and its done-state.
+- **Row** — its id and step text, verbatim, and its done-state. A done-state that is a measurement states
+  where it is measured, with what command or tool, and the limit that passes; one the plan leaves open gets a
+  ruling (§8) that fixes it before this dispatch, not after a failed review.
 - **Specification** — the body section or sections backing the row, found by name, not position.
 - **Interfaces** — what the row consumes from earlier rows and what later rows need from it.
 - **Scope** — the repositories it may change, and the plan file's path, which it may not. In a checkout
@@ -65,13 +67,12 @@ is Claude Code's and replaces the tier's; every other cell, and every other host
 | Final review's fix subagent, and its re-review | strong, at medium effort | never — strong whatever tier the final review ran on |
 | `plan-add`'s explorer | standard, at the tier's effort — not the implementer's medium | never |
 
-**Risky** means untrusted input reaching file paths or shell commands, auth, secrets, data deletion,
-or migrations. The controller judges it from the step text and the diff. A `review: default` marker
-cancels only the risk step-up: the row's reviewer keeps its default even when the step is
-risky, but fix round 3 and a stalled fix loop still step it up, and the implementer still steps up.
-A row carrying both `review: deep` and `review: default` gets the strongest-tier reviewer —
-`review: deep` wins (`CONVENTIONS.md`, *Row markers*). **Every step-up, and every review of a
-`review:`-marked row, is logged per `EXECUTION.md`, *The Run log*.**
+**Risky** means untrusted input reaching file paths or shell commands, auth, secrets, data deletion, or
+migrations. The controller judges it from the step text and the diff. A `review: default` marker cancels only
+the risk step-up: the row's reviewer keeps its default even when the step is risky, but fix round 3 and a
+stalled fix loop still step it up, and the implementer still steps up. A row carrying both `review: deep` and
+`review: default` gets the strongest-tier reviewer — `review: deep` wins (`CONVENTIONS.md`, *Row markers*).
+**Every step-up, and every review of a `review:`-marked row, is logged per `EXECUTION.md`, *The Run log*.**
 
 - **Implementer:** a `general-purpose` subagent (`generalPurpose` on Cursor, `general` on OpenCode),
   model per the table. It returns its report as its reply. **Save that reply verbatim** as
@@ -142,14 +143,13 @@ a fresh reviewer in `rereview` mode can report it ADDRESSED. **The controller ne
 itself** — confirming one only opens it; §8's override of the step's wording applies to it the same
 way, at Medium or above. Independence stays in the *finding* of defects and in the *closing* of them.
 
-Each round: a fresh implementer with `{findings}` = the latest review file; a new diff from the
-**original** base, so the whole row is shown with its fixes in; a fresh `checks-<n>.txt`, run as in
-§6; a fresh reviewer, `Mode: rereview`. At most **3 rounds**, on §3's tiers: the implementer on
-strong in round 2 (from round 1 on Codex), strongest in round 3, the reviewer strongest in round 3.
-**If the open count does not fall** between two rounds, the loop has stalled: the next round's
-review runs on the strongest tier. If it still does not fall after a strongest-tier review, or
-anything is open after round 3, park the row with its open findings as the reason; no ruling
-accepts one. A row is never ticked with a finding at Medium or above still open.
+Each round: a fresh implementer with `{findings}` = the latest review file; a new diff from the **original**
+base, so the whole row is shown with its fixes in; a fresh `checks-<n>.txt`, run as in §6; a fresh reviewer,
+`Mode: rereview`. At most **3 rounds**, on §3's tiers: the implementer on strong in round 2 (from round 1 on
+Codex), strongest in round 3, the reviewer strongest in round 3. **If the open count does not fall** between
+two rounds, the loop has stalled: the next round's review runs on the strongest tier. If it still does not
+fall after a strongest-tier review, or anything is open after round 3, park the row with its open findings as
+the reason; no ruling accepts one. A row is never ticked with a finding at Medium or above still open.
 
 ## 8. Rulings — including overriding the step's wording
 
