@@ -16,8 +16,8 @@ The files this one names sit in the `plan-build` directory, beside it or under `
 Before reconciling, run the repository-scope, concurrency and tiers checks (`SKILL.md` §2): a
 collision means stop and report, not clean up, and a `tiers.sh` error means stop. Their output —
 `dirty at start` included — opens this run's Run log header, even when an earlier header already has one.
-A `--dry-run` runs the same checks and writes no header: what they found goes in its report. It
-skips the `disk:` measure, which only a header uses.
+A `--dry-run` runs the same checks, writes no header and saves no `dirty-at-start` file: what they
+found goes in its report. It skips the `disk:` measure, which only a header uses.
 
 A dirty path is this run's own only if it is the plan file, an own path of the in-flight `🟡` row, or
 an own path of a closed (`✅`) row that no commit on a Run log `commit:` line holds yet (a crash before
