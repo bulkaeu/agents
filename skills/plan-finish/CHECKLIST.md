@@ -79,7 +79,7 @@ Unpushed commits, without erroring on a branch that has no upstream:
 
 ```bash
 if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
-  git rev-parse HEAD; git log --oneline '@{u}'..HEAD   # the push gate (SKILL.md §3) pushes that sha
+  git rev-parse HEAD; git log --oneline '@{u}'..HEAD   # SKILL.md §3 pushes that sha, bar a plans repo
 elif git rev-parse origin/HEAD >/dev/null 2>&1; then
   git log --oneline origin/HEAD..
 else

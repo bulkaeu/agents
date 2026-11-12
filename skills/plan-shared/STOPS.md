@@ -25,18 +25,18 @@ the user the time these skills exist to save.
 | **A foreign path** in a dispatched row's diff — in its `paths-<n>.txt`, in no report's **Changed** (`plan-build/EXECUTION.md`) | Likely a peer's work: never restored, removed or committed. **Halts the run**. A path in `outside-<n>.txt`, beyond the row's `--path` scope in a shared checkout, is left alone the same way but does not halt |
 | **No usable report** from a dispatched row — a crash, or no **Changed** | Its own paths are unknown, so nothing in the tree is safe to restore. **Halts the run** |
 | A row's `diff` exits 3 because its base is **not an ancestor** of `HEAD` | History moved under the run and no paths file exists. **Halts the run** |
-| **A commit in `'@{u}'..<sha>`** that the Run log does not record and the user did not name | Pushing would publish someone else's commit. Stops the push; a yes covers only the shas shown. A commit whose only paths (`git show --pretty=format: --name-only <sha>`) are this plan's file and its `<plan stem>-history.md` is the run's own, logged or not: it carries the log. Any other path keeps this stop. **Not in a dedicated plans repository**: no question (`plans-live-in-a-plans-repo.md`) |
+| **A commit in `'@{u}'..<sha>`** that the Run log does not record and the user did not name | Pushing would publish someone else's commit. Stops the push; a yes covers only the shas shown. A commit whose only paths (`git show --pretty=format: --name-only <sha>`) are this plan's file and its `<plan stem>-history.md` is the run's own, logged or not: it carries the log. Any other path keeps this stop. **A dedicated plans repository is exempt** (`plans-live-in-a-plans-repo.md`) |
 | **Deleting what the plan made outside its repositories** — a toolchain, cache or home folder from a `created:` line, or uncited media in the run directory | Large and slow to rebuild: measured and asked in the one batch (`plan-finish/CLEANUP.md`) |
 
 **What stays ordinary:** `git add` and `git commit` of work in scope, by explicit path; pushing to a
 branch's **existing upstream** when no push row is parked and
 the upstream branch's name equals the local branch's — compare `git rev-parse --abbrev-ref @{u}`,
 minus its remote, with `git branch --show-current`. A mismatch, usually a worktree branch still
-tracking `main`, is a stop: offer `git push -u origin HEAD:<branch>`. The push names the listed sha,
-never a moving `HEAD`: print `git rev-parse HEAD` and `git log --oneline '@{u}'..<sha>`, then push
-`git push <remote> <sha>:<branch>`, `<remote>` being the part of `@{u}` that comparison removed, with the
-sha pasted in, so a later commit is not carried. Never a shell variable: zsh reads `$tip:r…` as a
-modifier, and one lost between calls makes it `:<branch>`, a delete.
+tracking `main`, is a stop: offer `git push -u origin HEAD:<branch>`. Outside a dedicated plans
+repository the push names the listed sha, never a moving `HEAD`: print `git rev-parse HEAD` and
+`git log --oneline '@{u}'..<sha>`, then `git push <remote> <sha>:<branch>`, `<remote>` being the part
+of `@{u}` that comparison removed and the sha pasted in, so a later commit is not carried. Never a shell
+variable: zsh reads `$tip:r…` as a modifier, and a lost one makes it `:<branch>`, a delete.
 Writing under `~/` — scratch, fixtures, caches — is ordinary too, being reversible and local.
 "Touches anything outside this checkout" is not a stop: it would park every step writing a temp file.
 

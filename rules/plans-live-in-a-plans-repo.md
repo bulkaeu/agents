@@ -55,8 +55,11 @@ is overwritten. These documents outlive the work they describe, so they get a re
   `git push` above is ordinary work even when it carries another session's unpushed plan commits:
   that session was told to push them too, nobody reviews a plan by its diff, and a question here
   costs the user a wait for nothing. Say afterwards what went out; do not ask first. This covers the
-  dedicated plans repository only — a plan kept inside a code repository is pushed by that
-  repository's rules — and it never covers a force-push or a blanket `git add`.
+  dedicated plans repository only: the one the project's `AGENTS.md` names as its plans destination
+  (*Per-project documentation*, below), on a branch that already has an upstream of the same name. A
+  plan kept inside a code repository is pushed by that repository's rules, a directory called
+  `plans/` included. And it never covers a force-push, a blanket `git add`, a branch with no
+  upstream, or a push that a plan has parked.
 - **Do not keep a flat local working copy that syncs into the remote's per-project prefix.** It
   looks attractive, because existing references to plan paths keep working, but it costs more than
   it saves: the local copy has no remote of its own, so its commits sit unpublished until someone
