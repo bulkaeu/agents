@@ -12,14 +12,15 @@ The files this one names sit beside it in the `plan-build` directory, except `ST
 
 ## Dirty paths a resumed run owns
 
-Before reconciling, run the repository-scope, concurrency and tiers checks (`SKILL.md` §2): another
-session's dirty tree or leftover sequencer means stop and report, not clean up, and a `tiers.sh` error
-means stop. Their output opens this run's Run log header, even when an earlier header already has one.
+Before reconciling, run the repository-scope, concurrency and tiers checks (`SKILL.md` §2): a
+collision means stop and report, not clean up, and a `tiers.sh` error means stop. Their output —
+`dirty at start` included — opens this run's Run log header, even when an earlier header already has one.
 
 A dirty path is this run's own only if it is the plan file, an own path of the in-flight `🟡` row, or
 an own path of a closed (`✅`) row that no commit on a Run log `commit:` line holds yet (a crash before
 the plan's commit row) — as `EXECUTION.md` defines own paths, read from those rows' saved reports in
-the run directory. Any other dirty path stops it. Work that is done but not yet committed is verified
+the run directory. Any other dirty path is foreign, recorded and left alone as `SKILL.md` §2 says, and
+stops the run only when an open row names it. Work that is done but not yet committed is verified
 from the working tree; absence of a commit is not absence of the work.
 
 ## Reconcile

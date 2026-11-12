@@ -70,9 +70,9 @@ All five, before any work:
 
 | Check | On failure |
 | --- | --- |
-| A conforming `## Progress` table exists | Offer **once** to derive one from the body, then stop |
+| A conforming `## Progress` table exists | Offer **once** to derive one from the body, then stop — an offer outside rule 1's one-question budget, which governs execution |
+| No collision with another session (below) | Name the colliding paths and stop |
 | Started or not (below) | Never a failure: a started plan reads [RESUME.md](RESUME.md) and reconciles before the loop; an unstarted one goes straight to the loop |
-| No concurrent session | Report what you found and stop |
 | Repository scope known | Proceed; *no repo* is a state, not a failure |
 | Tiers resolve | Report `tiers.sh`'s error and stop — never fall back to `inherit` |
 
@@ -82,32 +82,35 @@ context summary. It reads `CONVENTIONS.md`'s table from disk; put its one-line o
 Run log header verbatim. That line, not an earlier read of the table and not a previous run's header,
 is what every dispatch in this run uses.
 
-**Concurrency** (`shared-state-between-agents.md`), in every repo in scope: `git status --short` for
-work that is not yours, and `.git/CHERRY_PICK_HEAD`, `.git/MERGE_HEAD`, `.git/rebase-merge` for a
-sequencer someone left mid-flight. Another session's dirty tree is not yours to clean, and a
-cleanup command is the dangerous one.
+**Concurrency** (`shared-state-between-agents.md`), in every repo in scope, asks whether this run would
+collide with another session, not whether one is there. It stops, naming the paths, for exactly two
+things: a sequencer left mid-flight (`.git/CHERRY_PICK_HEAD`, `.git/MERGE_HEAD`, `.git/rebase-merge`,
+`.git/rebase-apply`), or an uncommitted path, not the run's own, that an open row, or the body section
+it cites, names as one it changes. The plan file is the run's own, modified or untracked; what else a
+resumed run owns is in [RESUME.md](RESUME.md). Every other path `git status --short` lists is
+*foreign*: save the repo's list as `dirty-at-start-<repository name>.txt` in the run directory, put
+`dirty at start: <repository> <n> foreign paths` in the Run log header, and proceed without asking.
+Rows already leave a path dirty at their base alone, so for the whole run a foreign path is never staged,
+restored, committed or cleaned; its repo is shared, so its rows get `DISPATCH.md` §6's `--path` scope.
 
-**Repository scope**: list every repo the plan touches — the plan's own paths, the cwd, and anything
-in `git worktree list` — and check each. Rows whose artifacts live
-outside any repository are verified on disk, not by `git log`. **No repository in scope is a state,
-not an error**: the concurrency check reports *no repo* and passes.
+**Repository scope**: list every repo the plan touches — the plan's own paths, the cwd, and anything in
+`git worktree list` — and check each. Rows whose artifacts live outside any repository are verified on
+disk, not by `git log`. **No repository in scope is a state, not an error**: concurrency reads *no repo*.
 
 **On Codex**, pre-flight also prints a one-line reminder when the session's own model or effort
 differs from the `plan-run` profile (`CONVENTIONS.md`, *Model tiers*, Controller). It never stops.
 
-**Started** means any row is `🟡` or `✅`, or a `⛔` row's Notes record a run's blocker.
-Author-parked rows do not count: a `⛔` the plan's author wrote before any run — the pending-ticket
-row `plan-ticket-tracking.md` requires is the usual one — is listed as already parked, and an
-unstarted run starts at the first `⬜`.
-
-The offer to derive a table is outside rule 1's one-question budget, which governs execution.
+**Started** means any row is `🟡` or `✅`, or a `⛔` row's Notes record a run's blocker. Author-parked
+rows do not count: a `⛔` the plan's author wrote before any run — the pending-ticket row
+`plan-ticket-tracking.md` requires is the usual one — is listed as already parked, and an unstarted run
+starts at the first `⬜`.
 
 ## 3. `--dry-run`
 
 Pre-flight only on an unstarted plan; on a started one, reconcile-and-report in
 [RESUME.md](RESUME.md)'s shape instead. An unstarted plan prints:
 
-- the **verdict** — would run from row *N*, or refuses because …;
+- the **verdict** — would run from row *N*, or refuses because … (a collision, with its paths);
 - the ***will park*** list — rows whose step text carries the explicit `BLOCKED` marker, printed on
   both verdicts including a refusal — and, before it, any author-parked `⛔` rows as *already
   parked*;
@@ -138,7 +141,7 @@ Report shape — follow it, so two runs on the same plan are comparable:
 ```
 /plan-build --dry-run · <plan file>
 Verdict:  would run from row <n>   |   REFUSED — <why>
-Pre-flight: table <pass/fail> · all-⬜ <pass/fail> · concurrency <pass/no repo> · scope <…>
+Pre-flight: table <pass/fail> · started no · concurrency pass · <n> foreign dirty paths | no repo · scope <…>
 Tiers:    <tiers.sh's line, or its error>   (the floor's per-tier counts below use these models)
 Parked:   row <n> <step-id> — already parked by the author: <its Notes>
 Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
