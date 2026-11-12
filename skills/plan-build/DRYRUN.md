@@ -4,6 +4,10 @@ Read by `/plan-build` at invocation when `--dry-run` is given, before [SKILL.md]
 only then. It changes how §1's stop and §2's offer report, and it ends the run with its report: §4
 and §5 do not run. Rule numbers are `RULES.md`'s.
 
+**Nothing is written, on an unstarted plan or a started one.** Where §2 saves a `dirty-at-start` file,
+measures `disk:` or opens a Run log header, a dry run does none of it: what pre-flight found goes in the
+report.
+
 Pre-flight only on an unstarted plan; on a started one, reconcile-and-report in
 [RESUME.md](RESUME.md)'s shape instead. An unstarted plan prints:
 
