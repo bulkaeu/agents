@@ -1,11 +1,12 @@
 ---
 name: plan-add
 description: >-
-  Adds new work to a plan that already exists — resolving the plan, matching the
-  addition against the rows already there, writing atomic rows where they will
-  actually run, and reopening the closed rows the addition invalidates. It
-  authors and never executes: it ends by pointing at /plan-build, which
-  starts or resumes it. Use when the user invokes /plan-add, or asks to add a step to
+  Adds new work to a plan that already exists — resolving the plan, interviewing
+  the user first when a decision that changes what gets built is still open,
+  matching the addition against the rows already there, writing atomic rows where
+  they will actually run, and reopening the closed rows the addition invalidates.
+  It authors and never executes: it ends by pointing at /plan-build, which starts
+  or resumes the plan. Use when the user invokes /plan-add, or asks to add a step to
   a plan, fold new scope into one, or extend a plan that is already running.
 disable-model-invocation: true
 argument-hint: "<what to add> [optional plan path]"
@@ -13,10 +14,9 @@ argument-hint: "<what to add> [optional plan path]"
 
 # Plan add — new scope, into the plan that already exists
 
-Scope arrives after the plan is written. Writing the new steps is the easy part; the three things
-that go wrong are a second plan file for the same topic, a row appended at the end that should have
-run third, and a `✅` left standing over work the addition just invalidated. This skill does those
-three on purpose, in that order, and hands the plan back to an executor rather than running it.
+Scope arrives after the plan is written. Writing the new steps is the easy part; what goes wrong is a
+second plan file for the same topic, a row appended at the end that should have run third, and a `✅`
+left standing over work the addition invalidated. This skill guards those three, in that order.
 
 ## Hard rules
 
@@ -25,9 +25,9 @@ three on purpose, in that order, and hands the plan back to an executor rather t
 - **Never delete a row.** Work no longer wanted becomes `⏭️` with the reason and the id of the row
   that superseded it. The history of what was *not* done is worth as much as what was.
 - **Never invent a done-state.** A step whose proof you cannot name is under-specified: say so and
-  ask, rather than writing an observable-sounding sentence nobody can actually check.
-- **Plan edits go through `Edit`/`Write`, never Bash** (`ui-rendered-files-use-write-tool.md`). A
-  `sed -i` lands the bytes and leaves the rendered panel showing the stale table.
+  ask, rather than write an observable-sounding sentence nobody can check.
+- **Plan edits go through `Edit`/`Write`, never Bash** (`ui-rendered-files-use-write-tool.md`): a
+  `sed -i` leaves the rendered panel stale.
 - **This skill authors; it never executes.** No step runs here, however small. It ends pointing at
   `/plan-build`, which starts the plan or resumes one already under way.
 
@@ -48,12 +48,12 @@ same shape as `plan-finish`'s repo-only offer.
 
 Either way, write the new plan with its `**Ticket:**` line, `## Summary` and `## Progress` table
 (`plan-progress-section.md`, `plan-ticket-tracking.md`), **with the body sections its rows cite, per
-step 4**: at the named path in the first case, at the path the user names in the second. **The plan
-is written at the path it belongs, in plan mode too** (`plans-live-in-a-plans-repo.md`). Plan mode
-auto-permits one file, the harness's own designated session plan, so a write anywhere else may
-prompt: answer the prompt, and never divert the content into that file (`plan-mode-edit-plans.md`).
-Diverting leaves the named path empty, so the next invocation sees a missing path again and creates
-a second plan for the same topic.
+step 4**, and — when step 2's interview ran — the `## Decisions` section in the format its close
+gives: at the named path in the first case, at the path the user names in the second. **The plan is
+written at the path it belongs, in plan mode too** (`plans-live-in-a-plans-repo.md`). Plan mode
+auto-permits only the harness's designated session plan, so a write elsewhere may prompt: answer it,
+and never divert the content into that file (`plan-mode-edit-plans.md`) — the named path stays
+empty, and the next invocation creates a second plan for the same topic.
 
 Read the whole plan once resolved, and note its mtime — step 4's guard compares against it.
 
@@ -63,12 +63,17 @@ The argument is the work. With no argument, use what this conversation has alrea
 neither, ask once — one question, then proceed on the answer.
 
 **Where the addition touches code, dispatch one `Explore` subagent** on the standard tier
-([DISPATCH.md](../plan-build/DISPATCH.md) §3) to confirm that the files, commands and checks the new
-rows will name actually exist. A done-state citing a script that is not there is worse than a vague
-one: it reads as verified, and fails at the moment someone trusts it.
+([DISPATCH.md](../plan-build/DISPATCH.md) §3) to confirm the files, commands and checks the new rows
+will name exist. A done-state citing a missing script reads as verified, and fails when trusted.
 
 **A purely editorial addition skips the dispatch and says so in the report.** A silent skip is
 indistinguishable from having forgotten.
+
+**When a decision that changes what gets built is still open, run the interview before any table
+write**: read [INTERVIEW.md](INTERVIEW.md) and follow it. A new plan from a request with no agreed
+design, and an addition that contradicts what the plan already decided, are its common cases, not
+the whole list: an addition that opens such a decision without contradicting anything runs it too.
+**Otherwise skip it and say so in the report**, as the dispatch skip above does.
 
 ## 3. Match the addition against the existing rows
 
@@ -97,9 +102,8 @@ unfinished. Announcing before you change shared state is the rule (`shared-state
 announcing after it is a collision report. **Your own writes never trigger it** — the only stat that
 counts is the one taken before the first of them, and the guard is not re-evaluated between edits.
 
-**The guard holds in plan mode.** `plan-mode-edit-plans.md` frees plan edits from asking permission;
-it does not free them from another session's work in flight. What this guard waits on is a fact
-about the tree, not a permission to write.
+**The guard holds in plan mode.** `plan-mode-edit-plans.md` frees plan edits from asking permission,
+not from another session's work in flight: the guard waits on a fact about the tree.
 
 Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that done-state observable
 — a file that exists, a count, an exit code, a command's output.
@@ -163,35 +167,31 @@ dispatched reviewer, the fix loop, the closing pass, and the `### Plan review cy
 New rows change the plan a reviewer would have read. **If that file is missing, say so and stop** —
 do not reconstruct the cycle from memory.
 
-**The cycle's edits stay under step 4's guard.** `plan-review` does not ask before plan edits, and
-that settles permission, not concurrency: on a mid-run plan, a fix that touches a row another
-session may be holding is printed and waited on exactly as step 4 requires, and every other plan
-edit in the loop goes in unannounced.
+**The cycle's edits stay under step 4's guard.** `plan-review` not asking settles permission, not
+concurrency: on a mid-run plan, a fix that touches a row another session may be holding is printed
+and waited on as step 4 requires; every other plan edit in the loop goes in unannounced.
 
-**`/plan-review` cannot be invoked.** It sets `disable-model-invocation: true`, which hides it from
-the model entirely, so reading its file and applying it is the only way to get its cycle — one of
-the one-hop cross-skill reads the README's contributing section names. A later edit that "fixes"
-this into a call breaks the skill silently.
+**`/plan-review` cannot be invoked.** Its `disable-model-invocation: true` hides it from the model,
+so reading its file is the only way to get its cycle — one of the one-hop cross-skill reads the
+README's contributing section names. An edit that "fixes" this into a call breaks the skill silently.
 
 ## Examples
 
 **A verification step, mid-run.** The user wants a smoke check after the deploy row. The plan
-resolves at rung 2; the addition names a script, so one `Explore` run confirms it exists and what it
-prints. No closed row is matched. Rows 1–4 are closed, so the new row goes in as `4a`, in place,
-with the script's exit code as its done-state. Short report, then the review cycle on the whole plan.
+resolves at rung 2; one `Explore` run confirms the named script exists and what it prints. No closed
+row is matched; rows 1–4 are closed, so the new row goes in as `4a`, in place, with the script's exit
+code as its done-state. Nothing is open to decide, so no interview runs. Report, then review.
 
 **An addition that reopens two closed rows.** A schema change makes a column the migration row wrote
 as nullable required, so that row's output is now wrong, and the fixture row's done-state would now
-answer differently — two tests, two matches. Both rows go back to waiting, their original Notes
-intact plus the reason and the id of the row that caused it. One row is in flight, so the guard
-holds before the first table write: print the new rows and the two intended reopens, and wait for
-the yes before writing any of them.
+answer differently — two tests, two matches. Both rows go back to waiting, original Notes intact plus
+the reason and the causing row's id. One row is in flight, so the guard holds before the first table
+write: print the new rows and both reopens, and wait for the yes before writing any of them.
 
 **An addition that does not belong.** The user asks to fold an unrelated refactor into a plan about
 the price loop. No evidence test holds and the two share nothing but a repository. Say so, and offer
 a plan of its own — that is a different topic, not a second file for this one.
 
 **A plan that does not exist yet.** The invocation names a path with no file at it: the one signal
-this skill acts on alone. Write the plan — ticket line, Summary, a Progress table whose rows all
-sit waiting, and the body sections those rows cite — then run the same review cycle over it. Nothing
-executes; the report ends at `/plan-build`.
+this skill acts on alone. With no agreed design, the interview runs first; then write the plan, its
+`## Decisions` included, and run the same review cycle over it. The report ends at `/plan-build`.

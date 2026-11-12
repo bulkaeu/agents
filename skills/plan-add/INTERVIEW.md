@@ -6,10 +6,13 @@ the build finds the rest. The interview gets them out first, while changing one 
 
 ## When it runs
 
-**Only when a decision that changes what gets built is still open.** That is either:
+**Only when a decision that changes what gets built is still open.** Its common cases are:
 
-- a new plan from a request with no agreed design; or
+- a new plan from a request with no agreed design;
 - an addition that contradicts what the plan already decided.
+
+They are not the whole list: an addition that opens a new decision of that kind without
+contradicting anything runs the interview too.
 
 An addition whose rows could be written from the request and the repository alone runs no
 interview: say in one line that it was skipped, and go on to write the rows. An interview that fires
@@ -126,6 +129,7 @@ rows be written; the plan's earlier decisions stand unless the answer changes th
 **The user stops early.** After round one: "enough, plan it." The four decisions not yet asked
 are written as *assumed* on their recommendations, and the rows are written at once.
 
-**A small change.** "Rename the flag to `--dry-run`." If keeping the old name as an alias is the
-only real decision, it is one question in one round and three lines in `## Decisions`. If the
-plan's convention already answers it, there is nothing open, and no interview runs.
+**A small change.** "Rename the flag to `--dry-run`." Nothing in the plan is contradicted, but
+whether the old name stays as an alias changes what gets built: if nothing settles it, the interview
+runs, one question in one round and three lines in `## Decisions`. If the plan's convention already
+answers it, there is nothing open, and no interview runs.
