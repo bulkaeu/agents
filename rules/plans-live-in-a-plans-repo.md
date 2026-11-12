@@ -58,8 +58,8 @@ is overwritten. These documents outlive the work they describe, so they get a re
   dedicated plans repository only: the one the project's `AGENTS.md` names as its plans destination
   (*Per-project documentation*, below), on a branch that already has an upstream of the same name. A
   plan kept inside a code repository is pushed by that repository's rules, a directory called
-  `plans/` included. And it never covers a force-push, a blanket `git add`, a branch with no
-  upstream, or a push that a plan has parked.
+  `plans/` included. Pushing without asking never covers a force-push, a blanket `git add`, a
+  branch with no upstream, or a push that a plan has parked.
 - **Do not keep a flat local working copy that syncs into the remote's per-project prefix.** It
   looks attractive, because existing references to plan paths keep working, but it costs more than
   it saves: the local copy has no remote of its own, so its commits sit unpublished until someone
