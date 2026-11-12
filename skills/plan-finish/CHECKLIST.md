@@ -79,7 +79,7 @@ Unpushed commits, without erroring on a branch that has no upstream:
 
 ```bash
 if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
-  git log --oneline '@{u}..HEAD'              # the push gate (SKILL.md §3)
+  tip=$(git rev-parse HEAD); git log --oneline '@{u}'..$tip   # the push gate (SKILL.md §3) pushes $tip
 elif git rev-parse origin/HEAD >/dev/null 2>&1; then
   git log --oneline origin/HEAD..
 else
@@ -145,17 +145,17 @@ default, the plan's repository. The run directory (`row-snapshot.sh dir` prints 
 so cited review files resolve. **Each MISSING is a question, not a verdict**: a path a row deleted
 or moved is meant to be absent. A claimed sha or path really absent is drift.
 
-**Re-read the plan from disk before auditing it.** A copy carried in context from earlier in the
-session may predate edits made since: you would report a defect already fixed, or miss one introduced.
+**Re-read the plan from disk before auditing it**: a copy from earlier in context can miss later edits.
 
 ### The ticket is a doc too
 
-If the plan carries a `**Ticket:**` line with an identifier, read that issue and compare:
+If the plan carries a `**Ticket:**` line with an identifier, read that issue from the tracker in the
+same turn as the report — never an earlier read, the conversation or memory, which go stale — and compare:
 
 | Plan says | Ticket says | Finding |
 | --- | --- | --- |
 | every row `✅` | still open / In Progress | Drift — the work is done and the tracker does not know |
-| rows still `⬜`/`🟡` | closed | Drift the other way — closed early, or the plan is stale |
+| rows still `⬜`/`🟡` | closed | Drift the other way — closed early, or the plan is stale. A merged pull request closes its ticket by itself: say so when it did |
 | plan has a `## Summary` — **any row state** | description no longer matches the Summary | Drift — the plan's story moved and the tracker still tells the old one; mid-flight drift is the worst kind, since it stands for the rest of the run. **Report-only**: propose the description update; applying it follows `plan-ticket-tracking.md`'s sync line |
 | `**Ticket:** none` | — | Nothing to check |
 | no `**Ticket:**` line | — | Predates the rule. Note it; do not retro-file |

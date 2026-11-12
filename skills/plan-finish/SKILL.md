@@ -86,7 +86,7 @@ plan that spanned three repos needs three audits, not one.
 | 2 | Checks | Do the checks applicable to the actual change pass, by name? Full required suite for implementation; documentation checks for text-only work. |
 | 3 | Verification | Does each of the plan's `## Verification` items pass — by its recorded result, or run now? |
 | 4 | Commits | Is anything uncommitted, unpushed, or stashed? |
-| 5 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Which Progress rows are closed, parked, open — **and does every commit have a row?** Does the plan's `**Ticket:**` still match the plan's state? |
+| 5 | Docs | Do README / AGENTS.md / CLAUDE.md / `docs/**` still describe reality? Which Progress rows are closed, parked, open — **and does every commit have a row?** Does the plan's `**Ticket:**` still match the plan's state? Read the ticket's state from the tracker in the same turn as the report — never carried from an earlier read, the conversation or memory — and say when a merged pull request closed it by itself |
 | 6 | Cleanup | Merged branches, stale worktrees, `*.orig`/`*.rej`, scratch files the plan created? |
 
 **Area 2 follows the [global scope rule](../../claude/CLAUDE.md#finishing-a-plan):** text-only work gets
@@ -117,9 +117,9 @@ Work through the non-green areas in this order, verifying after each:
    log `commit: <short sha> <subject>` in the Run log. Push only to an **existing upstream** of the same
    name (`plan-shared/STOPS.md`); none is a new destination: stop, offer the exact `git push -u` line.
    Push the listed sha, never a moving `HEAD`: take `tip=$(git rev-parse HEAD)`, print
-   `git log --oneline '@{u}'..$tip`, push `git push origin $tip:<branch>`; a later commit is not carried.
-   A commit in `@{u}..HEAD` neither so logged nor named by the user this session stops the push with the
-   list, and a yes covers only the shas shown. Repo-only mode always lists and asks.
+   `git log --oneline '@{u}'..$tip` — `@{u}..HEAD` frozen at `$tip` — push `git push origin $tip:<branch>`;
+   a later commit is not carried. A listed commit neither so logged nor named by the user this session
+   stops the push with the list, and a yes covers only the shas shown. Repo-only mode always lists and asks.
 
    **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.
 4. **Cleanup.** Delete what this plan created; leave anything else alone. Worktrees come out before
@@ -133,7 +133,7 @@ Work through the non-green areas in this order, verifying after each:
    step is the **checkpoint** that confirms nothing was missed, not the moment to write six rows.
    Notes go in with the icon, `Edit`/`Write` and never Bash, per `ui-rendered-files-use-write-tool.md`.
 
-If a stop-list item blocks a step, do everything else first, then raise it, never leaving fixes undone.
+If a stop-list item blocks a step, do the rest first, then raise it, never leaving the fixable ones undone.
 
 ## 4. Report what you did
 
