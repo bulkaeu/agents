@@ -88,8 +88,8 @@ Start at the **first open row in table order** — `🟡` or `⬜`. Usually that
 run left, but a `✅` that reconciliation demoted to `⬜` comes before it and runs first; starting at
 the `🟡` would skip it for good. Then the loop in `EXECUTION.md`, unchanged: `🟡` → work → verify →
 `✅` with Notes, parking what `RULES.md` says to park, final review, close-out and one question at
-the end — unless a hand-off row ends the run first. Record a run base only if the Run log has none
-(`DISPATCH.md`).
+the end (`CLOSEOUT.md`) — unless a hand-off row ends the run first. Record a run base only if the
+Run log has none (`DISPATCH.md`).
 
 **Partial work on a `🟡` code row is kept, not discarded.** A fresh implementer gets a brief that
 names the partial files as its starting point and finishes the row; its diff, from the recorded base

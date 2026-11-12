@@ -221,7 +221,7 @@ and restart Codex.
   exceptions are named here rather than left for a contributor to rediscover and mistake for drift,
   and each is a single hop into a sibling directory, never a chain. The `plan-*` skills read
   `plan-shared/`, where the conventions, the stop-list and the claims script each live once, and
-  they read `plan-build`'s contract files — `RULES.md`, `EXECUTION.md`, `DISPATCH.md`,
+  they read `plan-build`'s contract files — `RULES.md`, `EXECUTION.md`, `CLOSEOUT.md`, `DISPATCH.md`,
   `scripts/row-snapshot.sh` and `scripts/check-run.sh` — because the execution contract, the dispatch tiers and the run
   directory are written once for the whole family instead of copied into every skill that runs a
   plan. The close-outs reach sideways too: `plan-build`'s reads `plan-finish`'s files, and

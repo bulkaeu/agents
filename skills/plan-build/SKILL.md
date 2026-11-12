@@ -21,8 +21,8 @@ stopping only where stopping is the correct answer. A started plan (§2) is reco
 [RESUME.md](RESUME.md).
 
 Read [RULES.md](RULES.md) and [the stop-list](../plan-shared/STOPS.md) now — together they are the
-safety surface, and this file assumes both. The loop and the close-out are
-[EXECUTION.md](EXECUTION.md); how a code row is built and reviewed is [DISPATCH.md](DISPATCH.md),
+safety surface, and this file assumes both. The loop is [EXECUTION.md](EXECUTION.md), the close-out
+[CLOSEOUT.md](CLOSEOUT.md); how a code row is built and reviewed is [DISPATCH.md](DISPATCH.md),
 with its two prompts beside it; shared terms and the plan ladder are
 [CONVENTIONS.md](../plan-shared/CONVENTIONS.md).
 
@@ -160,7 +160,7 @@ verify → `✅` with Notes, one row at a time, parking what rule 3 says to park
 
 ## 5. Review, close out, ask, report
 
-The final review, close-out, the single question and the report are all in `EXECUTION.md` —
+The final review, close-out, the single question and the report are all in [CLOSEOUT.md](CLOSEOUT.md) —
 including the order they happen in and the fact that `plan-finish`'s own closing ask is folded into
 the one question.
 
