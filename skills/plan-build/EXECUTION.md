@@ -32,6 +32,14 @@ Rows run in **table order**. For each:
 A row that hits the stop-list becomes `⛔` with the blocker in Notes, and rows depending on it get
 `⛔` *"depends on N"* — then the loop **continues** with the rest (rule 2), bar one: no usable report.
 
+**A `needs: screen` row is deferred while any other runnable row remains**: it stays `⬜`, the Run log
+gets `deferred: <row id> — needs: screen`, and the loop goes on with every row that does not depend on
+it. When only deferred rows and their dependents are left, the run asks once: the rows by id, and that
+they need the screen until they finish. That ask is `STOPS.md`'s stop for a step the plan marks as
+waiting on the user, batched so the user is interrupted once. On yes, they run back to back in table
+order, then their dependents. On no, or no answer, they park with *needs: screen* as the blocker,
+their dependents with *depends on N*, and the run closes out.
+
 **A dispatched row acts only on its own paths**: the union of **Changed** in every `report-<n>.md` it has, all
 rounds, symlinks resolved as in `paths-<n>.txt` (`/tmp` is `/private/tmp` on macOS). A **foreign path**, in
 the latest `paths-<n>.txt` but not own, is never restored, removed or committed: it **stops the run** — print

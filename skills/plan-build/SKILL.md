@@ -30,7 +30,7 @@ Read each file when first needed, not before: an early read spends context the r
 
 ## Standing orders
 
-After any context summary, re-read these, `RULES.md`, the table, the Run log and any late file loaded.
+After a context summary, re-read these, `RULES.md`, the Progress table, the Run log, any late file.
 
 1. Make the table true before running anything, and name every correction.
 2. The table and the Run log are the ledger. Never re-dispatch a `✅` row.
@@ -111,6 +111,7 @@ Pre-flight only on an unstarted plan; on a started one, reconcile-and-report in
 - the ***will park*** list — rows whose step text carries the explicit `BLOCKED` marker, printed on
   both verdicts including a refusal — and, before it, any author-parked `⛔` rows as *already
   parked*;
+- the ***will defer*** list — rows carrying `needs: screen` (`EXECUTION.md`, *The loop*);
 - the **dispatch count** — the rows `EXECUTION.md` would classify as dispatch, by id, and the
   subagent floor that implies (*Cost*, below), so the cost is known before anything starts,
   and the floor's count per model tier from `DISPATCH.md` §3 — each row's implementer and reviewer
@@ -142,6 +143,7 @@ Tiers:    <tiers.sh's line, or its error>   (the floor's per-tier counts below u
 Parked:   row <n> <step-id> — already parked by the author: <its Notes>
 Will park: row <n> <step-id> — <the BLOCKED marker, quoted>
            (dependents are not listed; they park at execution under rule 2)
+Will defer: row <n> <step-id> — needs: screen
 Dispatch: <k> rows (<ids>) → at least <2k + 1> subagents · standard <a> · strong <b> · strongest <c>
 A clean dry-run is not clearance. Nothing written.
 ```

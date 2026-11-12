@@ -61,6 +61,7 @@ meaning. Write them exactly:
 | --- | --- |
 | `BLOCKED — wait for user: <what>` | A step that needs the user's action or explicit yes — an apply, a cutover, a run only they can do. `BLOCKED — wait for user confirmation: <what>` is the same marker |
 | `hand-off row` | A step that prints work for the user to do outside the run; the run ends there and resumes with `/plan-build <plan path>` |
+| `needs: screen` | A step that needs your display or input devices until it finishes — a windowed capture, a GUI the run drives, a playtest. The run defers it, works every row that does not depend on it, then asks you once for the screen |
 | `(⏭️ if <condition>)` | A skip you allow in advance — "fix the findings (`⏭️` if the check was clean)" |
 
 **Closed, parked, open.** `✅` and `⏭️` rows are *closed*; `⛔` rows are *parked*; `⬜` and `🟡` are

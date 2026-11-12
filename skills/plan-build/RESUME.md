@@ -65,7 +65,8 @@ ticked, not parked. The marker gates the action, not the bookkeeping after it.
 
 Reconcile and report, **write nothing**. Corrections are *proposed* (`row 3: ✅ → ⬜, claims x, x
 absent`), never applied. Then the *will park* list — rows carrying the explicit `BLOCKED` marker,
-dependents excluded — after the reconciliation report. A clean dry-run is not clearance.
+dependents excluded — after the reconciliation report, and the *will defer* list, rows carrying
+`needs: screen`. A clean dry-run is not clearance.
 
 **`--dry-run` ends here. It does not execute — Resume does not run.** The section that follows is
 the real-run path; a dry run stops at this report and never enters the loop.
@@ -78,6 +79,7 @@ Scope:    <repos in scope, or "no repo">
 Reconcile: <N> correction(s) proposed, 0 applied
   row <n>: <icon> → <icon> — <what the table claims>; <what is on disk>
 Will park: row <n> <step-id> — <the marker, quoted>
+Will defer: row <n> <step-id> — needs: screen
 Resume at: row <n>
 Nothing written.
 ```

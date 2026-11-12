@@ -72,6 +72,7 @@ Markers live in the Step cell's text. The skills parse exactly these:
 | `hand-off row` | The step gives the user work to do outside the run, then the run ends. A sanctioned mid-table halt, as are `STOPS.md`'s safety halts |
 | `(⏭️ if …)` | A conditional skip the author allowed in advance; the Notes must say which condition held |
 | `review: deep` | The row's reviewer runs on the strongest model tier (`DISPATCH.md` §3). On a row that also carries `review: default`, `review: deep` wins: an author asking for depth outranks an exemption. Its reviews are logged per `EXECUTION.md`, *The Run log* |
+| `needs: screen` | The step needs the user's display or input devices until it finishes — a windowed capture, a GUI the run drives, a playtest. `plan-build` defers it while other rows can run, then asks once for every such row (`EXECUTION.md`, *The loop*); a deferred row stays waiting |
 | `review: default` | The row's reviewer keeps its default tier and effort even when the controller would judge the step risky. It cancels only that risk step-up: fix round 3 and a stalled fix loop still step the reviewer up, and a risky row's implementer still steps up. `review: deep` on the same row wins. Its reviews are logged per `EXECUTION.md`, *The Run log* |
 
 **A pending ticket is author-parked.** `plan-ticket-tracking.md`'s `**Ticket:** pending` puts a `⛔`
@@ -120,8 +121,7 @@ A defect that breaks a done-state, a rule the brief or plan quotes, or the main 
 least Medium, however small the fix.
 When unsure between Low and Medium, choose Medium and say what would make it Low.
 
-What each skill does with a severity — loop, fix, defer — is that skill's call, stated in its own
-file.
+What each skill does with a severity — loop, fix, defer — is that skill's call, in its own file.
 
 ## Model tiers
 

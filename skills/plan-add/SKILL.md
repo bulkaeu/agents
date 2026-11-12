@@ -118,7 +118,8 @@ Rows are atomic per `plan-atomic-todos.md`: one verb, one done-state, and that d
 - **Renumber only while the plan has not started** (hard rule 2's test); once it has, suffix the id
   — `3a`, `3b` — so references keep pointing at the same steps ([MATCHING.md](MATCHING.md) §6).
 - **Gated work carries the `BLOCKED — wait for user:` marker** (`CONVENTIONS.md`, *Row markers*), on
-  a row of its own. A gate bundled into a step that also does work cannot be parked.
+  a row of its own; a row needing the user's screen until it finishes carries `needs: screen`. A
+  gate bundled into a step that also does work cannot be parked.
 - **Notes stay empty on a new waiting row.** The Notes column records results, never intentions.
 
 ## 5. Reopen what the addition invalidates

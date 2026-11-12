@@ -19,7 +19,7 @@ exact command, **and the safety halts `STOPS.md` marks *Halts the run*** (a fore
 report, a base not an ancestor of `HEAD`), which stop the run at once and wait for the user.
 
 The pre-flight offer to derive a Progress table sits outside this budget — it happens before
-execution starts.
+execution starts — and so does the one ask for deferred `needs: screen` rows (`EXECUTION.md`).
 
 ## 2. Park, don't halt
 
