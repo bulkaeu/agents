@@ -234,7 +234,8 @@ and restart Codex.
   `disable-model-invocation: true`.
 - **Run `bash check-plan-skills.sh` after touching any `plan-*` skill, `plan-shared/`, or the plan
   rules.** It checks line counts, frontmatter, that the ladder and stop-list live in one place,
-  links, time-sensitive wording, the severity scale, `RULES.md`'s pinned headings, the dispatch
+  links, time-sensitive wording, the severity scale, that no skill file holds an iconed Progress row,
+  that `CONVENTIONS.md`'s legend matches the rule's, `RULES.md`'s pinned headings, the dispatch
   prompts' status tokens and placeholders, the standing orders, each skill's README row and Codex
   gate file, that the scripts parse and the model tiers resolve, that key safety wording is still
   present, that no non-table line passes 110 characters, and that the files `plan-build` reads at

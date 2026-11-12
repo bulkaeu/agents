@@ -117,8 +117,8 @@ Work through the non-green areas in this order, verifying after each:
    Then **a dedicated plans repository is pushed with a plain `git push`: no listing, no question**
    (`plans-live-in-a-plans-repo.md`). Elsewhere push the listed sha, pasted in (`@{u}..HEAD` frozen):
    `git rev-parse HEAD`, `git log --oneline '@{u}'..<sha>`, `git push <remote> <sha>:<branch>` to `@{u}`'s
-   remote. There a listed commit neither logged, named by the user, nor the plan's own (only the plan and its
-   history file) stops the push; a yes covers only listed shas; repo-only mode always asks there (`STOPS.md`).
+   remote. There a listed commit neither logged, named by the user, nor the plan's own by `STOPS.md`'s test
+   stops the push; a yes covers only listed shas; repo-only mode always asks there.
 
    **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.
 4. **Cleanup.** Apply [CLEANUP.md](CLEANUP.md): measure what the plan left, with sizes; delete, ask once

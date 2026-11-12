@@ -100,10 +100,10 @@ what the closing question is for — but never with rows open, except behind a h
 - **Auditable Note** — carries at least one thing you could go and check: a path, count, sha,
   version, size or timing. `Wrote out/alpha.txt, 6 B` is auditable; `Wrote the file` is not.
 - **Run log** — the optional `## Run log` after the body, which survives compaction by being in the file.
-  Finished runs' lines may move to `<plan stem>-history.md` (`plan-add` says which never do); the last stays.
-- **Repository scope** — every repo the plan or its history file touches: the paths they name, the cwd,
-  and any worktree in `git worktree list` that a row works in or a `run base:`/`created:` line names (path,
-  folder or branch); a mention is not enough. **No repository in scope is a state, not an error.**
+  Finished runs' lines may move to `<plan stem>-history.md` (`plan-add` says which never do).
+- **Repository scope** — every repo the plan or its history file touches: the plan's own repo, the paths
+  they name, the cwd, and any worktree in `git worktree list` that a row works in or a `run base:`/`created:`
+  line names (path, folder or branch); a mention is not enough. **No repo in scope is a state, not an error.**
 
 ## Severity scale
 

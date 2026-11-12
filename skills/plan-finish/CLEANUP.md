@@ -7,8 +7,8 @@ reports the clean-up done without measuring it leaves gigabytes on disk that onl
 So every item is measured, every deletion is sized, and whatever needs a yes is asked once.
 
 **What a run leaves to read.** `plan-build` puts temporary files under `<run directory>/scratch/`,
-writes a Run log line `created: <path or process> — <what>` for anything else it makes outside the
-repositories that outlives its row, and records `disk: <N> GiB free` in the Run log header. A plan
+writes a Run log line `created: <path or process> — <what>` for anything else that outlives its row
+outside the repositories and that directory, and records `disk: <N> GiB free` in the Run log header. A plan
 run before those existed has none of them: measure what can still be found — the run directory, the
 session scratchpad, worktrees, branches, `*.orig`/`*.rej` — and report the baseline as
 *not recorded*. Never guess what an unrecorded path was for.
@@ -69,8 +69,7 @@ log_lines disk | head -1   # the earliest run's baseline, for step 5
 
 `du -sh` each path that exists; a missing one is reported *already gone*. **A `created:` path inside
 the run directory is counted once, as part of the run directory**, never a second time as its own
-item: the Run log rule covers anything outside the repositories, which includes the run directory's
-own files.
+item. The Run log rule asks for no such line; older runs wrote some.
 
 **Worktrees this plan made** — a `created:` line, or a worktree on a branch the plan made:
 
