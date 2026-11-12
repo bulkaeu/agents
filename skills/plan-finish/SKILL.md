@@ -111,14 +111,15 @@ Work through the non-green areas in this order, verifying after each:
 1. **Red checks first.** A commit on top of a failing suite is worse than no commit. Fix an obvious
    cause (one *dirty at start* is reported instead), re-run that check, report the real new result.
 2. **Docs.** Fix the drift you can verify. Re-run `format:check` afterwards if it globs markdown.
-3. **Commit**, then **push**. The commit message describes *the change*, not the plan step — `git log` is
-   read by people who never saw the plan, so "F7 commit-push-f" tells them nothing. When the plan's
-   `**Ticket:**` line names an identifier, every commit starts with it — `ABC-123: <what changed>`, per
-   `plan-ticket-tracking.md`; no ticket, no prefix, never an invented one. Right after each commit, log
-   `commit: <short sha> <subject>` in the Run log. Push only to an **existing upstream** of the same
+3. **Commit**, then **push**. The message describes *the change*, not the plan step: `git log` readers
+   never saw the plan. A plan's `**Ticket:**` identifier starts every commit — `ABC-123: <what changed>`,
+   per `plan-ticket-tracking.md`; no ticket, no prefix, never an invented one. Right after each commit,
+   log `commit: <short sha> <subject>` in the Run log. Push only to an **existing upstream** of the same
    name (`plan-shared/STOPS.md`); none is a new destination: stop, offer the exact `git push -u` line.
-   Before `git push`, print `git log --oneline @{u}..HEAD`; a commit not so logged nor named by the
-   user this session stops the push with the list. Repo-only mode always lists and asks.
+   Push the listed sha, never a moving `HEAD`: take `tip=$(git rev-parse HEAD)`, print
+   `git log --oneline '@{u}'..$tip`, push `git push origin $tip:<branch>`; a later commit is not carried.
+   A commit in `@{u}..HEAD` neither so logged nor named by the user this session stops the push with the
+   list, and a yes covers only the shas shown. Repo-only mode always lists and asks.
 
    **Say what was left.** A dirty path nothing claims is reported *not committed — unclaimed*, not a stop.
 4. **Cleanup.** Delete what this plan created; leave anything else alone. Worktrees come out before
@@ -132,8 +133,7 @@ Work through the non-green areas in this order, verifying after each:
    step is the **checkpoint** that confirms nothing was missed, not the moment to write six rows.
    Notes go in with the icon, `Edit`/`Write` and never Bash, per `ui-rendered-files-use-write-tool.md`.
 
-If something on the stop-list blocks a step, do everything else first, then raise it. A blocked item
-never justifies leaving the fixable ones undone.
+If a stop-list item blocks a step, do everything else first, then raise it, never leaving fixes undone.
 
 ## 4. Report what you did
 

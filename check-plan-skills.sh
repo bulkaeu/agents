@@ -242,6 +242,7 @@ checks=$((checks + 1))
 for pair in 'plan-build/EXECUTION.md|foreign path' \
   'plan-finish/SKILL.md|@{u}..HEAD' \
   "plan-shared/STOPS.md|upstream branch's name equals the local branch's" \
+  'plan-shared/STOPS.md|$tip:<branch>' \
   'plan-review/SKILL.md|print the diff and wait'; do
   f="skills/${pair%%|*}"; phrase="${pair#*|}"
   grep -qF -- "$phrase" "$f" 2>/dev/null || fail K18 "$f:1" "missing phrase '$phrase'"
