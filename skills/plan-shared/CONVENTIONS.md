@@ -1,6 +1,6 @@
 # Plan-skill conventions
 
-Shared by all seven plan skills. Each `SKILL.md` cites this file instead of restating it, so a
+Shared by all six plan skills. Each `SKILL.md` cites this file instead of restating it, so a
 change here lands everywhere at once. The rules a plan *author* reads — `plan-progress-section.md`,
 `plan-atomic-todos.md`, `plan-ticket-tracking.md` — own the formats; this file owns how the skills
 read them.
