@@ -75,3 +75,15 @@ internally uses AES-256-GCM
 # model ids named in skills/plan-shared/CONVENTIONS.md and README.md (OpenCode tiers)
 muse-spark-1.3-contributor#
 anthropic/claude-opus-5-5#
+# model ids in vendor/ponytail/hooks/ponytail-band-import.js (upstream price table, v5.3.3)
+'claude-fable-5-1':
+'claude-fable-5':
+'claude-opus-5-5':
+'claude-opus-5':
+'claude-opus-4-8':
+'claude-opus-4-7':
+'claude-opus-4-6':
+'claude-opus-4-5':
+'claude-haiku-5-5':
+'claude-haiku-4-5':
+modelId(model) === 'claude-haiku-5-5'
